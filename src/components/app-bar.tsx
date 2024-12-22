@@ -37,8 +37,8 @@ export function AppBar() {
 
   // Format the date in the user's locale
   useEffect(() => {
-    if (typeof navigator !== 'undefined') {
-      const formatted = new Intl.DateTimeFormat(navigator.language, {
+    if (isLoggedIn) {
+      const formattedDate = new Intl.DateTimeFormat('en-US', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
@@ -48,9 +48,9 @@ export function AppBar() {
         second: '2-digit',
         hour12: true,
       }).format(currentDate);
-      setFormattedDate(formatted);
+      setFormattedDate(formattedDate);
     }
-  }, [currentDate]);
+  }, [currentDate, isLoggedIn]);
 
   if (!isLoggedIn) {
     return null;

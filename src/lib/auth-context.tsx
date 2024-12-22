@@ -8,6 +8,7 @@ import {
   useEffect,
 } from 'react';
 import Cookies from 'js-cookie';
+import { useRouter } from 'next/navigation';
 
 type User = {
   username: string;
@@ -27,6 +28,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
+  const router = useRouter(); 
+
   // Load user data from cookies on initial render
   useEffect(() => {
     const userFromCookie = Cookies.get('user');
@@ -42,6 +45,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Store user data in cookie (expires in 7 days)
     // Should include token
     Cookies.set('user', JSON.stringify(userData), { expires: 7 });
+
+    //redirect to /dashboard
+    router.push('/dashboard');
+
     setUser(userData);
     setIsLoggedIn(true);
   };
