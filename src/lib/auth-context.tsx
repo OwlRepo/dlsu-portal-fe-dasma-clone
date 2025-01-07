@@ -9,10 +9,12 @@ import {
 } from 'react';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
 
 type User = {
   username: string;
-  password: string;
+  // password: string;
+  token: string;
 };
 
 type AuthContextType = {
@@ -28,7 +30,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
-  const router = useRouter(); 
+  const router = useRouter();
+
+  const api = axios.create({
+    baseURL: process.env.NEXT_PUBLIC_API_URL, // Use your API base URL from environment variables
+    timeout: 10000, // Optional: Set a timeout for requests
+  });
 
   // Load user data from cookies on initial render
   useEffect(() => {
@@ -40,17 +47,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const login = (username: string, password: string) => {
-    const userData = { username, password };
+  const login = async (username: string, password: string) => {
     // Store user data in cookie (expires in 7 days)
     // Should include token
-    Cookies.set('user', JSON.stringify(userData), { expires: 7 });
 
-    //redirect to /dashboard
-    router.push('/dashboard');
+    try {
+      const response = await api.post('/auth/super-admin', {
+        username,
+        password,
+      });
 
-    setUser(userData);
-    setIsLoggedIn(true);
+      if (response) {
+        const userData = { username, token: response.data.access_token };
+        console.log(userData);
+        Cookies.set('user', JSON.stringify(userData), { expires: 7 });
+        setUser(userData);
+        router.push('/dashboard');
+        setIsLoggedIn(true);
+      }
+
+      return response.data; // Return the response data (e.g., user info, tokens)
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data.message || 'Login failed');
+      } else {
+        throw new Error('Network error');
+      }
+    }
+
+    // Cookies.set('user', JSON.stringify(userData), { expires: 7 });
+
+    // //redirect to /dashboard
+    // router.push('/dashboard');
+
+    // setUser(userData);
+    // setIsLoggedIn(true);
   };
 
   const logout = () => {
