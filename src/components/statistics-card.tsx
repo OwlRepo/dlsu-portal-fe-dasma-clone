@@ -9,10 +9,12 @@ interface StatisticsCardProps {
 
 export function StatisticsCard({ icon, count, label }: StatisticsCardProps) {
   return (
-    <div className="rounded-lg bg-white p-6 shadow-sm">
-      <div className="mb-4">{icon}</div>
+    <div className="flex flex-col justify-between rounded-lg bg-white p-6 shadow-md">
       <div className="text-3xl font-bold">{count}</div>
-      <div className="mt-1 text-sm text-muted-foreground">{label}</div>
+      <div>
+        <div>{icon}</div>
+        <div className="mt-1 text-sm text-muted-foreground">{label}</div>
+      </div>
     </div>
   );
 }

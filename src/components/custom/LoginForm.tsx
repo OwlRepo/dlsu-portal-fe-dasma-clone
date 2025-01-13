@@ -2,6 +2,14 @@
 import React, { useState } from 'react';
 import { Logo } from '../logo';
 import { useAuth } from '@/lib/auth-context';
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from '../ui/select';
+// import { Shield, UserCog, Users } from 'lucide-react';
 
 const LoginForm = () => {
   const [username, setUsername] = useState('');
@@ -38,6 +46,36 @@ const LoginForm = () => {
           </p>
           {error && <p className="text-red-500">{error}</p>}
           <form className="space-y-4 mt-4" onSubmit={handleSubmit}>
+            {/* <div className="space-y-2">
+              <label htmlFor="role" className="text-sm font-medium">
+                Role
+              </label>
+              <Select value={role} onValueChange={setRole}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select your role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="employee">
+                    <div className="flex items-center">
+                      <Users className="w-4 h-4 mr-2" />
+                      Employee
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="admin">
+                    <div className="flex items-center">
+                      <Shield className="w-4 h-4 mr-2" />
+                      Admin
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="super-admin">
+                    <div className="flex items-center">
+                      <UserCog className="w-4 h-4 mr-2" />
+                      Super Admin
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div> */}
             <div>
               <label
                 htmlFor="username"

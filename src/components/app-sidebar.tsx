@@ -66,7 +66,7 @@ export function AppSidebar() {
                 className={cn(
                   'h-10 justify-start px-4',
                   pathname === item.href
-                    ? 'bg-[#E8F5E9] text-[#00573F]'
+                    ? ' text-[#00573F]'
                     : 'text-gray-600 hover:bg-gray-100',
                 )}
               >

@@ -3,7 +3,7 @@ import { mockData } from '@/lib/mock-data';
 
 export function LiveDataTable() {
   return (
-    <div className="rounded-lg bg-white p-6 shadow-sm">
+    <div className="rounded-lg bg-white p-6 shadow-md">
       <div className="mb-4">
         <div className="flex items-center justify-between">
           <div>

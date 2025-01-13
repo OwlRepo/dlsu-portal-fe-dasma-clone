@@ -58,9 +58,11 @@ export function AppBar() {
 
   return (
     <header className="sticky top-0 z-10 bg-white border-b">
-      <div className="px-6 py-2">
-        <h1 className="text-xl font-semibold">{getTitle()}</h1>
-        <p className="text-sm text-muted-foreground">As of {formattedDate}</p>
+      <div className="flex flex-col justify-between">
+        <div className="px-6 py-2">
+          <h1 className="text-xl font-semibold">{getTitle()}</h1>
+          <p className="text-sm text-muted-foreground">As of {formattedDate}</p>
+        </div>
       </div>
     </header>
   );

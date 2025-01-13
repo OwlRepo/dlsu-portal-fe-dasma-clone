@@ -12,26 +12,26 @@ export function ClientDashboard() {
 
       <div className="mb-6 grid grid-cols-12 gap-4">
         {/* Stats and Gate Access in same row */}
-        <div className="col-span-8 grid grid-cols-3 gap-4">
+        <div className="col-span-6 grid grid-cols-3 gap-4">
           <StatisticsCard
-            icon={<Building2 className="h-6 w-6 text-[#00C853]" />}
+            icon={<Building2 className="h-10 w-10 text-[#00bc65]" />}
             count={15482}
             label="On Premise"
           />
           <StatisticsCard
-            icon={<ArrowRightLeft className="h-6 w-6 text-[#00C853]" />}
+            icon={<ArrowRightLeft className="h-10 w-10 text-[#4fd1c5]" />}
             count={20000}
             label="Entry"
           />
           <StatisticsCard
-            icon={<LogOut className="h-6 w-6 text-[#00C853]" />}
+            icon={<LogOut className="h-10 w-10 text-[#ee5f62]" />}
             count={4518}
             label="Exit"
           />
         </div>
 
         {/* Gate Access Stats */}
-        <div className="col-span-4 rounded-lg bg-white p-6 shadow-sm">
+        <div className="col-span-6 rounded-lg p-6">
           <h2 className="mb-4 text-lg font-medium">Gate Access Stats</h2>
           <GateAccessStats />
         </div>
