@@ -2,35 +2,37 @@
 import React, { useState } from 'react';
 import { Logo } from '../logo';
 import { useAuth } from '@/lib/auth-context';
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from '../ui/select';
-// import { Shield, UserCog, Users } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
+import { Input } from '../ui/input';
 
 const LoginForm = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [role, setRole] = useState('');
 
   const { login } = useAuth();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic here
-    if (!username || !password) {
-      setError('Please enter both username and password.');
+
+    // Check if username, password, and role are provided
+    if (!username || !password || !role) {
+      setError('Please enter username, password, and select a role.');
       return;
     }
 
-    login(username, password);
-
-    console.log('test');
+    login(username, password, role);
     setError('');
   };
+
+  const isButtonDisabled = !username || !password || !role;
 
   return (
     <div className="flex min-h-screen">
@@ -46,36 +48,27 @@ const LoginForm = () => {
           </p>
           {error && <p className="text-red-500">{error}</p>}
           <form className="space-y-4 mt-4" onSubmit={handleSubmit}>
-            {/* <div className="space-y-2">
+            <div className="space-y-2">
               <label htmlFor="role" className="text-sm font-medium">
                 Role
               </label>
-              <Select value={role} onValueChange={setRole}>
+              <Select value={role} onValueChange={setRole} required>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select your role" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="employee">
-                    <div className="flex items-center">
-                      <Users className="w-4 h-4 mr-2" />
-                      Employee
-                    </div>
+                    <div className="flex items-center">Employee</div>
                   </SelectItem>
                   <SelectItem value="admin">
-                    <div className="flex items-center">
-                      <Shield className="w-4 h-4 mr-2" />
-                      Admin
-                    </div>
+                    <div className="flex items-center">Admin</div>
                   </SelectItem>
                   <SelectItem value="super-admin">
-                    <div className="flex items-center">
-                      <UserCog className="w-4 h-4 mr-2" />
-                      Super Admin
-                    </div>
+                    <div className="flex items-center">Super Admin</div>
                   </SelectItem>
                 </SelectContent>
               </Select>
-            </div> */}
+            </div>
             <div>
               <label
                 htmlFor="username"
@@ -83,7 +76,7 @@ const LoginForm = () => {
               >
                 Employee ID
               </label>
-              <input
+              <Input
                 id="username"
                 type="text"
                 value={username}
@@ -99,7 +92,7 @@ const LoginForm = () => {
               >
                 Password
               </label>
-              <input
+              <Input
                 id="password"
                 type="password"
                 value={password}
@@ -111,6 +104,7 @@ const LoginForm = () => {
             <button
               type="submit"
               className="w-full bg-[#00bc65] text-white py-2 rounded-md"
+              disabled={isButtonDisabled}
             >
               Sign In
             </button>

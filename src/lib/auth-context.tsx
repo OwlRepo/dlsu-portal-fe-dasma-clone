@@ -20,7 +20,7 @@ type User = {
 type AuthContextType = {
   isLoggedIn: boolean;
   user: User | null;
-  login: (username: string, email: string) => void;
+  login: (username: string, email: string, role: string) => void;
   logout: () => void;
 };
 
@@ -47,19 +47,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const login = async (username: string, password: string) => {
+  const login = async (username: string, password: string, role: string) => {
     // Store user data in cookie (expires in 7 days)
     // Should include token
 
     try {
-      const response = await api.post('/auth/super-admin', {
+      const response = await api.post(`/auth/${role}`, {
         username,
         password,
       });
 
       if (response) {
-        const userData = { username, token: response.data.access_token };
-        console.log(userData);
+        const userData = { username, role, token: response.data.access_token };
         Cookies.set('user', JSON.stringify(userData), { expires: 7 });
         setUser(userData);
         router.push('/dashboard');
@@ -89,6 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     Cookies.remove('user');
     setUser(null);
     setIsLoggedIn(false);
+    router.push('/');
   };
 
   return (

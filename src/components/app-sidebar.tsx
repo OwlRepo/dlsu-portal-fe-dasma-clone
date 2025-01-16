@@ -48,7 +48,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar className="border-r">
-      <SidebarHeader className="border-b px-4 py-4">
+      <SidebarHeader className="border-b px-4 py-4 mb-4">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded bg-[#00573F] text-white">
             <LayoutDashboard className="h-5 w-5" />
@@ -62,11 +62,10 @@ export function AppSidebar() {
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
                 asChild
-                isActive={pathname === item.href}
                 className={cn(
-                  'h-10 justify-start px-4',
+                  'h-10 justify-start px-4 w-52 mx-auto',
                   pathname === item.href
-                    ? ' text-[#00573F]'
+                    ? 'text-[#00bc65] bg-[#ddf3ea] font-bold  hover:text-[#00573F] hover:bg-[#ddf3ea]'
                     : 'text-gray-600 hover:bg-gray-100',
                 )}
               >
