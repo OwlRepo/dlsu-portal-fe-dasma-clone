@@ -67,10 +67,10 @@ export function AppBar() {
   };
 
   return (
-    <header className="sticky top-0 z-10 bg-white border-b">
-      <div className="flex justify-between items-center px-6 py-2">
+    <header className="sticky top-0 z-10 bg-gray-50 border-b">
+      <div className="flex justify-between items-center px-6 py-3">
         <div>
-          <h1 className="text-xl font-semibold">{getTitle()}</h1>
+          <h1 className="text-2xl font-bold">{getTitle()}</h1>
           <p className="text-sm text-muted-foreground">As of {formattedDate}</p>
         </div>
         <div className="relative">
@@ -95,7 +95,7 @@ export function AppBar() {
             <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg">
               <button
                 onClick={handleLogout}
-                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                className="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
               >
                 Logout
               </button>

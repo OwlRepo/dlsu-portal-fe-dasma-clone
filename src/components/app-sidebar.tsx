@@ -14,6 +14,7 @@ import {
   SidebarMenuItem,
   // SidebarTrigger,
 } from '@/components/ui/sidebar';
+import Image from 'next/image';
 
 const menuItems = [
   {
@@ -48,12 +49,15 @@ export function AppSidebar() {
 
   return (
     <Sidebar className="border-r">
-      <SidebarHeader className="border-b px-4 py-4 mb-4">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded bg-[#00573F] text-white">
-            <LayoutDashboard className="h-5 w-5" />
-          </div>
-          <div className="text-sm font-semibold uppercase">App Name</div>
+      <SidebarHeader className="border-b p-4 mb-4">
+        <div className="flex items-center justify-center gap-2">
+          <Image
+            src="/dlsu-logo-horizontal.png"
+            alt="DLSU"
+            width={165}
+            height={100} // Keep this for optimization
+            className="auto-height"
+          />
         </div>
       </SidebarHeader>
       <SidebarContent>
