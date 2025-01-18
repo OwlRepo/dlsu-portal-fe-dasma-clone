@@ -1,9 +1,9 @@
 'use client';
 
 import { Building2, ArrowRightLeft, LogOut } from 'lucide-react';
-import { StatisticsCard } from '@/components/statistics-card';
-import { GateAccessStats } from '@/components/gate-access-stats';
-import { LiveDataTable } from '@/components/live-data-table';
+import { StatisticsCard } from '@/components/dashboard/statistics-card';
+import { GateAccessStats } from '@/components/dashboard/gate-access-stats';
+import { LiveDataTable } from '@/components/dashboard/live-data-table';
 
 export function ClientDashboard() {
   return (

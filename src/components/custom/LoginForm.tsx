@@ -113,7 +113,7 @@ const LoginForm = () => {
         {/* Footer Section */}
         <footer className="mt-4 text-center text-sm text-gray-500">
           <p>Powered by ELID Technology Intl., Inc.</p>
-          <p>Version 1.0.0</p>
+          <p>Version 1.0.1</p>
         </footer>
       </div>
       {/* Right Side: Background Image */}
