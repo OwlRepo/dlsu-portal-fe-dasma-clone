@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, FileText, Users, Settings } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, BarChart2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth-context';
 import {
@@ -24,7 +24,7 @@ const menuItems = [
   },
   {
     title: 'Reports',
-    icon: FileText,
+    icon: BarChart2,
     href: '/reports',
   },
   {

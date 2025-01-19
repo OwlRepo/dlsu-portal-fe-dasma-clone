@@ -1,7 +1,13 @@
-import React from 'react';
+import { AccountForm } from '@/components/settings/account-form';
+import { SettingsNav } from '@/components/settings/settings-nav';
 
-const page = () => {
-  return <div>page</div>;
-};
-
-export default page;
+export default function SettingsAccountPage() {
+  return (
+    <div className="flex gap-8">
+      <SettingsNav />
+      <div className="rounded-lg border p-6 w-full">
+        <AccountForm />
+      </div>
+    </div>
+  );
+}
