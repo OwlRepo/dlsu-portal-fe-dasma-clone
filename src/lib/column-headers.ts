@@ -1,1 +1,8 @@
-export const headers = ['AT', 'ID', 'NAME', 'TYPE', 'GATE', 'ACTIVITY'];
+export const headers = [
+  { header: 'Status', accessor: 'AT' as const }, // Use 'as const' to infer the literal type
+  { header: 'ID', accessor: 'ID' as const },
+  { header: 'Name', accessor: 'NAME' as const },
+  { header: 'Type', accessor: 'TYPE' as const },
+  { header: 'Gate', accessor: 'GATE' as const },
+  { header: 'Activity', accessor: 'ACTIVITY' as const },
+];

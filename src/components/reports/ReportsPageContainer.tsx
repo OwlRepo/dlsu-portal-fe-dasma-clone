@@ -51,7 +51,7 @@ const ReportsPageContainer = () => {
           </Button>
         </div>
       </div>
-      <CustomTable headers={headers} data={data} />
+      <CustomTable columns={headers} data={data} />
     </div>
   );
 };
