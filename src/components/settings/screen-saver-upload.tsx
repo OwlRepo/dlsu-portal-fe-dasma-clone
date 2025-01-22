@@ -37,7 +37,7 @@ export function ScreenSaverUpload() {
         {!image ? (
           <div className="space-y-4">
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8">
-              <Upload className="mb-4 h-8 w-8 text-muted-foreground" />
+              <Upload className="mb-5 h-[4.5rem] w-8 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">
                 Drag or Drop to upload image
               </p>

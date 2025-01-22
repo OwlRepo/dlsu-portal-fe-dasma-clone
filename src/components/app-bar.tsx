@@ -15,6 +15,11 @@ export function AppBar() {
 
   // Determine the title based on the current pathname
   const getTitle = () => {
+    // Check if the pathname is 'settings/operation'
+    if (pathname === '/settings/operation') {
+      return 'Settings'; // Return 'Settings' if the pathname matches
+    }
+
     return (
       pathname
         .replace(/^\/|\/$/g, '') // Remove leading and trailing slashes
@@ -67,7 +72,7 @@ export function AppBar() {
   };
 
   return (
-    <header className="sticky top-0 z-10 bg-gray-50 border-b">
+    <header className="sticky top-0 z-10">
       <div className="flex justify-between items-center px-6 py-3">
         <div>
           <h1 className="text-2xl font-bold">{getTitle()}</h1>

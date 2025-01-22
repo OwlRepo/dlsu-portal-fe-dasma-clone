@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -9,13 +9,13 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Loader2, Upload } from 'lucide-react';
+import { Loader2, Moon, Sun, Upload, UserMinus } from 'lucide-react';
 import { ScreenSaverUpload } from './screen-saver-upload';
 import { TimePicker } from './time-picker';
 
 export function OperationSettings() {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const [syncing, setSyncing] = useState(false);
   const [morning, setMorning] = useState('6:00 AM');
   const [evening, setEvening] = useState('6:00 PM');
@@ -30,9 +30,15 @@ export function OperationSettings() {
     setSyncing(false);
   };
 
+  const handleButtonClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click(); // Trigger the file input click
+    }
+  };
+
   return (
     <div className="grid gap-6 md:grid-cols-2">
-      <Card className="max-h-[300px]">
+      <Card className="max-h-[320px]">
         <CardHeader>
           <CardTitle>Scheduled Syncing</CardTitle>
           <CardDescription>
@@ -40,27 +46,23 @@ export function OperationSettings() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between bg-gray-100 py-2 px-4 rounded-md">
             <div className="flex items-center space-x-4">
-              <div className="w-24">{morning}</div>
+              <div className="flex items-center w-32 gap-4 text-gray-500">
+                <Sun />
+                {morning}
+              </div>
             </div>
-            <Button
-              variant="outline"
-              onClick={() => setShowTimePicker('morning')}
-            >
-              Set
-            </Button>
+            <Button onClick={() => setShowTimePicker('morning')}>Set</Button>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between bg-gray-100 py-2 px-4 rounded-md">
             <div className="flex items-center space-x-4">
-              <div className="w-24">{evening}</div>
+              <div className="flex items-center w-32 gap-4 text-gray-500">
+                <Moon />
+                {evening}
+              </div>
             </div>
-            <Button
-              variant="outline"
-              onClick={() => setShowTimePicker('evening')}
-            >
-              Set
-            </Button>
+            <Button onClick={() => setShowTimePicker('evening')}>Set</Button>
           </div>
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
@@ -87,22 +89,33 @@ export function OperationSettings() {
 
       <Card className="">
         <CardHeader>
-          <CardTitle className="text-red-600">Delete user</CardTitle>
+          <CardTitle>Delete user</CardTitle>
           <CardDescription>
             Upload a CSV file containing the list of users to be deleted.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid w-full max-w-sm items-center gap-1.5">
-            <Label htmlFor="csv">CSV File</Label>
-            <Input id="csv" type="file" accept=".csv" />
+          <div className="grid w-full items-center gap-1.5">
+            <Button
+              onClick={handleButtonClick}
+              variant="outline"
+              className="w-full border-red-200 text-red-600 hover:bg-red-50 hover:text-red-600"
+            >
+              <Upload className="h-4 w-4" />
+              Upload CSV file
+            </Button>
+            <input
+              id="csv"
+              type="file"
+              accept=".csv"
+              ref={fileInputRef} // Attach the ref to the input
+              style={{ display: 'none' }} // Hide the file input
+            />
           </div>
-          <Button
-            variant="outline"
-            className="w-full max-w-sm border-red-200 text-red-600 hover:bg-red-50 hover:text-red-600"
-          >
-            <Upload className="mr-2 h-4 w-4" />
-            Upload CSV file
+
+          <Button variant="destructive" className="w-full">
+            <UserMinus className="h-4 w-4" />
+            Proceed to deletion
           </Button>
         </CardContent>
       </Card>
