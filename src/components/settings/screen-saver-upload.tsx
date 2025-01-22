@@ -12,20 +12,44 @@ import {
 } from '@/components/ui/select';
 import { Upload, X } from 'lucide-react';
 import Image from 'next/image';
+import axios from 'axios';
+import Cookies from 'js-cookie';
 
 export function ScreenSaverUpload() {
   const [image, setImage] = useState<string | null>(null);
   const [showConfigure, setShowConfigure] = useState(false);
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  const user = Cookies.get('user');
+  const token = user ? JSON.parse(user).token : null;
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = event.target.files?.[0];
+
+      const formData = new FormData();
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImage(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+
+        formData.append('file', file);
+        const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/screensaver/upload`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `${token}`,
+          },
+        });
+
+        const data = await response.data;
+        setImage(data.url);
+      }
+
+    } catch (error) {
+      console.error(error)
     }
+
   };
 
   return (
