@@ -1,9 +1,12 @@
-import LoginForm from '@/components/custom/LoginForm';
+// import LoginForm from '@/components/custom/LoginForm';
+import { ClientDashboard } from './dashboard/client-dashboard';
 
-export default function LoginPage() {
+export default function DashboardPage() {
   return (
-    <div>
-      <LoginForm />
+    <div className="h-full flex flex-col">
+      <div className="flex-1 overflow-auto">
+        <ClientDashboard />
+      </div>
     </div>
   );
 }

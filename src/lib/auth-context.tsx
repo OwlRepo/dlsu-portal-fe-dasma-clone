@@ -20,7 +20,11 @@ type User = {
 type AuthContextType = {
   isLoggedIn: boolean;
   user: User | null;
-  login: (username: string, email: string, role: string) => void;
+  login: (
+    username: string,
+    email: string,
+    role: string,
+  ) => Promise<string | null>;
   logout: () => void;
 };
 
@@ -73,14 +77,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error('Network error');
       }
     }
-
-    // Cookies.set('user', JSON.stringify(userData), { expires: 7 });
-
-    // //redirect to /dashboard
-    // router.push('/dashboard');
-
-    // setUser(userData);
-    // setIsLoggedIn(true);
   };
 
   const logout = () => {
@@ -88,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     Cookies.remove('user');
     setUser(null);
     setIsLoggedIn(false);
-    router.push('/');
+    router.push('/login');
   };
 
   return (

@@ -2,24 +2,22 @@
 import React, { useState } from 'react';
 import { Logo } from '../logo';
 import { useAuth } from '@/lib/auth-context';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select';
 import { Input } from '../ui/input';
+import { useToast } from '@/hooks/use-toast';
 
-const LoginForm = () => {
+interface LoginProps {
+  role: string;
+}
+
+const LoginForm = ({ role }: LoginProps) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [role, setRole] = useState('');
 
   const { login } = useAuth();
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Check if username, password, and role are provided
@@ -28,7 +26,19 @@ const LoginForm = () => {
       return;
     }
 
-    login(username, password, role);
+    try {
+      await login(username, password, role);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'An unexpected error occurred';
+      toast({
+        title: 'Error',
+        description: message,
+        variant: 'destructive',
+        duration: 3000,
+      });
+    }
+
     setError('');
   };
 
@@ -43,38 +53,17 @@ const LoginForm = () => {
           <h1 className="text-2xl font-bold text-[#00bc65]">
             Sign-in to your account
           </h1>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-500">
             Ready to dive in? Just sign in to continue where you left off.
           </p>
           {error && <p className="text-red-500">{error}</p>}
           <form className="space-y-4 mt-4" onSubmit={handleSubmit}>
-            <div className="space-y-2">
-              <label htmlFor="role" className="text-sm font-medium">
-                Role
-              </label>
-              <Select value={role} onValueChange={setRole} required>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select your role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="employee">
-                    <div className="flex items-center">Employee</div>
-                  </SelectItem>
-                  <SelectItem value="admin">
-                    <div className="flex items-center">Admin</div>
-                  </SelectItem>
-                  <SelectItem value="super-admin">
-                    <div className="flex items-center">Super Admin</div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
             <div>
               <label
                 htmlFor="username"
                 className="block text-sm font-medium text-gray-700"
               >
-                Employee ID
+                Username
               </label>
               <Input
                 id="username"
@@ -111,7 +100,7 @@ const LoginForm = () => {
           </form>
         </div>
         {/* Footer Section */}
-        <footer className="mt-4 text-center text-sm text-gray-500">
+        <footer className="mt-4 text-center text-xs text-gray-500">
           <p>Powered by ELID Technology Intl., Inc.</p>
           <p>Version 1.0.1</p>
         </footer>
