@@ -41,7 +41,7 @@ const ReportsPageContainer = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          <Button className="flex items-center gap-2 text-green-500 bg-white border-[1px] border-green-500 ">
+          <Button className="flex items-center gap-2 text-green-500 bg-white border-[1px] border-green-500 hover:text-green-500 hover:bg-gray-50">
             <Filter />
             Filter
           </Button>

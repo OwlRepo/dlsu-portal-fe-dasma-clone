@@ -6,3 +6,12 @@ export const headers = [
   { header: 'Gate', accessor: 'GATE' as const },
   { header: 'Activity', accessor: 'ACTIVITY' as const },
 ];
+
+export const usersHeaders = [
+  { header: 'ID', accessor: 'ID' as const },
+  { header: 'Username', accessor: 'USERNAME' as const },
+  { header: 'First Name', accessor: 'FIRST_NAME' as const },
+  { header: 'Last Name', accessor: 'LAST_NAME' as const },
+  { header: 'Role', accessor: 'ROLE' as const },
+  { header: 'Date Added', accessor: 'DATE_ADDED' as const },
+];
