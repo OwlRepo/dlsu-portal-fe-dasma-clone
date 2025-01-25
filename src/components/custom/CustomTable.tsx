@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 
 interface PaginatedTableProps<T> {
   data: T[];
@@ -33,6 +34,11 @@ function CustomTable<T extends Record<string, unknown>>({
   const endIndex = startIndex + itemsPerPage;
   const paginatedData = data.slice(startIndex, endIndex);
 
+  const roleColors: Record<string, string> = {
+    admin: 'bg-green-100 text-green-600',
+    employee: 'bg-purple-100 text-purple-600',
+  };
+
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
   };
@@ -45,11 +51,11 @@ function CustomTable<T extends Record<string, unknown>>({
   return (
     <div className="space-y-4">
       <div className="overflow-x-auto rounded-md border">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm ">
           <thead>
-            <tr className="bg-muted/50 text-muted-foreground">
+            <tr className="bg-muted/50 text-slate-800">
               {columns.map((column, index) => (
-                <th key={index} className="p-3 text-left font-medium">
+                <th key={index} className="p-3 text-left font-semibold">
                   {column.header}
                 </th>
               ))}
@@ -63,9 +69,21 @@ function CustomTable<T extends Record<string, unknown>>({
               >
                 {columns.map((column, colIndex) => (
                   <td key={colIndex} className="p-3">
-                    {column.cell
-                      ? column.cell(row)
-                      : (row[column.accessor] as React.ReactNode)}
+                    {column.accessor === 'ROLE' ? (
+                      <Badge
+                        className={`${
+                          roleColors[row[column.accessor] as string]
+                        } rounded-lg font-normal hover:${
+                          roleColors[row[column.accessor] as string]
+                        }`}
+                      >
+                        {(row[column.accessor] as string).toUpperCase()}
+                      </Badge>
+                    ) : column.cell ? (
+                      column.cell(row)
+                    ) : (
+                      (row[column.accessor] as React.ReactNode)
+                    )}
                   </td>
                 ))}
               </tr>
