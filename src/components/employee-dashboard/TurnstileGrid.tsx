@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getStudentEntries, type StudentEntry } from '../../lib/dummyData';
-import Image from 'next/image';
+// import Image from 'next/image';
 
 interface TurnstileGridProps {
   turnstileCount: number;
@@ -20,13 +20,13 @@ export default function TurnstileGrid({ turnstileCount }: TurnstileGridProps) {
             </CardHeader>
             <CardContent>
               <div className="flex items-center space-x-4">
-                <Image
-                  src={entry.imageUrl}
+                {/* <Image
+                  src={null}
                   alt={entry.name}
                   width={80} // Specify the width
                   height={80} // Specify the height
                   className="w-20 h-20 rounded-full"
-                />
+                /> */}
                 <div>
                   <p className="text-sm font-medium">ID: {entry.id}</p>
                   <p className="text-sm">Name: {entry.name}</p>

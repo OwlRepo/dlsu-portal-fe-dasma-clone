@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation'; // Import usePathname
 import { useAuth } from '@/lib/auth-context';
-import useUserToken from '@/lib/useUserToken';
+import useUserToken from '@/hooks/useUserToken';
 
 export function AppBar() {
   const [currentDate, setCurrentDate] = useState(new Date());

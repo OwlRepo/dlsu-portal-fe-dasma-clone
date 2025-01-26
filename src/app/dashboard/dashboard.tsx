@@ -4,7 +4,7 @@ import { Building2, ArrowRightLeft, LogOut } from 'lucide-react';
 import { StatisticsCard } from '@/components/dashboard/statistics-card';
 import { GateAccessStats } from '@/components/dashboard/gate-access-stats';
 import { LiveDataTable } from '@/components/dashboard/live-data-table';
-import useUserToken from '@/lib/useUserToken';
+import useUserToken from '@/hooks/useUserToken';
 
 export function Dashboard() {
   const { role } = useUserToken();

@@ -7,6 +7,7 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppBar } from '@/components/app-bar';
 
 import { Toaster } from '@/components/ui/toaster';
+import { IdleScreensaver } from '@/components/IdleScreensaver';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -32,6 +33,7 @@ export default function RootLayout({
                 <AppBar /> {/* Use the AppBar component here */}
                 <main className="flex-1 overflow-auto">{children}</main>
               </div>
+              <IdleScreensaver />
             </div>
             <Toaster />
           </SidebarProvider>

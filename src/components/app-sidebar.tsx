@@ -15,7 +15,7 @@ import {
   // SidebarTrigger,
 } from '@/components/ui/sidebar';
 import Image from 'next/image';
-import useUserToken from '@/lib/useUserToken';
+import useUserToken from '@/hooks/useUserToken';
 
 const menuItems = [
   {

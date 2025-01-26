@@ -4,7 +4,7 @@ export interface StudentEntry {
   id: string;
   name: string;
   timestamp: string;
-  imageUrl: string;
+  imageUrl: string | null;
 }
 
 export interface LogEntry extends StudentEntry {
@@ -14,10 +14,8 @@ export interface LogEntry extends StudentEntry {
 const generateStudentEntry = (index: number): StudentEntry => ({
   id: `S${1000 + index}`,
   name: `Student ${index}`,
-  timestamp: new Date(Date.now() - index * 60000).toLocaleString(), // Consistent timestamps
-  imageUrl: `/placeholder.svg?height=80&width=80&text=${encodeURIComponent(
-    `Student ${index}`,
-  )}`,
+  timestamp: 'test', // Consistent timestamps
+  imageUrl: null,
 });
 
 export const getStudentEntries = cache((count: number): StudentEntry[] => {
