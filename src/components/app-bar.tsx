@@ -3,11 +3,13 @@
 import React, { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation'; // Import usePathname
 import { useAuth } from '@/lib/auth-context';
+import useUserToken from '@/lib/useUserToken';
 
 export function AppBar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [formattedDate, setFormattedDate] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { role } = useUserToken();
 
   const pathname = usePathname(); // Get the current pathname
 
@@ -73,41 +75,47 @@ export function AppBar() {
 
   return (
     <header className="sticky top-0 z-10">
-      <div className="flex justify-between items-center px-6 py-3">
-        <div>
-          <h1 className="text-2xl font-bold">{getTitle()}</h1>
-          <p className="text-sm text-muted-foreground">As of {formattedDate}</p>
-        </div>
-        <div className="relative">
-          <button onClick={toggleDropdown} className="flex items-center">
-            <span className="mr-2">{user?.username}</span>{' '}
-            {/* Display username */}
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 9l6 6 6-6"
-              />
-            </svg>
-          </button>
-          {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg">
-              <button
-                onClick={handleLogout}
-                className="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
+      {role === 'employee' ? (
+        <div className="flex justify-between items-center px-6 py-3"></div>
+      ) : (
+        <div className="flex justify-between items-center px-6 py-3 bg-[#f9fafb]">
+          <div>
+            <h1 className="text-2xl font-bold">{getTitle()}</h1>
+            <p className="text-sm text-muted-foreground">
+              As of {formattedDate}
+            </p>
+          </div>
+          <div className="relative">
+            <button onClick={toggleDropdown} className="flex items-center">
+              <span className="mr-2">{user?.username}</span>{' '}
+              {/* Display username */}
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
-                Logout
-              </button>
-            </div>
-          )}
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 9l6 6 6-6"
+                />
+              </svg>
+            </button>
+            {dropdownOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg">
+                <button
+                  onClick={handleLogout}
+                  className="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </header>
   );
 }

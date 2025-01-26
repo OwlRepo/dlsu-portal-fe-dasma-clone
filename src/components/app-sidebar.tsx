@@ -15,6 +15,7 @@ import {
   // SidebarTrigger,
 } from '@/components/ui/sidebar';
 import Image from 'next/image';
+import useUserToken from '@/lib/useUserToken';
 
 const menuItems = [
   {
@@ -41,9 +42,10 @@ const menuItems = [
 
 export function AppSidebar() {
   const { isLoggedIn } = useAuth();
+  const { role } = useUserToken();
   const pathname = usePathname();
 
-  if (!isLoggedIn) {
+  if (!isLoggedIn || role === 'employee') {
     return null;
   }
 
