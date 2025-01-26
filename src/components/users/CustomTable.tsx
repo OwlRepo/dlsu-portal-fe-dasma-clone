@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Eye, KeyRound, PenSquare, Trash2 } from 'lucide-react';
+import { KeyRound, PenSquare, Trash2, User } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -71,22 +71,30 @@ function CustomTable<T extends Record<string, unknown>>({
       <div className="overflow-x-auto rounded-md border">
         <Table className="w-full text-sm ">
           <TableHeader>
-            <TableRow className="bg-muted/50 text-slate-800">
+            <TableRow className="bg-[#F4F7FCBF] text-slate-800 hover:bg-[#F4F7FCBF]">
               {columns.map((column, index) => (
-                <TableHead key={index} className="p-3 text-left font-semibold">
-                  {column.header}
+                <TableHead
+                  key={index}
+                  className="p-3 text-left font-semibold text-[#0F416D]"
+                >
+                  {column.header ? column.header.toUpperCase() : ''}
                 </TableHead>
               ))}
+              <TableHead className="p-3 text-left font-semibold">
+                {/* Empty header for dropdown column */}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {paginatedData.map((row, rowIndex) => (
               <TableRow
                 key={rowIndex}
-                className={rowIndex % 2 === 0 ? 'bg-white' : 'bg-muted/50'}
+                className={`${
+                  rowIndex % 2 === 0 ? 'bg-white' : 'bg-[#F4F7FCBF]'
+                } hover:${rowIndex % 2 === 0 ? 'bg-white' : 'bg-[#F4F7FCBF]'}`}
               >
                 {columns.map((column, colIndex) => (
-                  <TableCell key={colIndex} className="p-3">
+                  <TableCell key={colIndex} className="p-3 text-[#0F416D]">
                     {column.accessor === 'ROLE' ? (
                       <Badge
                         className={`${
@@ -108,7 +116,7 @@ function CustomTable<T extends Record<string, unknown>>({
                   <CustomDropdown
                     actions={[
                       {
-                        icon: <Eye className="h-4 w-4 text-gray-500" />,
+                        icon: <User className="h-4 w-4 text-gray-500" />,
                         label: 'View Profile',
                         onClick: () => onView && onView(row),
                       },

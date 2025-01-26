@@ -41,7 +41,7 @@ const UserManagementPageContainer = () => {
 
   const usersHeaders: {
     header: string;
-    accessor: keyof UserHeader | 'actions';
+    accessor: keyof UserHeader | '';
     cell?: (row: UserHeader) => React.ReactNode;
   }[] = [
     { header: 'ID', accessor: 'ID' },

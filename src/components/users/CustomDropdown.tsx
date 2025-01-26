@@ -46,7 +46,7 @@ export function CustomDropdown({ actions }: CustomDropdownProps) {
       </button>
       {isOpen && (
         <div
-          className="fixed w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
+          className="fixed w-48 rounded-2xl shadow-lg bg-white ring-1 ring-black ring-opacity-5"
           style={{
             top: dropdownRef.current
               ? dropdownRef.current.getBoundingClientRect().bottom + 8
@@ -54,11 +54,11 @@ export function CustomDropdown({ actions }: CustomDropdownProps) {
             left: dropdownRef.current
               ? dropdownRef.current.getBoundingClientRect().right - 192
               : 0,
-            zIndex: 9999,
+            zIndex: 9998,
           }}
         >
           <div
-            className="py-1"
+            className="p-2"
             role="menu"
             aria-orientation="vertical"
             aria-labelledby="options-menu"
@@ -70,7 +70,7 @@ export function CustomDropdown({ actions }: CustomDropdownProps) {
                   action.onClick();
                   setIsOpen(false);
                 }}
-                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 gap-3"
+                className="flex items-center w-full px-4 py-2 my-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 gap-3"
                 role="menuitem"
               >
                 {action.icon}

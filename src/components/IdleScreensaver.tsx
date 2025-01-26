@@ -47,7 +47,7 @@ export function IdleScreensaver() {
 
   return (
     <div
-      className="fixed inset-0 w-full h-full z-50"
+      className="fixed inset-0 w-full h-full z-[9999]"
       onClick={handleActivity}
       onMouseMove={handleActivity}
       onKeyDown={handleActivity}
