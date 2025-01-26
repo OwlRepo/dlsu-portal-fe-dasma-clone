@@ -106,7 +106,6 @@ const UserManagementPageContainer = () => {
   return (
     <div className="rounded-lg bg-white p-6 shadow-md">
       <div className="flex items-center justify-between mb-8">
-        <button onClick={() => setIsViewProfileOpen(true)}>hi</button>
         <div className="w-[500px]">
           <Input
             placeholder="Search"
