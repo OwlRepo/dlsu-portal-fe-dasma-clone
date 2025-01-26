@@ -10,6 +10,16 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Eye, KeyRound, PenSquare, Trash2 } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../ui/table';
+import { CustomDropdown } from './CustomDropdown';
 
 interface PaginatedTableProps<T> {
   data: T[];
@@ -19,12 +29,20 @@ interface PaginatedTableProps<T> {
     cell?: (item: T) => React.ReactNode;
   }[];
   initialItemsPerPage?: number;
+  onView?: (user: T) => void;
+  onEdit?: () => void;
+  onChangeRole?: () => void;
+  onDelete?: () => void;
 }
 
 function CustomTable<T extends Record<string, unknown>>({
   data,
   columns,
   initialItemsPerPage = 10,
+  onView,
+  onEdit,
+  onChangeRole,
+  onDelete,
 }: PaginatedTableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(initialItemsPerPage);
@@ -51,24 +69,24 @@ function CustomTable<T extends Record<string, unknown>>({
   return (
     <div className="space-y-4">
       <div className="overflow-x-auto rounded-md border">
-        <table className="w-full text-sm ">
-          <thead>
-            <tr className="bg-muted/50 text-slate-800">
+        <Table className="w-full text-sm ">
+          <TableHeader>
+            <TableRow className="bg-muted/50 text-slate-800">
               {columns.map((column, index) => (
-                <th key={index} className="p-3 text-left font-semibold">
+                <TableHead key={index} className="p-3 text-left font-semibold">
                   {column.header}
-                </th>
+                </TableHead>
               ))}
-            </tr>
-          </thead>
-          <tbody>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {paginatedData.map((row, rowIndex) => (
-              <tr
+              <TableRow
                 key={rowIndex}
                 className={rowIndex % 2 === 0 ? 'bg-white' : 'bg-muted/50'}
               >
                 {columns.map((column, colIndex) => (
-                  <td key={colIndex} className="p-3">
+                  <TableCell key={colIndex} className="p-3">
                     {column.accessor === 'ROLE' ? (
                       <Badge
                         className={`${
@@ -84,12 +102,38 @@ function CustomTable<T extends Record<string, unknown>>({
                     ) : (
                       (row[column.accessor] as React.ReactNode)
                     )}
-                  </td>
+                  </TableCell>
                 ))}
-              </tr>
+                <TableCell className="p-3">
+                  <CustomDropdown
+                    actions={[
+                      {
+                        icon: <Eye className="h-4 w-4 text-gray-500" />,
+                        label: 'View Profile',
+                        onClick: () => onView && onView(row),
+                      },
+                      {
+                        icon: <PenSquare className="h-4 w-4 text-gray-500" />,
+                        label: 'Edit Details',
+                        onClick: () => onEdit,
+                      },
+                      {
+                        icon: <KeyRound className="h-4 w-4 text-gray-500" />,
+                        label: 'Change Role',
+                        onClick: () => onChangeRole,
+                      },
+                      {
+                        icon: <Trash2 className="h-4 w-4 text-gray-500" />,
+                        label: 'Delete User',
+                        onClick: () => onDelete,
+                      },
+                    ]}
+                  />
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
       <div className="flex justify-between items-center">
         <div className="text-sm text-muted-foreground">
