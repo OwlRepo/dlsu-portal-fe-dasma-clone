@@ -53,10 +53,13 @@ function CustomTable<T extends Record<string, unknown>>({
       <div className="overflow-x-auto rounded-md border">
         <table className="w-full text-sm ">
           <thead>
-            <tr className="bg-muted/50 text-slate-800">
+            <tr className="bg-[#F4F7FCBF] text-slate-800">
               {columns.map((column, index) => (
-                <th key={index} className="p-3 text-left font-semibold">
-                  {column.header}
+                <th
+                  key={index}
+                  className="p-3 text-left font-semibold  text-[#0F416D]"
+                >
+                  {column.header ? column.header.toUpperCase() : ''}
                 </th>
               ))}
             </tr>
@@ -65,10 +68,12 @@ function CustomTable<T extends Record<string, unknown>>({
             {paginatedData.map((row, rowIndex) => (
               <tr
                 key={rowIndex}
-                className={rowIndex % 2 === 0 ? 'bg-white' : 'bg-muted/50'}
+                className={`${
+                  rowIndex % 2 === 0 ? 'bg-white' : 'bg-[#F4F7FCBF]'
+                } hover:${rowIndex % 2 === 0 ? 'bg-white' : 'bg-[#F4F7FCBF]'}`}
               >
                 {columns.map((column, colIndex) => (
-                  <td key={colIndex} className="p-3">
+                  <td key={colIndex} className="p-3  text-[#0F416D]">
                     {column.accessor === 'ROLE' ? (
                       <Badge
                         className={`${

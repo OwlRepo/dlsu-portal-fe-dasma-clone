@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation'; // Import usePathname
 import { useAuth } from '@/lib/auth-context';
 import useUserToken from '@/hooks/useUserToken';
+import { LogOut } from 'lucide-react';
 
 export function AppBar() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -87,13 +88,13 @@ export function AppBar() {
           </div>
           <div className="relative">
             <button onClick={toggleDropdown} className="flex items-center">
-              <span className="mr-2">{user?.username}</span>{' '}
+              <span className="mr-2 text-[#708090]">{user?.username}</span>{' '}
               {/* Display username */}
               <svg
                 className="w-4 h-4"
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke="currentColor"
+                stroke="#708090"
               >
                 <path
                   strokeLinecap="round"
@@ -104,11 +105,12 @@ export function AppBar() {
               </svg>
             </button>
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg">
+              <div className="absolute right-0 mt-2 w-48 bg-white border rounded-xl shadow-lg p-2">
                 <button
                   onClick={handleLogout}
-                  className="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
+                  className="flex items-center gap-2 w-full text-left p-2 text-sm text-red-500 hover:bg-white"
                 >
+                  <LogOut />
                   Logout
                 </button>
               </div>

@@ -1,9 +1,41 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { jwtDecode } from 'jwt-decode';
+
+interface DecodedToken {
+  exp: number;
+  // Add other properties as needed
+}
 
 export function middleware(request: NextRequest) {
   // Check if the user cookie exists
   const userCookie = request.cookies.get('user');
+
+  if (userCookie) {
+    const token = JSON.parse(userCookie.value).token.replace('Bearer ', '');
+
+    try {
+      const decoded: DecodedToken = jwtDecode(token);
+      const currentTime = Math.floor(Date.now() / 1000);
+
+      if (decoded.exp < currentTime) {
+        // Token is expired, remove the user cookie
+        const response = NextResponse.redirect(new URL('/login', request.url));
+        response.cookies.set('user', '', { expires: new Date(0) });
+        return response;
+      }
+    } catch (error) {
+      console.error('Failed to decode token', error);
+      const response = NextResponse.redirect(new URL('/login', request.url));
+      response.cookies.set('user', '', { expires: new Date(0) });
+      return response;
+    }
+  } else {
+    // No user cookie found, handle accordingly
+    if (request.nextUrl.pathname !== '/login') {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+  }
 
   // Define the protected routes
   const protectedRoutes = ['/', '/reports', '/user-management', '/settings'];
