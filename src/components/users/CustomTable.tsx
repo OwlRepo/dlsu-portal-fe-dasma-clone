@@ -37,7 +37,7 @@ interface PaginatedTableProps<T> {
   }[];
   initialItemsPerPage?: number;
   onView?: (user: T) => void;
-  onEdit?: () => void;
+  onEdit?: (user: T) => void;
   onChangeRole?: () => void;
   onDelete?: () => void;
 }
@@ -133,7 +133,7 @@ function CustomTable<T extends Record<string, unknown>>({
                         {
                           icon: <PenSquare className="h-4 w-4 text-gray-500" />,
                           label: 'Edit Details',
-                          onClick: () => onEdit,
+                          onClick: () => onEdit && onEdit(row),
                         },
                         {
                           icon: <KeyRound className="h-4 w-4 text-gray-500" />,

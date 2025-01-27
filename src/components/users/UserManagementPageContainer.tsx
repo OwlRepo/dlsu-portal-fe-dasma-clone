@@ -5,15 +5,9 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '../ui/dialog';
-import { Badge } from '../ui/badge';
 import CustomTable from './CustomTable';
+import ViewProfileDialog from './ViewProfileDialog';
+import EditDetailsDialog from './EditDetailsDialog';
 // import { ViewProfileDialog } from './view-profile-dialog';
 
 interface User {
@@ -23,7 +17,8 @@ interface User {
 }
 
 export interface UserHeader {
-  ID: string;
+  // ID: string;
+  EMPLOYEE_ID: string;
   USERNAME: string;
   FIRST_NAME: string;
   LAST_NAME: string;
@@ -38,13 +33,14 @@ const UserManagementPageContainer = () => {
   // const [dateAdded, setDateAdded] = useState<string>('');
   // const [showView, setShowView] = useState<boolean>(false);
   const [isViewProfileOpen, setIsViewProfileOpen] = useState(false);
+  const [isEditDetailsOpen, setIsEditDetailsOpen] = useState(false);
 
   const usersHeaders: {
     header: string;
     accessor: keyof UserHeader | '';
     cell?: (row: UserHeader) => React.ReactNode;
   }[] = [
-    { header: 'ID', accessor: 'ID' },
+    { header: 'Employee ID', accessor: 'EMPLOYEE_ID' },
     { header: 'Username', accessor: 'USERNAME' },
     { header: 'First Name', accessor: 'FIRST_NAME' },
     { header: 'Last Name', accessor: 'LAST_NAME' },
@@ -53,7 +49,7 @@ const UserManagementPageContainer = () => {
   ];
 
   const data = userList.map((row) => ({
-    ID: row.id,
+    EMPLOYEE_ID: row.id,
     USERNAME: row.username,
     FIRST_NAME: 'N/A',
     LAST_NAME: 'N/A',
@@ -69,6 +65,21 @@ const UserManagementPageContainer = () => {
   const handleCloseView = () => {
     setSelectedUser(null);
     setIsViewProfileOpen(false);
+  };
+
+  const handleCloseEdit = () => {
+    setSelectedUser(null);
+    setIsEditDetailsOpen(false);
+  };
+
+  const handleView = (user: UserHeader) => {
+    setSelectedUser(user);
+    setIsViewProfileOpen(true);
+  };
+
+  const handleEdit = (user: UserHeader) => {
+    setSelectedUser(user);
+    setIsEditDetailsOpen(true);
   };
 
   useEffect(() => {
@@ -97,11 +108,6 @@ const UserManagementPageContainer = () => {
       console.error(error);
     }
   }, []);
-
-  const handleView = (user: UserHeader) => {
-    setSelectedUser(user);
-    setIsViewProfileOpen(true);
-  };
 
   return (
     <div className="rounded-lg bg-white p-6 shadow-md">
@@ -133,54 +139,22 @@ const UserManagementPageContainer = () => {
         columns={usersHeaders}
         data={data}
         onView={(user) => handleView(user)}
+        onEdit={(user) => handleEdit(user)}
       />
 
-      <Dialog open={isViewProfileOpen} onOpenChange={handleCloseView}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>User Profile</DialogTitle>
-            <DialogDescription>View user details</DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            {/* <div className="flex items-center gap-4">
-              <div>
-                <h3 className="text-lg font-semibold">
-                  {selectedUser?.USERNAME}
-                </h3>
-              </div>
-            </div> */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Username
-                </p>
-                <p className="text-sm">{selectedUser?.USERNAME}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  User ID
-                </p>
-                <p className="text-sm">{selectedUser?.ID}</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Role
-                </p>
-                <Badge
-                  variant="outline"
-                  className={`mt-1 ${
-                    roleColors[selectedUser?.ROLE.toLowerCase() || '']
-                  }`}
-                >
-                  {selectedUser?.ROLE.toUpperCase()}
-                </Badge>
-              </div>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <ViewProfileDialog
+        isOpen={isViewProfileOpen}
+        onClose={handleCloseView}
+        user={selectedUser}
+        roleColors={roleColors}
+      />
+
+      <EditDetailsDialog
+        isOpen={isEditDetailsOpen}
+        onClose={handleCloseEdit}
+        user={selectedUser}
+        // onSave={handleSaveEdit}
+      />
     </div>
   );
 };
