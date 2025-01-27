@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/sidebar';
 import Image from 'next/image';
 import useUserToken from '@/hooks/useUserToken';
+import Cookies from 'js-cookie';
 
 const menuItems = [
   {
@@ -46,7 +47,10 @@ export function AppSidebar() {
   const { role } = useUserToken();
   const pathname = usePathname();
 
-  if (!isLoggedIn || role === 'employee') {
+  const user = Cookies.get('user');
+  const token = user ? JSON.parse(user).token : null;
+
+  if (!isLoggedIn || role === 'employee' || !token) {
     return null;
   }
 

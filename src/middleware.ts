@@ -11,6 +11,32 @@ export function middleware(request: NextRequest) {
   // Check if the user cookie exists
   const userCookie = request.cookies.get('user');
 
+  // if (userCookie) {
+  //   const token = JSON.parse(userCookie.value).token.replace('Bearer ', '');
+
+  //   try {
+  //     const decoded: DecodedToken = jwtDecode(token);
+  //     const currentTime = Math.floor(Date.now() / 1000);
+
+  //     if (decoded.exp < currentTime) {
+  //       // Token is expired, remove the user cookie
+  //       const response = NextResponse.redirect(new URL('/login', request.url));
+  //       response.cookies.set('user', '', { expires: new Date(0) });
+  //       return response;
+  //     }
+  //   } catch (error) {
+  //     console.error('Failed to decode token', error);
+  //     const response = NextResponse.redirect(new URL('/login', request.url));
+  //     response.cookies.set('user', '', { expires: new Date(0) });
+  //     return response;
+  //   }
+  // } else {
+  //   // No user cookie found, handle accordingly
+  //   if (request.nextUrl.pathname !== '/login') {
+  //     return NextResponse.redirect(new URL('/login', request.url));
+  //   }
+  // }
+
   if (userCookie) {
     const token = JSON.parse(userCookie.value).token.replace('Bearer ', '');
 
@@ -20,20 +46,15 @@ export function middleware(request: NextRequest) {
 
       if (decoded.exp < currentTime) {
         // Token is expired, remove the user cookie
-        const response = NextResponse.redirect(new URL('/login', request.url));
+        const response = NextResponse.next();
         response.cookies.set('user', '', { expires: new Date(0) });
         return response;
       }
     } catch (error) {
       console.error('Failed to decode token', error);
-      const response = NextResponse.redirect(new URL('/login', request.url));
+      const response = NextResponse.next();
       response.cookies.set('user', '', { expires: new Date(0) });
       return response;
-    }
-  } else {
-    // No user cookie found, handle accordingly
-    if (request.nextUrl.pathname !== '/login') {
-      return NextResponse.redirect(new URL('/login', request.url));
     }
   }
 
@@ -44,9 +65,10 @@ export function middleware(request: NextRequest) {
     '/reports',
     '/user-management',
     '/settings',
+    '/settings/operation',
   ];
 
-  // If the user cookie does not exist and the request is for the /dashboard route
+  // If the user cookie does not exist and the request is for the protected routes
   if (!userCookie && protectedRoutes.includes(request.nextUrl.pathname)) {
     // Redirect to the /login page
     return NextResponse.redirect(new URL('/login', request.url));
@@ -69,6 +91,7 @@ export const config = {
     '/reports',
     '/user-management',
     '/settings',
+    '/settings/operation',
     '/login',
   ],
 };
