@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface PaginatedTableProps<T> {
   data: T[];
@@ -65,62 +66,56 @@ function CustomTable<T extends Record<string, unknown>>({
             </tr>
           </thead>
           <tbody>
-            {paginatedData.map((row, rowIndex) => (
-              <tr
-                key={rowIndex}
-                className={`${
-                  rowIndex % 2 === 0 ? 'bg-white' : 'bg-[#F4F7FCBF]'
-                } hover:${rowIndex % 2 === 0 ? 'bg-white' : 'bg-[#F4F7FCBF]'}`}
-              >
-                {columns.map((column, colIndex) => (
-                  <td key={colIndex} className="p-3  text-[#0F416D]">
-                    {column.accessor === 'ROLE' ? (
-                      <Badge
-                        className={`${
-                          roleColors[row[column.accessor] as string]
-                        } rounded-lg font-normal hover:${
-                          roleColors[row[column.accessor] as string]
-                        }`}
-                      >
-                        {(row[column.accessor] as string).toUpperCase()}
-                      </Badge>
-                    ) : column.cell ? (
-                      column.cell(row)
-                    ) : (
-                      (row[column.accessor] as React.ReactNode)
-                    )}
-                  </td>
-                ))}
+            {paginatedData.length > 0 ? (
+              paginatedData.map((row, rowIndex) => (
+                <tr
+                  key={rowIndex}
+                  className={`${
+                    rowIndex % 2 === 0 ? 'bg-white' : 'bg-[#F4F7FCBF]'
+                  } hover:${
+                    rowIndex % 2 === 0 ? 'bg-white' : 'bg-[#F4F7FCBF]'
+                  }`}
+                >
+                  {columns.map((column, colIndex) => (
+                    <td key={colIndex} className="p-3  text-[#0F416D]">
+                      {column.accessor === 'ROLE' ? (
+                        <Badge
+                          className={`${
+                            roleColors[row[column.accessor] as string]
+                          } rounded-lg font-normal hover:${
+                            roleColors[row[column.accessor] as string]
+                          }`}
+                        >
+                          {(row[column.accessor] as string).toUpperCase()}
+                        </Badge>
+                      ) : column.cell ? (
+                        column.cell(row)
+                      ) : (
+                        (row[column.accessor] as React.ReactNode)
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan={columns.length + 1}
+                  className="p-3 text-center text-[#0F416D]"
+                >
+                  No data found
+                </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
       <div className="flex justify-between items-center">
-        <div className="text-sm text-muted-foreground">
-          Showing {Math.min(startIndex + 1, data.length)} to{' '}
-          {Math.min(endIndex, data.length)} of {data.length} items
+        <div className="text-sm font-medium text-muted-foreground">
+          {Math.min(startIndex + 1, data.length)}-
+          {Math.min(endIndex, data.length)} of {data.length}
         </div>
         <div className="flex items-center space-x-2">
-          <Button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            variant="outline"
-            size="sm"
-          >
-            Previous
-          </Button>
-          <span className="text-sm">
-            Page {currentPage} of {totalPages}
-          </span>
-          <Button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            variant="outline"
-            size="sm"
-          >
-            Next
-          </Button>
           <Select
             value={itemsPerPage.toString()}
             onValueChange={handleItemsPerPageChange}
@@ -135,6 +130,25 @@ function CustomTable<T extends Record<string, unknown>>({
               <SelectItem value="50">50 per page</SelectItem>
             </SelectContent>
           </Select>
+          <Button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            variant="outline"
+            size="sm"
+          >
+            <ChevronLeft />
+          </Button>
+          <span className="text-sm">
+            {currentPage}/{totalPages}
+          </span>
+          <Button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            variant="outline"
+            size="sm"
+          >
+            <ChevronRight />
+          </Button>
         </div>
       </div>
     </div>

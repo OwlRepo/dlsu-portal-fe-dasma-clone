@@ -5,7 +5,7 @@ export default function SettingsLayout({
 }) {
   return (
     <div className="flex min-h-screen">
-      <div className="flex-1 space-y-4 p-8">
+      <div className="flex-1 space-y-4 px-8 py-4">
         <div className="space-y-0.5">
           <p className="text-muted-foreground">
             Manage your account settings and preferences.

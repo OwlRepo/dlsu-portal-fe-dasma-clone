@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Settings, User } from 'lucide-react';
+import { Rocket, User } from 'lucide-react';
 
 const items = [
   {
@@ -15,7 +15,7 @@ const items = [
   {
     title: 'Operation',
     href: '/settings/operation',
-    icon: Settings,
+    icon: Rocket,
   },
 ];
 
@@ -37,7 +37,7 @@ export function SettingsNav() {
                   'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-600',
               )}
             >
-              <Icon size={20} />
+              <Icon size={24} />
               {item.title}
             </Button>
           </Link>

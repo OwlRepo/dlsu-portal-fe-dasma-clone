@@ -2,6 +2,8 @@ import React from 'react';
 import { mockData } from '@/lib/mock-data';
 import CustomTable from '../custom/CustomTable';
 import { headers } from '@/lib/column-headers';
+import { Button } from '../ui/button';
+import { FileX, Filter, Flame } from 'lucide-react';
 
 export function LiveDataTable() {
   const data = mockData.liveData.map((row) => ({
@@ -28,18 +30,30 @@ export function LiveDataTable() {
       <div className="mb-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-medium">Live Data</h2>
-            <p className="text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Flame />
+              <h2 className="text-lg font-medium">Live Data</h2>
+            </div>
+
+            <p className="text-base text-muted-foreground">
               Real-Time Entry and Exit Stats
             </p>
           </div>
           <div className="flex gap-2">
-            <button className="rounded-lg border px-4 py-2 text-sm hover:bg-gray-50">
+            <Button
+              variant="outline"
+              className="flex items-center gap-2 text-green-500 border-green-500 hover:text-green-500 hover:bg-white"
+            >
+              <Filter />
               Filter
-            </button>
-            <button className="rounded-lg border px-4 py-2 text-sm text-red-600 hover:bg-gray-50">
+            </Button>
+            <Button
+              variant="destructive"
+              className="flex items-center gap-2 border"
+            >
+              <FileX />
               Clear
-            </button>
+            </Button>
           </div>
         </div>
       </div>

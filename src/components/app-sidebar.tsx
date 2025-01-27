@@ -8,6 +8,7 @@ import { useAuth } from '@/lib/auth-context';
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -90,6 +91,7 @@ export function AppSidebar() {
           })}
         </SidebarMenu>
       </SidebarContent>
+      <SidebarFooter></SidebarFooter>
     </Sidebar>
   );
 }

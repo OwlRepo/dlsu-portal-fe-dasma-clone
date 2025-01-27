@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Loader2, Moon, Sun, Upload, UserMinus } from 'lucide-react';
+import { Loader2, Moon, RefreshCw, Sun, Upload, UserMinus } from 'lucide-react';
 import { ScreenSaverUpload } from './screen-saver-upload';
 import { TimePicker } from './time-picker';
 
@@ -79,7 +79,10 @@ export function OperationSettings() {
                 Syncing...
               </>
             ) : (
-              'Sync Now'
+              <>
+                <RefreshCw className="h-5 w-5" />
+                Sync Now
+              </>
             )}
           </Button>
         </CardContent>

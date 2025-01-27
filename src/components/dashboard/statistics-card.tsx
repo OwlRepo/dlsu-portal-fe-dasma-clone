@@ -13,7 +13,7 @@ export function StatisticsCard({ icon, count, label }: StatisticsCardProps) {
       <div className="text-3xl font-bold">{count}</div>
       <div>
         <div>{icon}</div>
-        <div className="mt-1 text-sm text-muted-foreground">{label}</div>
+        <div className="mt-1 text-lg">{label}</div>
       </div>
     </div>
   );

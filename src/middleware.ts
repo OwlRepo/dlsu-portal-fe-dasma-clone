@@ -38,7 +38,13 @@ export function middleware(request: NextRequest) {
   }
 
   // Define the protected routes
-  const protectedRoutes = ['/', '/reports', '/user-management', '/settings'];
+  const protectedRoutes = [
+    '/',
+    'dashboard',
+    '/reports',
+    '/user-management',
+    '/settings',
+  ];
 
   // If the user cookie does not exist and the request is for the /dashboard route
   if (!userCookie && protectedRoutes.includes(request.nextUrl.pathname)) {
@@ -57,5 +63,12 @@ export function middleware(request: NextRequest) {
 
 // Specify the paths where the middleware should run
 export const config = {
-  matcher: ['/', '/reports', '/user-management', '/settings', '/login'],
+  matcher: [
+    '/',
+    '/dashboard',
+    '/reports',
+    '/user-management',
+    '/settings',
+    '/login',
+  ],
 };

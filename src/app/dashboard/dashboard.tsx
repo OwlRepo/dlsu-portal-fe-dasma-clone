@@ -1,6 +1,6 @@
 'use client';
 
-import { Building2, ArrowRightLeft, LogOut } from 'lucide-react';
+import { LogOut, LogIn, University } from 'lucide-react';
 import { StatisticsCard } from '@/components/dashboard/statistics-card';
 import { GateAccessStats } from '@/components/dashboard/gate-access-stats';
 import { LiveDataTable } from '@/components/dashboard/live-data-table';
@@ -104,12 +104,14 @@ export function Dashboard() {
           {/* Stats and Gate Access in same row */}
           <div className="col-span-6 grid grid-cols-3 gap-4">
             <StatisticsCard
-              icon={<Building2 className="h-10 w-10 text-[#00bc65]" />}
+              icon={<University className="h-10 w-10 text-[#00bc65]" />}
               count={15482}
               label="On Premise"
             />
             <StatisticsCard
-              icon={<ArrowRightLeft className="h-10 w-10 text-[#4fd1c5]" />}
+              icon={
+                <LogIn className="h-10 w-10 text-[#4fd1c5] transform rotate-180" />
+              }
               count={20000}
               label="Entry"
             />

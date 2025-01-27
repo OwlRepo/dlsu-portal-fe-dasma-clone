@@ -13,6 +13,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Info } from 'lucide-react';
 
 const accountFormSchema = z.object({
   employeeId: z.string(),
@@ -44,7 +45,11 @@ export function AccountForm() {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium">Account Info</h3>
+        <div className="flex items-center gap-2 mb-2">
+          <Info className="h-5 w-5 text-muted-foreground" />
+          <h3 className="text-lg font-medium">Account Info</h3>
+        </div>
+
         <p className="text-sm text-muted-foreground">
           Update your account information.
         </p>

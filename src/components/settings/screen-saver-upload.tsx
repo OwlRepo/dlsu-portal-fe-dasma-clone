@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Upload, X } from 'lucide-react';
+import { FolderClosed, Upload, X } from 'lucide-react';
 import Image from 'next/image';
 import axios from 'axios';
 import Cookies from 'js-cookie';
@@ -22,7 +22,9 @@ export function ScreenSaverUpload() {
   const user = Cookies.get('user');
   const token = user ? JSON.parse(user).token : null;
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     try {
       const file = event.target.files?.[0];
 
@@ -35,21 +37,23 @@ export function ScreenSaverUpload() {
         reader.readAsDataURL(file);
 
         formData.append('file', file);
-        const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/screensaver/upload`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `${token}`,
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/screensaver/upload`,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: `${token}`,
+            },
           },
-        });
+        );
 
         const data = await response.data;
         setImage(data.url);
       }
-
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
-
   };
 
   return (
@@ -73,7 +77,8 @@ export function ScreenSaverUpload() {
                 onChange={handleImageUpload}
                 className="absolute inset-0 cursor-pointer opacity-0"
               />
-              <Button variant="outline" className="w-full">
+              <Button className="flex items-center gap-2 w-full">
+                <FolderClosed className="h-5 w-5" />
                 Choose an image
               </Button>
             </div>
