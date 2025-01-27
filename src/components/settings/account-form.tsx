@@ -25,10 +25,10 @@ const accountFormSchema = z.object({
 type AccountFormValues = z.infer<typeof accountFormSchema>;
 
 const defaultValues: Partial<AccountFormValues> = {
-  employeeId: '10234124',
-  username: 'Kindred',
-  firstName: 'Kindred',
-  lastName: 'Inocencio',
+  employeeId: '',
+  username: '',
+  firstName: '',
+  lastName: '',
 };
 
 export function AccountForm() {
@@ -39,7 +39,11 @@ export function AccountForm() {
 
   async function onSubmit(data: AccountFormValues) {
     // TODO: Implement save functionality
-    console.log(data);
+    try {
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
@@ -114,7 +118,7 @@ export function AccountForm() {
             <Button variant="outline">Save Changes</Button>
             <Button
               variant="default"
-              className="bg-emerald-600 hover:bg-emerald-700"
+              className="bg-[#00BC65] hover:bg-green-600"
             >
               Update Password
             </Button>

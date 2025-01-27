@@ -77,7 +77,7 @@ export function AppSidebar() {
                   className={cn(
                     'h-10 justify-start px-4 w-52 mx-auto',
                     isActive
-                      ? 'text-[#00bc65] bg-[#ddf3ea] font-bold  hover:text-[#00573F] hover:bg-[#ddf3ea]'
+                      ? 'text-[#00bc65] bg-[#ddf3ea] font-bold  hover:text-green-600 hover:bg-[#ddf3ea]'
                       : 'text-gray-400 hover:bg-gray-100',
                   )}
                 >
@@ -91,7 +91,18 @@ export function AppSidebar() {
           })}
         </SidebarMenu>
       </SidebarContent>
-      <SidebarFooter></SidebarFooter>
+      <SidebarFooter className="p-4 flex flex-col items-center">
+        <Image
+          src="/verifyi.png"
+          alt="verifyi-logo"
+          width={130}
+          height={130}
+          className="auto-height"
+        />
+        <p className="text-center text-muted-foreground text-sm">
+          version 1.0.0
+        </p>
+      </SidebarFooter>
     </Sidebar>
   );
 }
