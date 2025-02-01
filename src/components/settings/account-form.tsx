@@ -14,12 +14,15 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Info } from 'lucide-react';
+import axios from 'axios';
+import Cookies from 'js-cookie';
+import { useToast } from '@/hooks/use-toast';
 
 const accountFormSchema = z.object({
   employeeId: z.string(),
   username: z.string(),
-  firstName: z.string(),
-  lastName: z.string(),
+  first_name: z.string(),
+  last_name: z.string(),
 });
 
 type AccountFormValues = z.infer<typeof accountFormSchema>;
@@ -27,8 +30,8 @@ type AccountFormValues = z.infer<typeof accountFormSchema>;
 const defaultValues: Partial<AccountFormValues> = {
   employeeId: '',
   username: '',
-  firstName: '',
-  lastName: '',
+  first_name: '',
+  last_name: '',
 };
 
 export function AccountForm() {
@@ -36,15 +39,51 @@ export function AccountForm() {
     resolver: zodResolver(accountFormSchema),
     defaultValues,
   });
+  const { toast } = useToast();
 
-  async function onSubmit(data: AccountFormValues) {
+  const user = Cookies.get('user');
+  const token = user ? JSON.parse(user).token : null;
+
+  const onSubmit = async (data: AccountFormValues) => {
     // TODO: Implement save functionality
     try {
-      console.log(data);
+      const res = await axios.patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/super-admin/SAD-98910FA3B5D6`, // make sure to make id dynamic
+        {
+          username: data.username,
+          first_name: data.first_name,
+          last_name: data.last_name,
+        },
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        },
+      );
+      if (res.status === 200) {
+        toast({
+          title: 'Account Info Updated',
+          description:
+            'Your account information has been updated successfully.',
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description:
+            'An error occurred while updating your account information.',
+          variant: 'destructive',
+        });
+      }
     } catch (error) {
       console.error(error);
+      toast({
+        title: 'Error',
+        description:
+          'An error occurred while updating your account information.',
+        variant: 'destructive',
+      });
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -64,6 +103,7 @@ export function AccountForm() {
             <FormField
               control={form.control}
               name="employeeId"
+              disabled
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Employee ID</FormLabel>
@@ -89,7 +129,7 @@ export function AccountForm() {
             />
             <FormField
               control={form.control}
-              name="firstName"
+              name="first_name"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>First Name</FormLabel>
@@ -102,7 +142,7 @@ export function AccountForm() {
             />
             <FormField
               control={form.control}
-              name="lastName"
+              name="last_name"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Last Name</FormLabel>
@@ -115,10 +155,13 @@ export function AccountForm() {
             />
           </div>
           <div className="flex justify-end space-x-4">
-            <Button variant="outline">Save Changes</Button>
+            <Button variant="outline" type="submit">
+              Save Changes
+            </Button>
             <Button
               variant="default"
               className="bg-[#00BC65] hover:bg-green-600"
+              type="button"
             >
               Update Password
             </Button>
