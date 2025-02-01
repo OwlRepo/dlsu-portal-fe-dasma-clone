@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -10,51 +10,91 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { FolderClosed, Upload, X } from 'lucide-react';
+import { FolderClosed, SlidersHorizontal, Upload, X } from 'lucide-react';
 import Image from 'next/image';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { useDropzone } from 'react-dropzone';
 
 export function ScreenSaverUpload() {
   const [image, setImage] = useState<string | null>(null);
   const [showConfigure, setShowConfigure] = useState(false);
+  const [defaultScreensaverUrl, setDefaultScreensaverUrl] = useState<
+    string | null
+  >(null);
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: {
+      'image/*': [],
+    },
+    multiple: false,
+    onDrop: (acceptedFiles) => {
+      handleImageUpload(acceptedFiles);
+    },
+  });
+  const [interval, setInterval] = useState<string>('60000');
 
   const user = Cookies.get('user');
   const token = user ? JSON.parse(user).token : null;
 
-  const handleImageUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleImageUpload = async (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    const formData = new FormData();
+    formData.append('file', file);
+
     try {
-      const file = event.target.files?.[0];
-
-      const formData = new FormData();
-      if (file) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setImage(reader.result as string);
-        };
-        reader.readAsDataURL(file);
-
-        formData.append('file', file);
-        const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/screensaver/upload`,
-          formData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              Authorization: `${token}`,
-            },
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/screensaver/upload`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `${token}`,
           },
-        );
+        },
+      );
 
-        const data = await response.data;
-        setImage(data.url);
-      }
+      const data = await response.data;
+      setImage(data.url);
     } catch (error) {
       console.error(error);
     }
   };
+
+  const handleIntervalChange = () => {
+    if (interval) {
+      localStorage.setItem('screensaverInterval', interval.toString());
+    }
+  };
+
+  useEffect(() => {
+    const interval = localStorage.getItem('screensaverInterval');
+    if (interval) {
+      setInterval(interval);
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/screensaver`,
+          {
+            headers: {
+              Authorization: token,
+            },
+          },
+        );
+
+        if (res.status === 200) {
+          setDefaultScreensaverUrl(res.data.data.url);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchData();
+  }, [token]);
 
   return (
     <Card>
@@ -62,26 +102,56 @@ export function ScreenSaverUpload() {
         <CardTitle>Screen Saver</CardTitle>
       </CardHeader>
       <CardContent>
-        {!image ? (
+        {!image && !showConfigure ? (
           <div className="space-y-4">
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8">
-              <Upload className="mb-5 h-[4.5rem] w-8 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">
-                Drag or Drop to upload image
-              </p>
+            <div
+              {...getRootProps()}
+              className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 cursor-pointer"
+            >
+              <input {...getInputProps()} />
+              {image || defaultScreensaverUrl ? (
+                <Image
+                  src={image || defaultScreensaverUrl || '/placeholder.svg'}
+                  alt="Screensaver"
+                  width={400}
+                  height={400}
+                  className="h-auto object-cover rounded-lg"
+                />
+              ) : (
+                <>
+                  <Upload className="mb-5 h-[4.5rem] w-8 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">
+                    Drag or Drop to upload image
+                  </p>
+                </>
+              )}
             </div>
             <div className="relative">
               <input
                 type="file"
                 accept="image/*"
-                onChange={handleImageUpload}
+                onChange={(e) =>
+                  handleImageUpload(Array.from(e.target.files || []))
+                }
                 className="absolute inset-0 cursor-pointer opacity-0"
               />
-              <Button className="flex items-center gap-2 w-full">
-                <FolderClosed className="h-5 w-5" />
-                Choose an image
-              </Button>
+
+              {!defaultScreensaverUrl && (
+                <Button className="flex items-center gap-2 w-full mb-2">
+                  <FolderClosed className="h-5 w-5" />
+                  Choose an image
+                </Button>
+              )}
             </div>
+            {!image && defaultScreensaverUrl && (
+              <Button
+                className="flex items-center gap-2 w-full"
+                onClick={() => setShowConfigure(true)}
+              >
+                <SlidersHorizontal className="h-5 w-5" />
+                Configure
+              </Button>
+            )}
           </div>
         ) : showConfigure ? (
           <div className="space-y-4">
@@ -96,18 +166,23 @@ export function ScreenSaverUpload() {
                 <X className="h-4 w-4" />
               </Button>
             </div>
-            <Select defaultValue="5">
+            <Select
+              onValueChange={(value) => {
+                setInterval(value);
+              }}
+              value={interval}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select interval" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="5">Every 5 Seconds</SelectItem>
-                <SelectItem value="10">Every 10 Seconds</SelectItem>
-                <SelectItem value="15">Every 15 Seconds</SelectItem>
-                <SelectItem value="30">Every 30 Seconds</SelectItem>
+                <SelectItem value="60000">Every 1 minute</SelectItem>
+                <SelectItem value="300000">Every 5 minutes</SelectItem>
+                <SelectItem value="6000000">Every 10 minutes</SelectItem>
+                <SelectItem value="9000000">Every 15 minutes</SelectItem>
               </SelectContent>
             </Select>
-            <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
+            <Button onClick={handleIntervalChange} className="w-full">
               Save
             </Button>
           </div>

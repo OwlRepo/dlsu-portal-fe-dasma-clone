@@ -11,7 +11,18 @@ export function IdleScreensaver() {
   const pathname = usePathname();
   const [showScreensaver, setShowScreensaver] = useState(false);
   const [screensaverUrl, setScreensaverUrl] = useState('');
-  const isIdle = useIdleTimer(180000); // 3 minutes
+  const [interval, setInterval] = useState<string>('');
+
+  const handleActivity = () => {
+    setShowScreensaver(false);
+  };
+
+  useEffect(() => {
+    const interval = localStorage.getItem('screensaverInterval');
+    setInterval(interval ?? '60000');
+  }, []);
+
+  const isIdle = useIdleTimer(parseInt(interval, 10));
 
   useEffect(() => {
     setShowScreensaver(isIdle);
@@ -46,10 +57,6 @@ export function IdleScreensaver() {
       console.error(err);
     }
   }, [pathname]);
-
-  const handleActivity = () => {
-    setShowScreensaver(false);
-  };
 
   if (!showScreensaver) return null;
 
