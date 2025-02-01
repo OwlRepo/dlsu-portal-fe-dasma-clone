@@ -15,8 +15,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Info } from 'lucide-react';
 import axios from 'axios';
-import Cookies from 'js-cookie';
 import { useToast } from '@/hooks/use-toast';
+import useUserToken from '@/hooks/useUserToken';
 
 const accountFormSchema = z.object({
   employeeId: z.string(),
@@ -40,15 +40,13 @@ export function AccountForm() {
     defaultValues,
   });
   const { toast } = useToast();
-
-  const user = Cookies.get('user');
-  const token = user ? JSON.parse(user).token : null;
+  const { token, userId } = useUserToken();
 
   const onSubmit = async (data: AccountFormValues) => {
     // TODO: Implement save functionality
     try {
       const res = await axios.patch(
-        `${process.env.NEXT_PUBLIC_API_URL}/super-admin/SAD-98910FA3B5D6`, // make sure to make id dynamic
+        `${process.env.NEXT_PUBLIC_API_URL}/super-admin/${userId}`,
         {
           username: data.username,
           first_name: data.first_name,

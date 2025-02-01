@@ -4,12 +4,14 @@ import { jwtDecode } from 'jwt-decode';
 
 interface DecodedToken {
   role: string;
+  sub: string;
   // Add other properties as needed
 }
 
 const useUserToken = () => {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const user = Cookies.get('user');
@@ -20,13 +22,14 @@ const useUserToken = () => {
       try {
         const decoded: DecodedToken = jwtDecode(parsedUser.token);
         setRole(decoded.role);
+        setUserId(decoded.sub);
       } catch (error) {
         console.error('Failed to decode token', error);
       }
     }
   }, []);
 
-  return { token, role };
+  return { token, role, userId };
 };
 
 export default useUserToken;
