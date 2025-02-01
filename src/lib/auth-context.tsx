@@ -56,10 +56,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Should include token
 
     try {
-      const response = await api.post(`/auth/${role}`, {
-        username,
-        password,
-      });
+      const response = await api.post(
+        `/auth/${role === 'employee' ? 'emlployee' : 'login'}`,
+        {
+          username,
+          password,
+        },
+      );
 
       if (response) {
         const userData = { username, role, token: response.data.access_token };

@@ -14,6 +14,9 @@ interface User {
   id: string;
   username: string;
   userType: string;
+  first_name: string;
+  last_name: string;
+  created_at: string;
 }
 
 export interface UserHeader {
@@ -49,12 +52,12 @@ const UserManagementPageContainer = () => {
   ];
 
   const data = userList.map((row) => ({
-    EMPLOYEE_ID: row.id,
-    USERNAME: row.username,
-    FIRST_NAME: 'N/A',
-    LAST_NAME: 'N/A',
-    ROLE: row.userType,
-    DATE_ADDED: 'N/A',
+    EMPLOYEE_ID: row.id ? row.id : 'N/A',
+    USERNAME: row.username ? row.username : 'N/A',
+    FIRST_NAME: row.first_name ? row.first_name : 'N/A',
+    LAST_NAME: row.last_name ? row.last_name : 'N/A',
+    ROLE: row.userType ? row.userType : 'N/A',
+    DATE_ADDED: row.created_at ? row.created_at : 'N/A',
   }));
 
   const roleColors: Record<string, string> = {
