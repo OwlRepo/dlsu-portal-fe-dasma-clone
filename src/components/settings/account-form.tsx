@@ -17,6 +17,7 @@ import { Info } from 'lucide-react';
 import axios from 'axios';
 import { useToast } from '@/hooks/use-toast';
 import useUserToken from '@/hooks/useUserToken';
+import { useEffect } from 'react';
 
 const accountFormSchema = z.object({
   employeeId: z.string(),
@@ -40,7 +41,7 @@ export function AccountForm() {
     defaultValues,
   });
   const { toast } = useToast();
-  const { token, userId } = useUserToken();
+  const { token, userId, role } = useUserToken();
 
   const onSubmit = async (data: AccountFormValues) => {
     // TODO: Implement save functionality
@@ -82,6 +83,37 @@ export function AccountForm() {
       });
     }
   };
+
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/${role}/${userId}`,
+          {
+            headers: {
+              Authorization: `${token}`,
+            },
+          },
+        );
+        if (res.status === 200) {
+          const user = res.data;
+          form.setValue(
+            'employeeId',
+            role === 'super-admin' ? user.super_admin_id : user.admin_id,
+          );
+          form.setValue('username', user.username);
+          form.setValue('first_name', user.first_name || 'N/A');
+          form.setValue('last_name', user.last_name || 'N/A');
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    if (userId && token) {
+      fetchUserDetails();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, token, role]);
 
   return (
     <div className="space-y-6">
