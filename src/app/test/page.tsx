@@ -3,7 +3,7 @@ import React from 'react';
 
 const page = () => {
   return (
-    <div className="py-2 px-6">
+    <div className="py-4 px-6">
       <TurnstileDashboard />
     </div>
   );

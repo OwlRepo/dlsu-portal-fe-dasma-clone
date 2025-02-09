@@ -5,60 +5,88 @@ import { StatisticsCard } from '@/components/dashboard/statistics-card';
 import { GateAccessStats } from '@/components/dashboard/gate-access-stats';
 import { LiveDataTable } from '@/components/dashboard/live-data-table';
 // import useUserToken from '@/hooks/useUserToken';
-// import { useEffect } from 'react';
-// import axios from 'axios';
+import { useEffect } from 'react';
+import axios from 'axios';
 
 export function Dashboard() {
   // const { role } = useUserToken();
+  // const [bsSessionId, setBsSessionId] = useState('');
 
-  // const API_HOST = 'https://202.128.57.226:4430'; // BioStar 2 IP and HTTPS port
-  // const BIOSTAR2_WS_URI = `${API_HOST}/wsapi`;
+  const BIOSTAR_URI = 'https://202.128.57.226:4430'; // BioStar 2 IP and HTTPS port
+  // const API_HOST = '/api/proxy';
+  const BIOSTAR2_WS_URI = `${BIOSTAR_URI}/wsapi`;
   // const BIOSTAR2_WS_EVENT_START_URI = `${API_HOST}/api/users/2123456`;
 
   // const bsSessionId = '1a089fc5956b42e29d5726c164c89334';
 
-  // useEffect(() => {
-  //   if (!bsSessionId) {
-  //     console.error(
-  //       'Session ID is missing. Cannot establish WebSocket connection.',
-  //     );
-  //     return;
-  //   }
+  useEffect(() => {
+    const fetchSessionId = async () => {
+      try {
+        const response = await axios.post(
+          '/api/login',
+          {
+            User: {
+              login_id: 'admin',
+              password: 'ELIDtech1234',
+            },
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          },
+        );
 
-  //   const ws = new WebSocket(BIOSTAR2_WS_URI);
+        if (response) {
+          // setBsSessionId(response.data.bsSessionId);
+          const ws = new WebSocket(BIOSTAR2_WS_URI);
 
-  //   ws.onopen = () => {
-  //     console.log('WebSocket connection established.');
-  //     // Send the session ID to the WebSocket server
-  //     ws.send(`bs-session-id=${bsSessionId}`);
+          ws.onopen = () => {
+            console.log('WebSocket connection established.');
+            // Send the session ID to the WebSocket server
+            ws.send(`bs-session-id=${response.data.bsSessionId}`);
 
-  //     // Optionally call the event API after WebSocket connection is established
-  //     setTimeout(() => {
-  //       fetchEventData();
-  //     }, 1000);
-  //   };
+            // Optionally call the event API after WebSocket connection is established
+            setTimeout(() => {
+              fetchEventData(response.data.bsSessionId);
+            }, 1000);
+          };
 
-  //   ws.onmessage = (event) => {
-  //     console.log('WebSocket message received:', event.data);
-  //   };
+          ws.onmessage = (event) => {
+            console.log('WebSocket message received:', event.data);
+          };
 
-  //   ws.onerror = (error) => {
-  //     console.error('WebSocket error:', error);
-  //   };
+          ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+          };
 
-  //   ws.onclose = () => {
-  //     console.log('WebSocket connection closed.');
-  //   };
+          ws.onclose = () => {
+            console.log('WebSocket connection closed.');
+          };
 
-  //   // Cleanup on component unmount
-  //   return () => {
-  //     if (ws.readyState === WebSocket.OPEN) {
-  //       ws.close();
-  //     }
-  //   };
+          // Cleanup on component unmount
+          return () => {
+            if (ws.readyState === WebSocket.OPEN) {
+              ws.close();
+            }
+          };
+        } else {
+          console.error(
+            'Session ID is missing. Cannot establish WebSocket connection.',
+          );
+          return;
+        }
 
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [bsSessionId]);
+        // console.log('Login response:', response.data);
+      } catch (error) {
+        console.error('Error logging in:', error);
+      }
+    };
+
+    fetchSessionId();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // const payload = {
   //   Query: {
@@ -79,21 +107,23 @@ export function Dashboard() {
   //   },
   // };
 
-  // const fetchEventData = async () => {
-  //   try {
-  //     const response = await axios.get(BIOSTAR2_WS_EVENT_START_URI, {
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         'bs-session-id': bsSessionId,
-  //       },
-  //       data: JSON.stringify(payload),
-  //     });
+  const fetchEventData = async (bsSessionId: string) => {
+    console.log(bsSessionId);
+    try {
+      const response = await axios.get('api/users', {
+        headers: {
+          'bs-session-id': bsSessionId,
+        },
+        params: {
+          params: '2123456',
+        },
+      });
 
-  //     console.log('Fetched event data:', response.data);
-  //   } catch (error) {
-  //     console.error('Error fetching event data:', error);
-  //   }
-  // };
+      console.log('Fetched event data:', response.data);
+    } catch (error) {
+      console.error('Error fetching event data:', error);
+    }
+  };
 
   return (
     <div className="p-6">
@@ -135,3 +165,60 @@ export function Dashboard() {
     </div>
   );
 }
+
+// const fetchSessionId = async () => {
+//   try {
+//     const response = await axios.post(
+//       `${API_HOST}/api/login`,
+//       {
+//         login_id: 'admin',
+//         password: 'ELIDtech1234',
+//       },
+//       {
+//         headers: {
+//           'Content-Type': 'application/json',
+//         },
+//       },
+//     );
+
+//     console.log(response);
+//     if (response) {
+//       setBsSessionId(response.data);
+//       const ws = new WebSocket(BIOSTAR2_WS_URI);
+
+//       ws.onopen = () => {
+//         console.log('WebSocket connection established.');
+//         ws.send(`bs-session-id=${response.data}`);
+
+//         setTimeout(() => {
+//           fetchEventData();
+//         }, 1000);
+//       };
+
+//       ws.onmessage = (event) => {
+//         console.log('WebSocket message received:', event.data);
+//       };
+
+//       ws.onerror = (error) => {
+//         console.error('WebSocket error:', error);
+//       };
+
+//       ws.onclose = () => {
+//         console.log('WebSocket connection closed.');
+//       };
+
+//       return () => {
+//         if (ws.readyState === WebSocket.OPEN) {
+//           ws.close();
+//         }
+//       };
+//     } else {
+//       console.error(
+//         'Session ID is missing. Cannot establish WebSocket connection.',
+//       );
+//       return;
+//     }
+//   } catch (error) {
+//     console.error('Error logging in:', error);
+//   }
+// };

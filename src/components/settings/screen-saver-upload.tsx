@@ -2,7 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import {
   Select,
   SelectContent,
@@ -99,14 +105,36 @@ export function ScreenSaverUpload() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Screen Saver</CardTitle>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <CardTitle>{showConfigure ? 'Configure' : 'Screen Saver'}</CardTitle>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => setShowConfigure(false)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+
+        <CardDescription>
+          Corem ipsum dolor sit amet, consectetur
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {!image && !showConfigure ? (
           <div className="space-y-4">
             <div
               {...getRootProps()}
-              className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 cursor-pointer"
+              className={`flex flex-col items-center justify-center rounded-lg border border-dashed cursor-pointer ${
+                image || defaultScreensaverUrl ? 'py-2' : 'p-8'
+              }`}
             >
               <input {...getInputProps()} />
               {image || defaultScreensaverUrl ? (
@@ -155,17 +183,12 @@ export function ScreenSaverUpload() {
           </div>
         ) : showConfigure ? (
           <div className="space-y-4">
-            <div className="flex justify-between">
+            {/* <div className="flex justify-between">
               <h3 className="text-sm font-medium">Configure</h3>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => setShowConfigure(false)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
+            </div> */}
+            <p className="text-sm text-muted-foreground">
+              Set the interval for the screen saver
+            </p>
             <Select
               onValueChange={(value) => {
                 setInterval(value);

@@ -34,9 +34,9 @@ export function TimePicker({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 rounded-xl">
       <Card className="w-[300px]">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle className="text-base font-medium">Set Time</CardTitle>
           <Button
             variant="ghost"
@@ -47,7 +47,7 @@ export function TimePicker({
             <X className="h-4 w-4" />
           </Button>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <div className="flex items-center justify-center space-x-2">
             <Select value={hour} onValueChange={setHour}>
               <SelectTrigger className="w-[70px]">
@@ -88,10 +88,7 @@ export function TimePicker({
               </SelectContent>
             </Select>
           </div>
-          <Button
-            className="mt-4 w-full bg-emerald-600 hover:bg-emerald-700"
-            onClick={handleSave}
-          >
+          <Button className="mt-4 w-full" onClick={handleSave}>
             Save
           </Button>
         </CardContent>
