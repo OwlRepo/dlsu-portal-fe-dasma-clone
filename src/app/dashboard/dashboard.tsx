@@ -15,7 +15,7 @@ export function Dashboard() {
   const BIOSTAR_URI = 'https://202.128.57.226:4430'; // BioStar 2 IP and HTTPS port
   // const API_HOST = '/api/proxy';
   const BIOSTAR2_WS_URI = `${BIOSTAR_URI}/wsapi`;
-  // const BIOSTAR2_WS_EVENT_START_URI = `${API_HOST}/api/users/2123456`;
+  // const PROXY_WS_URI = 'wss://localhost:3000/wsapi';
 
   // const bsSessionId = '1a089fc5956b42e29d5726c164c89334';
 
@@ -48,12 +48,13 @@ export function Dashboard() {
 
             // Optionally call the event API after WebSocket connection is established
             setTimeout(() => {
+              fetchUserData(response.data.bsSessionId);
               fetchEventData(response.data.bsSessionId);
             }, 1000);
           };
 
           ws.onmessage = (event) => {
-            console.log('WebSocket message received:', event.data);
+            console.log('WebSocket message received:', event);
           };
 
           ws.onerror = (error) => {
@@ -88,26 +89,7 @@ export function Dashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // const payload = {
-  //   Query: {
-  //     limit: 51,
-  //     conditions: [
-  //       {
-  //         column: 'datetime',
-  //         operator: 3,
-  //         values: ['2019-07-30T15:00:00.000Z'],
-  //       },
-  //     ],
-  //     orders: [
-  //       {
-  //         column: 'datetime',
-  //         descending: false,
-  //       },
-  //     ],
-  //   },
-  // };
-
-  const fetchEventData = async (bsSessionId: string) => {
+  const fetchUserData = async (bsSessionId: string) => {
     console.log(bsSessionId);
     try {
       const response = await axios.get('api/users', {
@@ -118,6 +100,42 @@ export function Dashboard() {
           params: '2123456',
         },
       });
+
+      console.log('Fetched event data:', response.data);
+    } catch (error) {
+      console.error('Error fetching event data:', error);
+    }
+  };
+
+  const fetchEventData = async (bsSessionId: string) => {
+    try {
+      const response = await axios.post(
+        '/api/events',
+        {
+          Query: {
+            limit: 51,
+            conditions: [
+              {
+                column: 'datetime',
+                operator: 3,
+                values: ['2019-07-30T15:00:00.000Z'],
+              },
+            ],
+            orders: [
+              {
+                column: 'datetime',
+                descending: false,
+              },
+            ],
+          },
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'bs-session-id': bsSessionId,
+          },
+        },
+      );
 
       console.log('Fetched event data:', response.data);
     } catch (error) {

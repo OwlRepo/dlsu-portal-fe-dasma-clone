@@ -9,6 +9,13 @@
 // } from '@/components/ui/select';
 import TurnstileGrid from './TurnstileGrid';
 import EntriesLog from './EntriesLog';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../ui/card';
 
 export default function TurnstileDashboard() {
   // const [turnstileCount, setTurnstileCount] = useState(6);
@@ -33,7 +40,16 @@ export default function TurnstileDashboard() {
         </Select>
       </div> */}
       <div className="flex flex-col lg:flex-row gap-6">
-        <TurnstileGrid turnstileCount={4} />
+        <Card className="flex-grow items-center justify-center">
+          <CardHeader>
+            <CardTitle>Access Overview</CardTitle>
+            <CardDescription>Real-Time Entry</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <TurnstileGrid turnstileCount={4} />
+          </CardContent>
+        </Card>
+
         <EntriesLog />
       </div>
     </div>

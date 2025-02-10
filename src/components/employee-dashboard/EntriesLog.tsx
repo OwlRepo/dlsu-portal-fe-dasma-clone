@@ -3,36 +3,44 @@ import { getLogEntries } from '../../lib/dummyData';
 import Image from 'next/image';
 
 export default function EntriesLog() {
-  const recentLogs = getLogEntries(50);
+  const recentLogs = getLogEntries(10);
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Recent Entries</h2>
-      <div className="bg-background border rounded-lg p-4 w-full lg:w-80 xl:w-96">
-        <ScrollArea className="h-[calc(100vh-200px)]">
-          {recentLogs.map((entry) => (
-            <div
-              key={entry.id}
-              className="flex items-center space-x-4 py-2 border-b last:border-b-0"
-            >
-              <Image
-                src={entry.imageUrl || '/placeholder.svg'}
-                alt={entry.name}
-                width={40} // Specify the width
-                height={40} // Specify the height
-                className="w-10 h-10 rounded-full"
-              />
-              <div className="flex-grow">
-                <p className="text-sm font-medium">
-                  {entry.name} (ID: {entry.id})
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Turnstile: {entry.turnstile}
-                </p>
+    <div className="flex-grow">
+      <h2 className="text-xl font-semibold text-gray-900 mb-6">
+        Recent Entries
+      </h2>
+      <div className="w-full max-w-2xl mx-auto">
+        <ScrollArea className="h-[calc(100vh-200px)] max-w-lg mx-auto pr-4">
+          <div className="space-y-3">
+            {recentLogs.map((entry) => (
+              <div key={entry.id} className="bg-white rounded-lg border-2 p-4">
+                <div className="flex items-center gap-4">
+                  <Image
+                    src={entry.imageUrl || '/placeholder.svg'}
+                    alt={entry.name}
+                    width={48}
+                    height={48}
+                    className="rounded-full object-cover"
+                  />
+                  <div className="flex-grow">
+                    <div className="flex justify-between items-start">
+                      <p className="font-medium text-gray-900">{entry.name}</p>
+                      <p className="text-sm text-gray-500">ID: {entry.id}</p>
+                    </div>
+                    <p className="text-sm text-gray-600 mt-1">
+                      Turnstile: {entry.turnstile}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <p className="text-sm text-gray-500">
+                    Remarks: {'No remarks'}
+                  </p>
+                </div>
               </div>
-              <p className="text-xs text-muted-foreground">{entry.timestamp}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </ScrollArea>
       </div>
     </div>
