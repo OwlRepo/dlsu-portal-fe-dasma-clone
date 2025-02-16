@@ -11,9 +11,13 @@ import axios from 'axios';
 export function Dashboard() {
   // const { role } = useUserToken();
   const [bsSessionId, setBsSessionId] = useState('');
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState({
+    user_id: '',
+    name: '',
+    photo_exist: false,
+  });
 
-  const BIOSTAR_URI = 'https://127.0.0.1:4431'; // BioStar 2 IP and HTTPS port
+  // const BIOSTAR_URI = 'https://127.0.0.1:4431'; // BioStar 2 IP and HTTPS port
   const WS_HOST ='wss://127.0.0.1:4431'
   // const API_HOST = '/api/proxy';
   const BIOSTAR2_WS_URI = `${WS_HOST}/wsapi`;

@@ -3,9 +3,9 @@
 import axios from 'axios';
 import React, { useEffect } from 'react'
 
-const page = () => {
+const Page = () => {
 
-    const BIOSTAR_URI = 'https://127.0.0.1:4431'; // BioStar 2 IP and HTTPS port
+    // const BIOSTAR_URI = 'https://127.0.0.1:4431'; // BioStar 2 IP and HTTPS port
 				
     const WS_HOST ='wss://127.0.0.1:4431' // same here as in the above line
   // const API_HOST = '/api/proxy';
@@ -84,23 +84,23 @@ const page = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchUserData = async (bsSessionId: string) => {
-    console.log(bsSessionId);
-    try {
-      const response = await axios.get('api/users', {
-        headers: {
-          'bs-session-id': bsSessionId,
-        },
-        params: {
-          params: '2123456',
-        },
-      });
+  // const fetchUserData = async (bsSessionId: string) => {
+  //   console.log(bsSessionId);
+  //   try {
+  //     const response = await axios.get('api/users', {
+  //       headers: {
+  //         'bs-session-id': bsSessionId,
+  //       },
+  //       params: {
+  //         params: '2123456',
+  //       },
+  //     });
 
-      console.log('Fetched event data:', response.data);
-    } catch (error) {
-      console.error('Error fetching event data:', error);
-    }
-  };
+  //     console.log('Fetched event data:', response.data);
+  //   } catch (error) {
+  //     console.error('Error fetching event data:', error);
+  //   }
+  // };
 
   const fetchEventData = async (bsSessionId: string) => {
     try {
@@ -142,4 +142,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page
