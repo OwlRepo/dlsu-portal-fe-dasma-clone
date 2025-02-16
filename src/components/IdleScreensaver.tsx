@@ -47,7 +47,9 @@ export function IdleScreensaver() {
           },
         );
 
-        if (res.status === 200) {
+        console.log(res)
+
+        if (res.status === 200 && res.data.data !== null) {
           setScreensaverUrl(res.data.data.url);
         }
       };
@@ -68,7 +70,7 @@ export function IdleScreensaver() {
       onKeyDown={handleActivity}
     >
       <Image
-        src={screensaverUrl}
+        src={screensaverUrl ? screensaverUrl : '/screensaver.jpg'}
         alt="Screensaver"
         layout="fill"
         objectFit="cover"

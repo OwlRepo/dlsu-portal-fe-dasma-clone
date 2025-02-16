@@ -5,16 +5,18 @@ import { StatisticsCard } from '@/components/dashboard/statistics-card';
 import { GateAccessStats } from '@/components/dashboard/gate-access-stats';
 import { LiveDataTable } from '@/components/dashboard/live-data-table';
 // import useUserToken from '@/hooks/useUserToken';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 export function Dashboard() {
   // const { role } = useUserToken();
-  // const [bsSessionId, setBsSessionId] = useState('');
+  const [bsSessionId, setBsSessionId] = useState('');
+  const [user, setUser] = useState<any>(null);
 
-  const BIOSTAR_URI = 'https://202.128.57.226:4430'; // BioStar 2 IP and HTTPS port
+  const BIOSTAR_URI = 'https://127.0.0.1:4431'; // BioStar 2 IP and HTTPS port
+  const WS_HOST ='wss://127.0.0.1:4431'
   // const API_HOST = '/api/proxy';
-  const BIOSTAR2_WS_URI = `${BIOSTAR_URI}/wsapi`;
+  const BIOSTAR2_WS_URI = `${WS_HOST}/wsapi`;
   // const PROXY_WS_URI = 'wss://localhost:3000/wsapi';
 
   // const bsSessionId = '1a089fc5956b42e29d5726c164c89334';
@@ -45,16 +47,23 @@ export function Dashboard() {
             console.log('WebSocket connection established.');
             // Send the session ID to the WebSocket server
             ws.send(`bs-session-id=${response.data.bsSessionId}`);
+            setBsSessionId(response.data.bsSessionId);
 
             // Optionally call the event API after WebSocket connection is established
             setTimeout(() => {
-              fetchUserData(response.data.bsSessionId);
               fetchEventData(response.data.bsSessionId);
             }, 1000);
           };
 
           ws.onmessage = (event) => {
-            console.log('WebSocket message received:', event);
+            console.log(event);
+            const eventData = JSON.parse(event.data);
+            if (eventData.Event) {
+              if (eventData.Event.user_id) {
+                console.log('User ID:', eventData.Event.user_id);
+                setUser(eventData.Event.user_id);
+              }
+            }
           };
 
           ws.onerror = (error) => {
@@ -89,7 +98,7 @@ export function Dashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchUserData = async (bsSessionId: string) => {
+  const fetchUserData = async (bsSessionId: string, user_id: string) => {
     console.log(bsSessionId);
     try {
       const response = await axios.get('api/users', {
@@ -97,7 +106,7 @@ export function Dashboard() {
           'bs-session-id': bsSessionId,
         },
         params: {
-          params: '2123456',
+          params: user_id,
         },
       });
 
@@ -106,6 +115,12 @@ export function Dashboard() {
       console.error('Error fetching event data:', error);
     }
   };
+
+  useEffect(() => {
+    if (user) {
+      fetchUserData(bsSessionId, user.user_id);
+    }
+  }, [bsSessionId, user]);
 
   const fetchEventData = async (bsSessionId: string) => {
     try {
@@ -118,7 +133,7 @@ export function Dashboard() {
               {
                 column: 'datetime',
                 operator: 3,
-                values: ['2019-07-30T15:00:00.000Z'],
+                values: [new Date().toISOString()],
               },
             ],
             orders: [
