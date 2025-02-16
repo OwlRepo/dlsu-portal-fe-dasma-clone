@@ -60,7 +60,7 @@ export function IdleScreensaver() {
     }
   }, [pathname]);
 
-  if (!showScreensaver) return null;
+  if (!showScreensaver || !screensaverUrl) return null;
 
   return (
     <div
@@ -70,7 +70,7 @@ export function IdleScreensaver() {
       onKeyDown={handleActivity}
     >
       <Image
-        src={screensaverUrl ? screensaverUrl : '/screensaver.jpg'}
+        src={screensaverUrl}
         alt="Screensaver"
         layout="fill"
         objectFit="cover"
