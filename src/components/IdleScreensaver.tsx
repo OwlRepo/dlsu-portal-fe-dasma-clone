@@ -9,6 +9,9 @@ import { usePathname } from 'next/navigation';
 
 export function IdleScreensaver() {
   const pathname = usePathname();
+  const user = Cookies.get('user');
+  const token = user ? JSON.parse(user).token : null;
+
   const [showScreensaver, setShowScreensaver] = useState(false);
   const [screensaverUrl, setScreensaverUrl] = useState('');
   const [interval, setInterval] = useState<string>('');
@@ -29,14 +32,11 @@ export function IdleScreensaver() {
   }, [isIdle]);
 
   useEffect(() => {
-    if (pathname === '/login') {
+    if (pathname === '/login' || !token) {
       return;
     }
 
     try {
-      const user = Cookies.get('user');
-      const token = user ? JSON.parse(user).token : null;
-
       const fetchData = async () => {
         const res = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/screensaver`,
@@ -58,7 +58,7 @@ export function IdleScreensaver() {
     } catch (err) {
       console.error(err);
     }
-  }, [pathname]);
+  }, [pathname, token]);
 
   if (!showScreensaver || !screensaverUrl) return null;
 
