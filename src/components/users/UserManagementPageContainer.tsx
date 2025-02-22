@@ -1,19 +1,19 @@
-"use client";
-import React, { useEffect, useMemo, useState } from "react";
+'use client';
+import React, { useEffect, useMemo, useState } from 'react';
 // import { Download } from "lucide-react";
-import axios from "axios";
-import Cookies from "js-cookie";
-import { Input } from "../ui/input";
+import axios from 'axios';
+import Cookies from 'js-cookie';
+import { Input } from '../ui/input';
 // import { Button } from "../ui/button";
-import CustomTable from "./CustomTable";
-import ViewProfileDialog from "./ViewProfileDialog";
-import EditDetailsDialog from "./EditDetailsDialog";
-import { debounce } from "lodash";
-import CustomFilter, { FilterItem } from "../custom/CustomFilter";
-import { useToast } from "@/hooks/use-toast";
-import CustomExport from "../custom/CustomExport";
+import CustomTable from './CustomTable';
+import ViewProfileDialog from './ViewProfileDialog';
+import EditDetailsDialog from './EditDetailsDialog';
+import { debounce } from 'lodash';
+import CustomFilter, { FilterItem } from '../custom/CustomFilter';
+import { useToast } from '@/hooks/use-toast';
+import CustomExport from '../custom/CustomExport';
 // import { Button } from "../ui/button";
-import { Plus } from "lucide-react";
+import { Plus } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -21,11 +21,11 @@ import {
   // DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../ui/dialog";
-import CustomDropdownButton from "../custom/CustomDropdown";
-import SuperAdminForm from "./SuperAdminForm";
-import AdminForm from "./AdminForm";
-import EmployeeForm from "./EmployeeForm";
+} from '../ui/dialog';
+import CustomDropdownButton from '../custom/CustomDropdown';
+import SuperAdminForm from './SuperAdminForm';
+import AdminForm from './AdminForm';
+import EmployeeForm from './EmployeeForm';
 // import { ViewProfileDialog } from './view-profile-dialog';
 
 interface User {
@@ -50,15 +50,15 @@ export interface UserHeader {
 }
 
 const roleOptions = [
-  { id: "super-admin", label: "Super Admin" },
-  { id: "admin", label: "Admin" },
-  { id: "employee", label: "Employee" },
+  { id: 'super-admin', label: 'Super Admin' },
+  { id: 'admin', label: 'Admin' },
+  { id: 'employee', label: 'Employee' },
 ];
 
 const UserManagementPageContainer = () => {
   const { toast } = useToast();
 
-  const [search, setSearch] = useState<string>("");
+  const [search, setSearch] = useState<string>('');
   const [userList, setUserList] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<UserHeader | null>(null);
   const [isViewProfileOpen, setIsViewProfileOpen] = useState(false);
@@ -74,33 +74,33 @@ const UserManagementPageContainer = () => {
 
   const usersHeaders: {
     header: string;
-    accessor: keyof UserHeader | "";
+    accessor: keyof UserHeader | '';
     cell?: (row: UserHeader) => React.ReactNode;
   }[] = [
-    { header: "Employee ID", accessor: "EMPLOYEE_ID" },
-    { header: "Username", accessor: "USERNAME" },
-    { header: "First Name", accessor: "FIRST_NAME" },
-    { header: "Last Name", accessor: "LAST_NAME" },
-    { header: "Role", accessor: "ROLE" },
-    { header: "Date Added", accessor: "DATE_ADDED" },
+    { header: 'Employee ID', accessor: 'EMPLOYEE_ID' },
+    { header: 'Username', accessor: 'USERNAME' },
+    { header: 'First Name', accessor: 'FIRST_NAME' },
+    { header: 'Last Name', accessor: 'LAST_NAME' },
+    { header: 'Role', accessor: 'ROLE' },
+    { header: 'Date Added', accessor: 'DATE_ADDED' },
   ];
 
   const data = userList.map((row) => ({
-    EMPLOYEE_ID: row.id ? row.id : "N/A",
-    USERNAME: row.username ? row.username : "N/A",
-    FIRST_NAME: row.first_name ? row.first_name : "N/A",
-    LAST_NAME: row.last_name ? row.last_name : "N/A",
-    ROLE: row.userType ? row.userType : "N/A",
-    DATE_ADDED: row.created_at ? row.created_at : "N/A",
-    EMAIL: row.email ? row.email : "N/A",
+    EMPLOYEE_ID: row.id ? row.id : 'N/A',
+    USERNAME: row.username ? row.username : 'N/A',
+    FIRST_NAME: row.first_name ? row.first_name : 'N/A',
+    LAST_NAME: row.last_name ? row.last_name : 'N/A',
+    ROLE: row.userType ? row.userType : 'N/A',
+    DATE_ADDED: row.created_at ? row.created_at : 'N/A',
+    EMAIL: row.email ? row.email : 'N/A',
   }));
 
   const roleColors: Record<string, string> = {
-    admin: "bg-green-100 text-green-600",
-    employee: "bg-purple-100 text-purple-600",
+    admin: 'bg-green-100 text-green-600',
+    employee: 'bg-purple-100 text-purple-600',
   };
 
-  const typeOptions = ["super-admin", "admin", "employee"];
+  const typeOptions = ['super-admin', 'admin', 'employee'];
 
   const handleCloseView = () => {
     setSelectedUser(null);
@@ -132,11 +132,11 @@ const UserManagementPageContainer = () => {
     searchTerm: string,
     newLimit?: number,
     newPage?: number,
-    filters?: FilterItem[]
+    filters?: FilterItem[],
   ) => {
     try {
       setIsLoading(true);
-      const user = Cookies.get("user");
+      const user = Cookies.get('user');
       const token = user ? JSON.parse(user).token : null;
 
       // Use new values if provided, otherwise use state values
@@ -145,32 +145,32 @@ const UserManagementPageContainer = () => {
       const currentFilters = filters ?? activeFilters;
 
       const params = new URLSearchParams();
-      if (searchTerm) params.append("search", searchTerm);
-      if (currentLimit) params.append("limit", currentLimit.toString());
-      if (currentPage) params.append("page", currentPage.toString());
+      if (searchTerm) params.append('search', searchTerm);
+      if (currentLimit) params.append('limit', currentLimit.toString());
+      if (currentPage) params.append('page', currentPage.toString());
       // Add filter parameters only if they have complete values
       currentFilters.forEach((filter) => {
-        if (filter.type === "type" && filter.value.type) {
-          params.append("type", filter.value.type);
+        if (filter.type === 'type' && filter.value.type) {
+          params.append('type', filter.value.type);
         }
 
-        if (filter.type === "dateRange") {
+        if (filter.type === 'dateRange') {
           // Only append date parameters if BOTH dates are provided
           if (filter.value.dateFrom && filter.value.dateTo) {
-            params.append("startDate", filter.value.dateFrom);
-            params.append("endDate", filter.value.dateTo);
+            params.append('startDate', filter.value.dateFrom);
+            params.append('endDate', filter.value.dateTo);
           }
         }
       });
 
       const queryString = params.toString();
       const url = `${process.env.NEXT_PUBLIC_API_URL}/users${
-        queryString ? `?${queryString}` : ""
+        queryString ? `?${queryString}` : ''
       }`;
 
       const res = await axios.get(url, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          'Content-Type': 'multipart/form-data',
           Authorization: `${token}`,
         },
       });
@@ -179,17 +179,17 @@ const UserManagementPageContainer = () => {
         setUserList(res.data.items);
         setTotal(res.data.total);
         toast({
-          title: "Success",
-          description: "User list has been fetched successfully",
+          title: 'Success',
+          description: 'User list has been fetched successfully',
           duration: 3000,
         });
       }
     } catch (error) {
       console.error(error);
       toast({
-        title: "Error",
-        description: "User list could not be fetched",
-        variant: "destructive",
+        title: 'Error',
+        description: 'User list could not be fetched',
+        variant: 'destructive',
         duration: 3000,
       });
     } finally {
@@ -204,15 +204,15 @@ const UserManagementPageContainer = () => {
   }) => {
     setExportLoading(true);
     try {
-      const user = Cookies.get("user");
+      const user = Cookies.get('user');
       const token = user ? JSON.parse(user).token : null;
 
       // Check if required fields are provided
       if (!settings.dateFrom || !settings.dateTo) {
         toast({
-          title: "Export Error",
-          description: "Date range is required for export",
-          variant: "destructive",
+          title: 'Export Error',
+          description: 'Date range is required for export',
+          variant: 'destructive',
           duration: 5000,
         });
         setExportLoading(false);
@@ -225,53 +225,53 @@ const UserManagementPageContainer = () => {
       // Add types parameter if any types are selected
       if (settings.types && settings.types.length > 0) {
         settings.types.forEach((type) => {
-          params.append("types", type);
+          params.append('types', type);
         });
       }
 
       // Add date parameters
-      params.append("startDate", settings.dateFrom);
-      params.append("endDate", settings.dateTo);
+      params.append('startDate', settings.dateFrom);
+      params.append('endDate', settings.dateTo);
 
       const url = `${
         process.env.NEXT_PUBLIC_API_URL
       }/users/generate-csv?${params.toString()}`;
 
       const res = await axios.get(url, {
-        responseType: "blob",
+        responseType: 'blob',
         headers: {
           Authorization: `${token}`,
         },
       });
 
       // Create a blob from the response data
-      const blob = new Blob([res.data], { type: "text/csv" });
+      const blob = new Blob([res.data], { type: 'text/csv' });
 
       // Create a download link and trigger the download
-      const downloadLink = document.createElement("a");
+      const downloadLink = document.createElement('a');
       downloadLink.href = URL.createObjectURL(blob);
 
       // Generate filename including selected types if available
       const typeString =
         settings.types && settings.types.length > 0
-          ? `_${settings.types.join("-")}`
-          : "";
+          ? `_${settings.types.join('-')}`
+          : '';
       downloadLink.download = `users${typeString}_${settings.dateFrom}_to_${settings.dateTo}.csv`;
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
 
       toast({
-        title: "Export Successful",
-        description: "User data has been exported successfully",
+        title: 'Export Successful',
+        description: 'User data has been exported successfully',
         duration: 3000,
       });
     } catch (error) {
-      console.error("Error exporting data:", error);
+      console.error('Error exporting data:', error);
       toast({
-        title: "Export Error",
-        description: "An error occurred while exporting data",
-        variant: "destructive",
+        title: 'Export Error',
+        description: 'An error occurred while exporting data',
+        variant: 'destructive',
         duration: 5000,
       });
     } finally {
@@ -282,11 +282,11 @@ const UserManagementPageContainer = () => {
   const handleFiltersChange = (newFilters: FilterItem[]) => {
     // Only consider filters that have valid values
     const validFilters = newFilters.filter((filter) => {
-      if (filter.type === "type") {
+      if (filter.type === 'type') {
         return !!filter.value.type; // Only include if userType is set
       }
 
-      if (filter.type === "dateRange") {
+      if (filter.type === 'dateRange') {
         // Include only if BOTH dates are set
         return !!filter.value.dateFrom && !!filter.value.dateTo;
       }
@@ -309,7 +309,7 @@ const UserManagementPageContainer = () => {
         fetchUserList(searchTerm);
       }, 500),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [],
   );
 
   // Add handlers for pagination
@@ -414,21 +414,27 @@ const UserManagementPageContainer = () => {
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>
-              {selectedRole === "super-admin"
-                ? "Create Super Admin"
-                : selectedRole === "admin"
-                ? "Create Admin"
-                : "Create Employee"}
+              {selectedRole === 'super-admin'
+                ? 'Create Super Admin'
+                : selectedRole === 'admin'
+                ? 'Create Admin'
+                : 'Create Employee'}
             </DialogTitle>
             <DialogDescription>
-              Fill in the details to create a new{" "}
-              {selectedRole?.replace("-", " ")}.
+              Fill in the details to create a new{' '}
+              {selectedRole?.replace('-', ' ')}.
             </DialogDescription>
           </DialogHeader>
 
-          {selectedRole === "super-admin" && <SuperAdminForm onClose={handleCloseCreate} />}
-          {selectedRole === "admin" && <AdminForm onClose={handleCloseCreate} />}
-          {selectedRole === "employee" && <EmployeeForm onClose={handleCloseCreate} />}
+          {selectedRole === 'super-admin' && (
+            <SuperAdminForm onClose={handleCloseCreate} />
+          )}
+          {selectedRole === 'admin' && (
+            <AdminForm onClose={handleCloseCreate} />
+          )}
+          {selectedRole === 'employee' && (
+            <EmployeeForm onClose={handleCloseCreate} />
+          )}
         </DialogContent>
       </Dialog>
     </div>
