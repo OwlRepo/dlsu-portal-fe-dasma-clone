@@ -16,35 +16,11 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { CustomField, DeviceProps, ScanProps, UserProps } from "@/lib/types";
 
 export default function TurnstileDashboard() {
-  const [bsSessionId, setBsSessionId] = useState("");
-  const [user, setUser] = useState<UserProps>({
-    user_id: "",
-    name: "",
-    photo_exist: false,
-  });
-  const [device, setDevice] = useState<DeviceProps>({ id: "", name: "" });
-  const [datetime, setDatetime] = useState("");
-  const [remarks, setRemarks] = useState<string | undefined>(undefined);
-  const [remarksFetched, setRemarksFetched] = useState(false);
-  const [name, setName] = useState("");
-  const [scanDetail, setScanDetail] = useState<ScanProps>({
-    user: {
-      user_id: "",
-      name: "",
-      photo_exist: false,
-    },
-    device: {
-      id: "",
-      name: "",
-    },
-    datetime: "",
-    remarks: undefined,
-  });
 
   const [devicesData, setDevicesData] = useState<{ [key: string]: ScanProps }>(
     {}
@@ -78,7 +54,6 @@ export default function TurnstileDashboard() {
             // console.log('WebSocket connection established.');
             // Send the session ID to the WebSocket server
             ws.send(`bs-session-id=${response.data.bsSessionId}`);
-            setBsSessionId(response.data.bsSessionId);
 
             // Optionally call the event API after WebSocket connection is established
             setTimeout(() => {
