@@ -16,10 +16,9 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import axios from "axios";
 import { CustomField, DeviceProps, ScanProps, UserProps } from "@/lib/types";
-
 
 export default function TurnstileDashboard() {
   const [bsSessionId, setBsSessionId] = useState("");
@@ -46,6 +45,10 @@ export default function TurnstileDashboard() {
     datetime: "",
     remarks: undefined,
   });
+
+  const [devicesData, setDevicesData] = useState<{ [key: string]: ScanProps }>(
+    {}
+  );
 
   const WS_HOST = "wss://127.0.0.1:4431";
   const BIOSTAR2_WS_URI = `${WS_HOST}/wsapi`;
@@ -83,13 +86,28 @@ export default function TurnstileDashboard() {
             }, 1000);
           };
 
+          // ws.onmessage = (event) => {
+          //   const eventData = JSON.parse(event.data);
+          //   if (eventData.Event) {
+          //     const { user_id, device_id, datetime } = eventData.Event;
+          //     if (user_id) setUser(user_id);
+          //     if (device_id) setDevice(device_id);
+          //     if (datetime) setDatetime(datetime);
+          //   }
+          // };
+
           ws.onmessage = (event) => {
             const eventData = JSON.parse(event.data);
             if (eventData.Event) {
               const { user_id, device_id, datetime } = eventData.Event;
-              if (user_id) setUser(user_id);
-              if (device_id) setDevice(device_id);
-              if (datetime) setDatetime(datetime);
+              if (user_id && device_id && datetime) {
+                fetchUserData(
+                  response.data.bsSessionId,
+                  user_id,
+                  device_id,
+                  datetime
+                );
+              }
             }
           };
 
@@ -125,33 +143,62 @@ export default function TurnstileDashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchUserData = async (bsSessionId: string, user_id: string) => {
+  const fetchUserData = async (
+    bsSessionId: string,
+    user: UserProps,
+    device: DeviceProps,
+    datetime: string
+  ) => {
+    console.log(user);
     try {
       const response = await axios.get("api/users", {
         headers: {
           "bs-session-id": bsSessionId,
         },
         params: {
-          params: user_id,
+          params: user.user_id,
         },
       });
+
+      const userImage = response.data.data.User.photo ? response.data.data.User.photo : undefined;
+
       const remarksField = response.data.data.User.user_custom_fields.find(
         (field: CustomField) => field.custom_field.name === "Remarks"
       );
 
-      if (response.data.data.User) {
-        setName(response.data.data.User.name);
-      }
+      const livedNameField = response.data.data.User.user_custom_fields.find(
+        (field: CustomField) => field.custom_field.name === "Lived Name"
+      );
 
-      if (remarksField) {
-        setRemarks(remarksField.item);
-      } else {
-        console.error("Remarks field not found");
-      }
+      const userData: UserProps = {
+        user_id: response.data.data.User.user_id,
+        name: response.data.data.User.name,
+        photo_exist: response.data.data.User.photo_exist,
+      };
 
-      setRemarksFetched(true);
+      const deviceData: DeviceProps = {
+        id: device.id,
+        name: `Device ${device.id}`,
+      };
+
+      const remarks = remarksField ? (remarksField.item as string) : undefined;
+      const livedName = livedNameField
+        ? (livedNameField.item as string)
+        : undefined;
+
+      setDevicesData((prevData) => ({
+        ...prevData,
+        [device.id]: {
+          user: userData,
+          device: deviceData,
+          datetime,
+          remarks,
+          livedName,
+          userImage,
+        },
+      }));
     } catch (error) {
-      console.error("Error fetching event data:", error);
+      console.error("Error fetching user data:", error);
     }
   };
 
@@ -190,40 +237,13 @@ export default function TurnstileDashboard() {
       console.error("Error fetching event data:", error);
     }
   };
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setDevicesData({});
+  //   }, 5000);
 
-  useEffect(() => {
-    if (user.user_id && bsSessionId) {
-      fetchUserData(bsSessionId, user.user_id);
-    }
-  }, [bsSessionId, user]);
-
-  useEffect(() => {
-    if (user && device && datetime) {
-      setScanDetail({
-        user: {
-          user_id: user.user_id,
-          name: name,
-          photo_exist: user.photo_exist,
-        },
-        device,
-        datetime,
-        remarks: remarks || "",
-      });
-    }
-  }, [user, device, datetime, remarks, remarksFetched, name]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setScanDetail({
-        user: { user_id: "", name: "", photo_exist: false },
-        device: { id: "", name: "" },
-        datetime: "",
-        remarks: undefined,
-      });
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, [scanDetail]);
+  //   return () => clearTimeout(timer);
+  // }, [devicesData]);
 
   return (
     <div className="space-y-6">
@@ -245,17 +265,27 @@ export default function TurnstileDashboard() {
         </Select>
       </div> */}
       <div className="flex flex-col lg:flex-row gap-6">
-        <Card className="flex-grow items-center justify-center">
+        <Card className="min-w-[75%]">
           <CardHeader>
             <CardTitle>Access Overview</CardTitle>
             <CardDescription>Real-Time Entry</CardDescription>
           </CardHeader>
-          <CardContent>
-            <TurnstileGrid
-              scanDetail={scanDetail}
-              setScanDetail={setScanDetail}
-              turnstileCount={4}
-            />
+          <CardContent className="flex flex-row flex-wrap gap-4">
+            {Object.keys(devicesData).map((deviceId) => (
+              <div key={deviceId} className="mb-4">
+                <TurnstileGrid
+                  key={deviceId}
+                  scanDetails={[devicesData[deviceId]]}
+                  setScanDetail={(newScanDetail) => {
+                    setDevicesData((prevData) => ({
+                      ...prevData,
+                      [deviceId]: newScanDetail,
+                    }));
+                  }}
+                  turnstileCount={4}
+                />
+              </div>
+            ))}
           </CardContent>
         </Card>
 
