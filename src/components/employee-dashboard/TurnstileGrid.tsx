@@ -13,9 +13,7 @@ export default function TurnstileGrid({ scanDetails = [], turnstileCount = 6 }: 
     token: token || "",
   });
   const actualTurnstileCount = turnstileCount || 4;
-
-  console.log(data?.device_id)
-
+  
   // const fixedOrder = Array.from({ length: actualTurnstileCount }, (_, index) => {
   //   // Use actual device IDs for first two gates, then generate others
   //   if (index === 0) return "538203430";

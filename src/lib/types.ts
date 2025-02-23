@@ -56,3 +56,12 @@ export interface ScanDetailStatus {
   };
   livedName?: string | null | undefined; 
 }
+
+export interface ReportData {
+  datetime: string;
+  type: string;
+  user_id: string;
+  name: string;
+  remarks: string;
+  status: string;
+}

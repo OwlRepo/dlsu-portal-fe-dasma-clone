@@ -18,9 +18,17 @@ import {
 } from "../ui/card";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { CustomField, DeviceProps, ScanProps, UserProps } from "@/lib/types";
+import {
+  CustomField,
+  DeviceProps,
+  ReportData,
+  ScanProps,
+  UserProps,
+} from "@/lib/types";
+import useUserToken from "@/hooks/useUserToken";
 
 export default function TurnstileDashboard() {
+  const { token } = useUserToken();
   const [devicesData, setDevicesData] = useState<{ [key: string]: ScanProps }>(
     {}
   );
@@ -28,6 +36,31 @@ export default function TurnstileDashboard() {
 
   const WS_HOST = "wss://127.0.0.1:4431";
   const BIOSTAR2_WS_URI = `${WS_HOST}/wsapi`;
+
+  const checkExpiry = (expiryDate: string | undefined) => {
+    if (expiryDate) {
+      const expiry = new Date(expiryDate);
+      const today = new Date();
+      return today > expiry;
+    }
+    return false;
+  };
+
+  const getEntryStatus = (scan: ScanProps): string => {
+    const isDisabled = scan.disabled === "true";
+    const isExpired = checkExpiry(scan.expiryDate);
+    const hasRemarks = scan.remarks !== "No remarks";
+  
+    if (isDisabled || isExpired) {
+      return "RED;cannot enter with or without remarks";
+    }
+  
+    if (hasRemarks) {
+      return "YELLOW;can enter with remarks";
+    }
+  
+    return "GREEN;can enter without remarks";
+  };
 
   useEffect(() => {
     const fetchSessionId = async () => {
@@ -97,7 +130,6 @@ export default function TurnstileDashboard() {
           return;
         }
 
-        // console.log('Login response:', response.data);
       } catch (error) {
         console.error("Error logging in:", error);
       }
@@ -114,7 +146,6 @@ export default function TurnstileDashboard() {
     device: DeviceProps,
     datetime: string
   ) => {
-    console.log(user);
     try {
       const response = await axios.get("api/users", {
         headers: {
@@ -225,15 +256,51 @@ export default function TurnstileDashboard() {
       console.error("Error fetching event data:", error);
     }
   };
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     setDevicesData({});
-  //   }, 5000);
 
-  //   return () => clearTimeout(timer);
-  // }, [devicesData]);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDevicesData({});
+    }, 5000);
 
+    return () => clearTimeout(timer);
+  }, [devicesData]);
 
+  useEffect(() => {
+    const sendReport = async (reportData: ReportData) => {
+      try {
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/reports`,
+          reportData,
+          {
+            headers: {
+              accept: "*/*",
+              "Content-Type": "application/json",
+              Authorization: `${token}`,
+            },
+          }
+        );
+        console.log("Report sent successfully:", response.data);
+      } catch (error) {
+        console.error("Error sending report:", error);
+      }
+    };
+
+    // Get the latest scan from devicesData
+    const latestScan = Object.values(devicesData)[0];
+
+    if (latestScan) {
+      const reportData: ReportData = {
+        datetime: latestScan.datetime,
+        type: "0",
+        user_id: latestScan.user.user_id,
+        name: latestScan.user.name,
+        remarks: latestScan.remarks || "No remarks",
+        status: getEntryStatus(latestScan)
+      };
+
+      sendReport(reportData);
+    }
+  }, [devicesData]);
 
   return (
     <div className="space-y-6">

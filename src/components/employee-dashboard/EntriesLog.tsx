@@ -2,7 +2,6 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
 import { BORDER_CLASSES, BorderColorClass, ScanDetailStatus, ScanProps } from "@/lib/types";
-import { useEffect } from "react";
 
 interface LogEntry {
   queue: ScanProps[];
@@ -29,12 +28,6 @@ export default function EntriesLog({ queue }: LogEntry) {
     return queue;
   });
 
-  // const getBorderColorClass = (remarks: string | undefined | null) => {
-  //   if (!remarks) return "border-2";
-  //   return remarks === "No remarks"
-  //     ? "border-4 border-green-500"
-  //     : "border-4 border-yellow-500";
-  // };
 
   const checkExpiry = (expiryDate: string | undefined) => {
     if (expiryDate) {
@@ -44,7 +37,6 @@ export default function EntriesLog({ queue }: LogEntry) {
     }
     return false;
   }
-
 
     const getBorderColorClass = (scanDetail?: ScanDetailStatus): BorderColorClass => {
       if (!scanDetail) return BORDER_CLASSES.DEFAULT;
