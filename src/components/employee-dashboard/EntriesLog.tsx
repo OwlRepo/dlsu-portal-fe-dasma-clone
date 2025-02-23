@@ -1,9 +1,20 @@
+"use client"
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { getLogEntries } from '../../lib/dummyData';
 import Image from 'next/image';
+import { ScanProps } from '@/lib/types';
+import { useEffect } from 'react';
 
-export default function EntriesLog() {
+interface LogEntry {
+  queue: ScanProps[];
+}
+
+export default function EntriesLog({ queue }: LogEntry) {
   const recentLogs = getLogEntries(10);
+
+  useEffect(() => {
+    console.log(queue);
+  }, [queue]);
 
   return (
     <div className="flex-grow">
@@ -17,7 +28,7 @@ export default function EntriesLog() {
               <div key={entry.id} className="bg-white rounded-lg border-2 p-4">
                 <div className="flex items-center gap-4">
                   <Image
-                    src={entry.imageUrl || '/placeholder.svg'}
+                    src={entry.imageUrl || '/default-user-icon.png'}
                     alt={entry.name}
                     width={48}
                     height={48}

@@ -14,6 +14,8 @@ export interface ScanProps {
   device: DeviceProps;
   datetime: string;
   remarks?: string | null | undefined;
+  livedName: string | null | undefined;
+  userImage?: string;
 }
 
 export type CustomField = {
@@ -22,3 +24,9 @@ export type CustomField = {
   };
   [key: string]: unknown; // Allow additional properties with unknown type
 };
+
+export interface TurnstileGridProps {
+  scanDetails: ScanProps[];
+  setScanDetail: (scanDetail: ScanProps) => void;
+  turnstileCount: number;
+}

@@ -21,10 +21,10 @@ import axios from "axios";
 import { CustomField, DeviceProps, ScanProps, UserProps } from "@/lib/types";
 
 export default function TurnstileDashboard() {
-
   const [devicesData, setDevicesData] = useState<{ [key: string]: ScanProps }>(
     {}
   );
+  const [deviceQueue, setDeviceQueue] = useState<ScanProps[]>([]);
 
   const WS_HOST = "wss://127.0.0.1:4431";
   const BIOSTAR2_WS_URI = `${WS_HOST}/wsapi`;
@@ -60,16 +60,6 @@ export default function TurnstileDashboard() {
               fetchEventData(response.data.bsSessionId);
             }, 1000);
           };
-
-          // ws.onmessage = (event) => {
-          //   const eventData = JSON.parse(event.data);
-          //   if (eventData.Event) {
-          //     const { user_id, device_id, datetime } = eventData.Event;
-          //     if (user_id) setUser(user_id);
-          //     if (device_id) setDevice(device_id);
-          //     if (datetime) setDatetime(datetime);
-          //   }
-          // };
 
           ws.onmessage = (event) => {
             const eventData = JSON.parse(event.data);
@@ -135,7 +125,9 @@ export default function TurnstileDashboard() {
         },
       });
 
-      const userImage = response.data.data.User.photo ? response.data.data.User.photo : undefined;
+      const userImage = response.data.data.User.photo
+        ? response.data.data.User.photo
+        : undefined;
 
       const remarksField = response.data.data.User.user_custom_fields.find(
         (field: CustomField) => field.custom_field.name === "Remarks"
@@ -172,6 +164,20 @@ export default function TurnstileDashboard() {
           userImage,
         },
       }));
+
+      setDeviceQueue((prevQueue) => {
+        const newDeviceData = {
+          user: userData,
+          device: deviceData,
+          datetime,
+          remarks,
+          livedName,
+          userImage,
+        };
+        const newQueue = [...prevQueue, newDeviceData];
+        // Remove first item if queue length exceeds 10
+        return newQueue.length > 10 ? newQueue.slice(1) : newQueue;
+      });
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
@@ -220,51 +226,31 @@ export default function TurnstileDashboard() {
   //   return () => clearTimeout(timer);
   // }, [devicesData]);
 
+
+
   return (
     <div className="space-y-6">
-      {/* <div className="flex justify-end">
-        <Select
-          value={turnstileCount.toString()}
-          onValueChange={(value) => setTurnstileCount(Number.parseInt(value))}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Number of Turnstiles" />
-          </SelectTrigger>
-          <SelectContent>
-            {[4, 5, 6].map((num) => (
-              <SelectItem key={num} value={num.toString()}>
-                {num} Turnstiles
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div> */}
       <div className="flex flex-col lg:flex-row gap-6">
-        <Card className="min-w-[75%]">
+        <Card className="min-w-[65%] max-w-[75%]">
           <CardHeader>
             <CardTitle>Access Overview</CardTitle>
             <CardDescription>Real-Time Entry</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-row flex-wrap gap-4">
-            {Object.keys(devicesData).map((deviceId) => (
-              <div key={deviceId} className="mb-4">
-                <TurnstileGrid
-                  key={deviceId}
-                  scanDetails={[devicesData[deviceId]]}
-                  setScanDetail={(newScanDetail) => {
-                    setDevicesData((prevData) => ({
-                      ...prevData,
-                      [deviceId]: newScanDetail,
-                    }));
-                  }}
-                  turnstileCount={4}
-                />
-              </div>
-            ))}
+            <TurnstileGrid
+              scanDetails={Object.values(devicesData)}
+              setScanDetail={(newScanDetail) => {
+                setDevicesData((prevData) => ({
+                  ...prevData,
+                  [newScanDetail.device.id]: newScanDetail,
+                }));
+              }}
+              turnstileCount={6}
+            />
           </CardContent>
         </Card>
 
-        <EntriesLog />
+        <EntriesLog queue={deviceQueue} />
       </div>
     </div>
   );
