@@ -57,7 +57,7 @@ export default function TurnstileGrid({ scanDetails = [], turnstileCount = 6 }: 
               scanDetail?.remarks === null || scanDetail?.remarks === undefined
                 ? ""
                 : "border-4 " +
-                  (scanDetail?.remarks === ""
+                  (scanDetail?.remarks === "No remarks"
                     ? "border-green-500"
                     : "border-yellow-500")
             }`}
@@ -69,7 +69,7 @@ export default function TurnstileGrid({ scanDetails = [], turnstileCount = 6 }: 
           >
             <CardHeader>
               {/* <CardTitle>Gate {String.fromCharCode(65 + index)} - {deviceId}</CardTitle> */}
-              <CardTitle>Turnstile {index + 1} - {deviceId}</CardTitle>
+               <CardTitle>Turnstile {index + 1} - {deviceId}</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
               {/* {scanDetail ? (
@@ -107,7 +107,7 @@ export default function TurnstileGrid({ scanDetails = [], turnstileCount = 6 }: 
                     <Label htmlFor={`remarks-${deviceId}`}>Remarks</Label>
                     <div
                       id={`remarks-${deviceId}`}
-                      className="border border-gray-300 p-2 rounded-md text-muted-foreground"
+                      className="border border-gray-300 p-2 rounded-md text-muted-foreground bg-gray-100"
                       style={{ minHeight: "4rem", whiteSpace: "pre-wrap" }}
                     >
                       {scanDetail?.remarks || undefined}

@@ -7,15 +7,13 @@ import { LiveDataTable } from '@/components/dashboard/live-data-table';
 // import useUserToken from '@/hooks/useUserToken';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { CustomField, DeviceProps, ScanProps, UserProps } from '@/lib/types';
 
 export function Dashboard() {
   // const { role } = useUserToken();
-  const [bsSessionId, setBsSessionId] = useState('');
-  const [user, setUser] = useState({
-    user_id: '',
-    name: '',
-    photo_exist: false,
-  });
+    const [devicesData, setDevicesData] = useState<{ [key: string]: ScanProps }>(
+      {}
+    );
 
   // const BIOSTAR_URI = 'https://127.0.0.1:4431'; // BioStar 2 IP and HTTPS port
   const WS_HOST ='wss://127.0.0.1:4431'
@@ -51,7 +49,6 @@ export function Dashboard() {
             console.log('WebSocket connection established.');
             // Send the session ID to the WebSocket server
             ws.send(`bs-session-id=${response.data.bsSessionId}`);
-            setBsSessionId(response.data.bsSessionId);
 
             // Optionally call the event API after WebSocket connection is established
             setTimeout(() => {
@@ -60,12 +57,16 @@ export function Dashboard() {
           };
 
           ws.onmessage = (event) => {
-            console.log(event);
             const eventData = JSON.parse(event.data);
             if (eventData.Event) {
-              if (eventData.Event.user_id) {
-                console.log('User ID:', eventData.Event.user_id);
-                setUser(eventData.Event.user_id);
+              const { user_id, device_id, datetime } = eventData.Event;
+              if (user_id && device_id && datetime) {
+                fetchUserData(
+                  response.data.bsSessionId,
+                  user_id,
+                  device_id,
+                  datetime
+                );
               }
             }
           };
@@ -102,29 +103,69 @@ export function Dashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchUserData = async (bsSessionId: string, user_id: string) => {
-    console.log(bsSessionId);
+  const fetchUserData = async (
+    bsSessionId: string,
+    user: UserProps,
+    device: DeviceProps,
+    datetime: string
+  ) => {
+    console.log(user);
     try {
-      const response = await axios.get('api/users', {
+      const response = await axios.get("api/users", {
         headers: {
-          'bs-session-id': bsSessionId,
+          "bs-session-id": bsSessionId,
         },
         params: {
-          params: user_id,
+          params: user.user_id,
         },
       });
 
-      console.log('Fetched event data:', response.data);
+      const userImage = response.data.data.User.photo
+        ? response.data.data.User.photo
+        : undefined;
+
+      const remarksField = response.data.data.User.user_custom_fields.find(
+        (field: CustomField) => field.custom_field.name === "Remarks"
+      );
+
+      const livedNameField = response.data.data.User.user_custom_fields.find(
+        (field: CustomField) => field.custom_field.name === "Lived Name"
+      );
+
+      const userData: UserProps = {
+        user_id: response.data.data.User.user_id,
+        name: response.data.data.User.name,
+        photo_exist: response.data.data.User.photo_exist,
+      };
+
+      const deviceData: DeviceProps = {
+        id: device.id,
+        name: `Device ${device.id}`,
+      };
+
+      const remarks = remarksField ? (remarksField.item as string) : undefined;
+      const livedName = livedNameField
+        ? (livedNameField.item as string)
+        : undefined;
+
+      setDevicesData((prevData) => ({
+        ...prevData,
+        [device.id]: {
+          user: userData,
+          device: deviceData,
+          datetime,
+          remarks: remarks ?? "No remarks",
+          livedName,
+          userImage,
+        },
+      }));
+
     } catch (error) {
-      console.error('Error fetching event data:', error);
+      console.error("Error fetching user data:", error);
     }
   };
 
-  useEffect(() => {
-    if (user) {
-      fetchUserData(bsSessionId, user.user_id);
-    }
-  }, [bsSessionId, user]);
+  console.log(devicesData)
 
   const fetchEventData = async (bsSessionId: string) => {
     try {

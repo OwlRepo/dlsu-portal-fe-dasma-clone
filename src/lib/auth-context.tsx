@@ -57,7 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const response = await api.post(
-        `/auth/${role === 'employee' ? 'emlployee' : 'login'}`,
+        `/auth/${role === 'employee' ? 'employee' : 'login'}`,
         {
           username,
           password,
@@ -68,7 +68,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userData = { username, role, token: response.data.access_token };
         Cookies.set('user', JSON.stringify(userData), { expires: 7 });
         setUser(userData);
-        router.push('/dashboard');
+        if (role === 'employee') {
+          router.push('/test');
+        } else {
+          router.push('/dashboard');
+        }
         setIsLoggedIn(true);
       }
 

@@ -159,7 +159,7 @@ export default function TurnstileDashboard() {
           user: userData,
           device: deviceData,
           datetime,
-          remarks,
+          remarks: remarks ?? "No remarks",
           livedName,
           userImage,
         },
@@ -170,7 +170,7 @@ export default function TurnstileDashboard() {
           user: userData,
           device: deviceData,
           datetime,
-          remarks,
+          remarks: remarks ?? "No remarks",
           livedName,
           userImage,
         };
