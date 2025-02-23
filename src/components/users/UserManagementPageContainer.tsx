@@ -102,7 +102,7 @@ const UserManagementPageContainer = () => {
         );
 
         if (res.data) {
-          setUserList(res.data);
+          setUserList(res.data.items);
         }
       };
 

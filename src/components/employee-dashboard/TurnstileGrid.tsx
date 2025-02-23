@@ -2,17 +2,30 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 // import { getStudentEntries, type StudentEntry } from "../../lib/dummyData";
 import Image from "next/image";
 import { Label } from "../ui/label";
-import { TurnstileGridProps, } from "@/lib/types";
+import { BORDER_CLASSES, BorderColorClass, ScanDetailStatus, TurnstileGridProps, } from "@/lib/types";
+import { useGetEmployeeDetails } from "@/hooks/useGetEmployeeDetails";
+import useUserToken from "@/hooks/useUserToken";
 
 export default function TurnstileGrid({ scanDetails = [], turnstileCount = 6 }: TurnstileGridProps) {
+  const { username, token } = useUserToken();
+  const { data } = useGetEmployeeDetails({
+    username: username || "",
+    token: token || "",
+  });
   const actualTurnstileCount = turnstileCount || 6;
 
-  const fixedOrder = Array.from({ length: actualTurnstileCount }, (_, index) => {
-    // Use actual device IDs for first two gates, then generate others
-    if (index === 0) return "538203430";
-    if (index === 1) return "538204298";
-    return `other_device_id_${index - 1}`;
-  });
+  console.log(data?.device_id)
+
+  // const fixedOrder = Array.from({ length: actualTurnstileCount }, (_, index) => {
+  //   // Use actual device IDs for first two gates, then generate others
+  //   if (index === 0) return "538203430";
+  //   if (index === 1) return "538204298";
+  //   return `other_device_id_${index - 1}`;
+  // });
+
+  const fixedOrder = data?.device_id 
+  ? [...data.device_id]
+  : Array.from({ length: actualTurnstileCount }, (_, index) => `device_${index + 1}`);
 
   // Sort the scanDetails array based on the fixed order
   const sortedScanDetails = scanDetails.sort((a, b) => {
@@ -46,6 +59,29 @@ export default function TurnstileGrid({ scanDetails = [], turnstileCount = 6 }: 
     updatedScanDetails.map((scanDetail) => [scanDetail.device.id, scanDetail])
   );
 
+  const checkExpiry = (expiryDate: string | undefined) => {
+    if (expiryDate) {
+      const expiry = new Date(expiryDate);
+      const today = new Date();
+      return today > expiry;
+    }
+    return false;
+  }
+
+  const getBorderColorClass = (scanDetail?: ScanDetailStatus): BorderColorClass => {
+    if (!scanDetail) return BORDER_CLASSES.DEFAULT;
+    
+    const isExpired = checkExpiry(scanDetail.expiryDate);
+    const isDisabled = scanDetail.disabled === "true";
+    const hasRemarks = scanDetail.remarks !== "No remarks" && scanDetail.remarks !== null;
+    
+    if (isExpired || isDisabled) return BORDER_CLASSES.ERROR;
+    if (!isExpired && scanDetail.disabled === "false" && hasRemarks) return BORDER_CLASSES.WARNING;
+    if (scanDetail.remarks === "No remarks" || scanDetail.remarks === null) return BORDER_CLASSES.SUCCESS;
+    
+    return BORDER_CLASSES.DEFAULT;
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {fixedOrder.map((deviceId, index) => {
@@ -53,14 +89,7 @@ export default function TurnstileGrid({ scanDetails = [], turnstileCount = 6 }: 
         return (
           <Card
             key={deviceId}
-            className={`${
-              scanDetail?.remarks === null || scanDetail?.remarks === undefined
-                ? ""
-                : "border-4 " +
-                  (scanDetail?.remarks === "No remarks"
-                    ? "border-green-500"
-                    : "border-yellow-500")
-            }`}
+            className={getBorderColorClass(scanDetail)}
             style={{
               minWidth: "425px",
               maxWidth: "425px",

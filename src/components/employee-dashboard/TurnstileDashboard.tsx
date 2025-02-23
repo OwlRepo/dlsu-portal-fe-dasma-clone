@@ -153,6 +153,9 @@ export default function TurnstileDashboard() {
         ? (livedNameField.item as string)
         : undefined;
 
+      const disabled = response.data.data.User.disabled;
+      const expiryDate = response.data.data.User.expiry_datetime;
+
       setDevicesData((prevData) => ({
         ...prevData,
         [device.id]: {
@@ -162,6 +165,8 @@ export default function TurnstileDashboard() {
           remarks: remarks ?? "No remarks",
           livedName,
           userImage,
+          disabled,
+          expiryDate,
         },
       }));
 
@@ -173,6 +178,8 @@ export default function TurnstileDashboard() {
           remarks: remarks ?? "No remarks",
           livedName,
           userImage,
+          disabled,
+          expiryDate,
         };
         const newQueue = [...prevQueue, newDeviceData];
         // Remove first item if queue length exceeds 10
