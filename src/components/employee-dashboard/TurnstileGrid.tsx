@@ -62,8 +62,8 @@ export default function TurnstileGrid({ scanDetails = [], turnstileCount = 6 }: 
                     : "border-yellow-500")
             }`}
             style={{
-              minWidth: "400px",
-              maxWidth: "400px",
+              minWidth: "425px",
+              maxWidth: "425px",
               minHeight: "350px",
             }}
           >

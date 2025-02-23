@@ -45,49 +45,61 @@ export default function EntriesLog({ queue }: LogEntry) {
       </h2>
       <div className="w-full max-w-2xl mx-auto">
         <ScrollArea className="h-[calc(100vh-200px)] max-w-lg pr-4">
+        {updatedScanQueue.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-muted-foreground py-8">
+            <p className="text-lg font-medium">No entries yet</p>
+            <p className="text-sm">Recent entries will appear here</p>
+          </div>
+        ) : (
           <div className="space-y-3">
             {updatedScanQueue.map((entry, index) => (
-              <div
-                key={index}
-                className={`bg-white rounded-lg p-4 ${getBorderColorClass(entry?.remarks)}`}
-              >
-                <div className="flex items-center gap-4">
-                  <Image
-                    src={entry.userImage || "/default-user-icon.png"}
-                    alt={entry.user.name}
-                    width={50}
-                    height={50}
-                    className="rounded-full object-cover"
-                  />
-                  <div className="flex-grow">
-                    <div className="flex justify-between items-start">
-                      <p className="font-medium text-gray-900">
-                        {entry.user.name}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        ID: {entry.user.user_id}
-                      </p>
-                    </div>
-                    <p className="text-sm text-gray-600 mt-1">
-                      Turnstile: {entry.device.id}
-                    </p>
-                    {entry.livedName && (
-                      <p className="text-sm text-gray-600">
-                        Lived Name: {entry.livedName}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="mt-3 bg-gray-100 p-3 rounded-lg">
-                  <p className="text-sm text-gray-500">
-                    Remarks: {entry.remarks || "No remarks"}
-                  </p>
-                </div>
-              </div>
-            ))}
+  <div
+    key={index}
+    className={`bg-white rounded-lg p-4 ${getBorderColorClass(entry?.remarks)}`}
+  >
+    <div className="flex items-center gap-4">
+      <Image
+        src={entry.userImage || "/default-user-icon.png"}
+        alt={entry.user.name}
+        width={50}
+        height={50}
+        className="rounded-full object-cover"
+      />
+      <div className="flex-grow">
+        <div className="flex justify-between items-start">
+          <p className="font-medium text-gray-900">
+            {entry.user.name}
+          </p>
+          <p className="text-sm text-gray-500">
+            ID: {entry.user.user_id}
+          </p>
+        </div>
+        <p className="text-sm text-gray-600 mt-1">
+          Turnstile: {entry.device.id}
+        </p>
+        {entry.livedName && (
+          <p className="text-sm text-gray-600">
+            Lived Name: {entry.livedName}
+          </p>
+        )}
+      </div>
+    </div>
+    <div className="mt-3 bg-gray-100 p-3 rounded-lg">
+      <p className="text-sm text-gray-500">
+        Remarks: {entry.remarks || "No remarks"}
+      </p>
+    </div>
+  </div>
+))}
           </div>
+        )}
         </ScrollArea>
       </div>
     </div>
   );
 }
+
+
+
+
+

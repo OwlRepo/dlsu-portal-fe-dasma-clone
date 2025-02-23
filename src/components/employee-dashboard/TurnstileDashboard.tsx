@@ -231,12 +231,12 @@ export default function TurnstileDashboard() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col lg:flex-row gap-6">
-        <Card className="min-w-[65%] max-w-[75%]">
+        <Card className="min-w-[75%] max-w-[75%]">
           <CardHeader>
             <CardTitle>Access Overview</CardTitle>
             <CardDescription>Real-Time Entry</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-row flex-wrap gap-4">
+          <CardContent className="flex flex-row justify-center flex-wrap gap-4">
             <TurnstileGrid
               scanDetails={Object.values(devicesData)}
               setScanDetail={(newScanDetail) => {
