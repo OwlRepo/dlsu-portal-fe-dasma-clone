@@ -12,7 +12,7 @@ export default function TurnstileGrid({ scanDetails = [], turnstileCount = 6 }: 
     username: username || "",
     token: token || "",
   });
-  const actualTurnstileCount = turnstileCount || 6;
+  const actualTurnstileCount = turnstileCount || 4;
 
   console.log(data?.device_id)
 

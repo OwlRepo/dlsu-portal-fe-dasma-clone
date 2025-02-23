@@ -1,7 +1,7 @@
 "use client";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
-import { ScanProps } from "@/lib/types";
+import { BORDER_CLASSES, BorderColorClass, ScanDetailStatus, ScanProps } from "@/lib/types";
 import { useEffect } from "react";
 
 interface LogEntry {
@@ -29,12 +29,36 @@ export default function EntriesLog({ queue }: LogEntry) {
     return queue;
   });
 
-  const getBorderColorClass = (remarks: string | undefined | null) => {
-    if (!remarks) return "border-2";
-    return remarks === "No remarks"
-      ? "border-4 border-green-500"
-      : "border-4 border-yellow-500";
-  };
+  // const getBorderColorClass = (remarks: string | undefined | null) => {
+  //   if (!remarks) return "border-2";
+  //   return remarks === "No remarks"
+  //     ? "border-4 border-green-500"
+  //     : "border-4 border-yellow-500";
+  // };
+
+  const checkExpiry = (expiryDate: string | undefined) => {
+    if (expiryDate) {
+      const expiry = new Date(expiryDate);
+      const today = new Date();
+      return today > expiry;
+    }
+    return false;
+  }
+
+
+    const getBorderColorClass = (scanDetail?: ScanDetailStatus): BorderColorClass => {
+      if (!scanDetail) return BORDER_CLASSES.DEFAULT;
+      
+      const isExpired = checkExpiry(scanDetail.expiryDate);
+      const isDisabled = scanDetail.disabled === "true";
+      const hasRemarks = scanDetail.remarks !== "No remarks" && scanDetail.remarks !== null;
+      
+      if (isExpired || isDisabled) return BORDER_CLASSES.ERROR;
+      if (!isExpired && scanDetail.disabled === "false" && hasRemarks) return BORDER_CLASSES.WARNING;
+      if (scanDetail.remarks === "No remarks" || scanDetail.remarks === null) return BORDER_CLASSES.SUCCESS;
+      
+      return BORDER_CLASSES.DEFAULT;
+    };
 
   return (
     <div className="flex-grow">
@@ -53,8 +77,7 @@ export default function EntriesLog({ queue }: LogEntry) {
               {updatedScanQueue.map((entry, index) => (
                 <div
                   key={index}
-                  className={`bg-white rounded-lg p-4 ${getBorderColorClass(
-                    entry?.remarks
+                  className={`bg-white rounded-lg p-4 ${getBorderColorClass(entry
                   )}`}
                 >
                   <div className="flex items-center gap-4">

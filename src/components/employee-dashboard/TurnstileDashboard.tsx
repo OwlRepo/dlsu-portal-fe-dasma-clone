@@ -252,7 +252,7 @@ export default function TurnstileDashboard() {
                   [newScanDetail.device.id]: newScanDetail,
                 }));
               }}
-              turnstileCount={6}
+              turnstileCount={4}
             />
           </CardContent>
         </Card>
