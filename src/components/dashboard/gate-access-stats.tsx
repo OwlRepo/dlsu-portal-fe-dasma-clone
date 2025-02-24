@@ -1,9 +1,14 @@
+import { ScanProps } from '@/lib/types';
 import React from 'react';
 
 interface GateAccessStatProps {
   label: string;
   percentage: number;
   color: string;
+}
+
+interface AccessProps {
+  data: ScanProps[];
 }
 
 const GateAccessStat: React.FC<GateAccessStatProps> = ({
@@ -28,7 +33,8 @@ const GateAccessStat: React.FC<GateAccessStatProps> = ({
   </div>
 );
 
-export function GateAccessStats() {
+export function GateAccessStats( { data }: AccessProps) {
+  console.log(data);
   return (
     <div className="space-y-4 w-full">
       <GateAccessStat label="Allowed" percentage={82} color="bg-[#00C853]" />

@@ -54,12 +54,13 @@ export function Dashboard() {
           ws.onmessage = (event) => {
             const eventData = JSON.parse(event.data);
             if (eventData.Event) {
-              const { user_id, device_id, datetime } = eventData.Event;
+              const { user_id, device_id, datetime, tna_key } = eventData.Event;
               if (user_id && device_id && datetime) {
                 fetchUserData(
                   response.data.bsSessionId,
                   user_id,
                   device_id,
+                  tna_key,
                   datetime
                 );
               }
@@ -102,6 +103,7 @@ export function Dashboard() {
     bsSessionId: string,
     user: UserProps,
     device: DeviceProps,
+    tna_key: string,
     datetime: string
   ) => {
     try {
@@ -113,6 +115,8 @@ export function Dashboard() {
           params: user.user_id,
         },
       });
+
+      console.log("Fetched user data:", response.data);
 
       const userImage = response.data.data.User.photo
         ? response.data.data.User.photo
@@ -155,6 +159,7 @@ export function Dashboard() {
           userImage,
           disabled,
           expiryDate,
+          tnaKey: tna_key,
         };
         const newQueue = [...prevQueue, newDeviceData];
         // Remove first item if queue length exceeds 10
@@ -231,7 +236,7 @@ export function Dashboard() {
           {/* Gate Access Stats */}
           <div className="col-span-6 rounded-lg p-6">
             <h2 className="mb-4 text-lg font-medium">Gate Access Stats</h2>
-            <GateAccessStats />
+            <GateAccessStats data={deviceQueue} />
           </div>
         </div>
 

@@ -97,13 +97,14 @@ export default function TurnstileDashboard() {
           ws.onmessage = (event) => {
             const eventData = JSON.parse(event.data);
             if (eventData.Event) {
-              const { user_id, device_id, datetime } = eventData.Event;
+              const { user_id, device_id, datetime, tna_key } = eventData.Event;
               if (user_id && device_id && datetime) {
                 fetchUserData(
                   response.data.bsSessionId,
                   user_id,
                   device_id,
-                  datetime
+                  datetime,
+                  tna_key
                 );
               }
             }
@@ -144,6 +145,7 @@ export default function TurnstileDashboard() {
     bsSessionId: string,
     user: UserProps,
     device: DeviceProps,
+    tna_key: string,
     datetime: string
   ) => {
     try {
@@ -198,6 +200,7 @@ export default function TurnstileDashboard() {
           userImage,
           disabled,
           expiryDate,
+          tnaKey: tna_key,
         },
       }));
 
@@ -211,6 +214,7 @@ export default function TurnstileDashboard() {
           userImage,
           disabled,
           expiryDate,
+          tnaKey: tna_key,
         };
         const newQueue = [...prevQueue, newDeviceData];
         // Remove first item if queue length exceeds 10
@@ -295,7 +299,8 @@ export default function TurnstileDashboard() {
         user_id: latestScan.user.user_id,
         name: latestScan.user.name,
         remarks: latestScan.remarks || "No remarks",
-        status: getEntryStatus(latestScan)
+        status: getEntryStatus(latestScan),
+        activity: latestScan.tnaKey === '1' ? "IN" : "OUT",
       };
 
       sendReport(reportData);

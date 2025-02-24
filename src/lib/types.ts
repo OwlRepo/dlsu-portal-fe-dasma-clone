@@ -18,6 +18,7 @@ export interface ScanProps {
   userImage?: string;
   disabled?: string
   expiryDate?: string
+  tnaKey?: string
 }
 
 export type CustomField = {
@@ -64,4 +65,5 @@ export interface ReportData {
   name: string;
   remarks: string;
   status: string;
+  activity: string;
 }

@@ -14,7 +14,7 @@ export function LiveDataTable({ data }: LiveData) {
     STATUS: row,
     ID: row.user.user_id ? row.user.user_id : "N/A",
     NAME: row.user.name ? row.user.name : "N/A",
-    ACTIVITY: "N/A",
+    ACTIVITY: row.tnaKey ? row.tnaKey === "1" ? "IN" : "OUT" : "N/A",
   }));
 
 
