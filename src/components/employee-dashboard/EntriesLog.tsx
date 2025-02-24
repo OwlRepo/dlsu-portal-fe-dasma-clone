@@ -1,7 +1,7 @@
 "use client";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
-import { BORDER_CLASSES, BorderColorClass, ScanDetailStatus, ScanProps } from "@/lib/types";
+import { ScanDetailStatus, ScanProps } from "@/lib/types";
 
 interface LogEntry {
   queue: ScanProps[];
@@ -38,19 +38,20 @@ export default function EntriesLog({ queue }: LogEntry) {
     return false;
   }
 
-    const getBorderColorClass = (scanDetail?: ScanDetailStatus): BorderColorClass => {
-      if (!scanDetail) return BORDER_CLASSES.DEFAULT;
-      
-      const isExpired = checkExpiry(scanDetail.expiryDate);
-      const isDisabled = scanDetail.disabled === "true";
-      const hasRemarks = scanDetail.remarks !== "No remarks" && scanDetail.remarks !== null;
-      
-      if (isExpired || isDisabled) return BORDER_CLASSES.ERROR;
-      if (!isExpired && scanDetail.disabled === "false" && hasRemarks) return BORDER_CLASSES.WARNING;
-      if (scanDetail.remarks === "No remarks" || scanDetail.remarks === null) return BORDER_CLASSES.SUCCESS;
-      
-      return BORDER_CLASSES.DEFAULT;
-    };
+  const getBorderColorClass = (scanDetail?: ScanDetailStatus): string => {
+    if (!scanDetail) return 'border-2';
+    
+    const isExpired = checkExpiry(scanDetail.expiryDate);
+    const isDisabled = scanDetail.disabled === "true";
+    const hasRemarks = scanDetail.remarks !== "No remarks" && scanDetail.remarks !== null;
+    
+    // Hardcoded border classes
+    if (isExpired || isDisabled) return 'border-4 border-red-500';
+    if (!isExpired && scanDetail.disabled === "false" && hasRemarks) return 'border-4 border-yellow-500';
+    if (scanDetail.remarks === "No remarks" || scanDetail.remarks === null) return 'border-4 border-green-500';
+    
+    return 'border-2';
+};
 
   return (
     <div className="flex-grow">
