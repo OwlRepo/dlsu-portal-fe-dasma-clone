@@ -33,6 +33,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const role = Cookies.get('role');
 
   const router = useRouter();
 
@@ -67,6 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (response) {
         const userData = { username, role, token: response.data.access_token };
         Cookies.set('user', JSON.stringify(userData), { expires: 7 });
+        Cookies.set('role', role);
         setUser(userData);
         if (role === 'employee') {
           router.push('/employee-dashboard');
@@ -87,11 +89,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    // Remove user data from cookie
     Cookies.remove('user');
-    setUser(null);
-    setIsLoggedIn(false);
-    router.push('/login');
+    // Remove user data from cookie
+    if (role === 'employee') {
+      router.push('/login/employee');
+      Cookies.remove('role');
+    } else {
+      setUser(null);
+      setIsLoggedIn(false);
+      router.push('/login');
+      Cookies.remove('role');
+    }
+   
   };
 
   return (

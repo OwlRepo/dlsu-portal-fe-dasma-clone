@@ -3,15 +3,16 @@
 import React, { useEffect, useState } from "react";
 import { usePathname } from "next/navigation"; // Import usePathname
 import { useAuth } from "@/lib/auth-context";
-import useUserToken from "@/hooks/useUserToken";
 import { LogOut } from "lucide-react";
 import Image from "next/image";
+import Cookies from 'js-cookie';
 
 export function AppBar() {
+  const role = Cookies.get('role');
+
   const [currentDate, setCurrentDate] = useState(new Date());
   const [formattedDate, setFormattedDate] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const { role } = useUserToken();
 
   const pathname = usePathname(); // Get the current pathname
 
@@ -62,7 +63,7 @@ export function AppBar() {
     }
   }, [currentDate, isLoggedIn]);
 
-  if (!isLoggedIn) {
+  if (!isLoggedIn || !role) {
     return null;
   }
 

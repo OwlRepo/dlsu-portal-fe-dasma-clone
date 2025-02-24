@@ -16,8 +16,8 @@ import {
   // SidebarTrigger,
 } from '@/components/ui/sidebar';
 import Image from 'next/image';
-import useUserToken from '@/hooks/useUserToken';
 import Cookies from 'js-cookie';
+import { useEffect, useState } from 'react';
 
 const menuItems = [
   {
@@ -44,12 +44,26 @@ const menuItems = [
 
 export function AppSidebar() {
   const { isLoggedIn } = useAuth();
-  const { role } = useUserToken();
   const pathname = usePathname();
+  const [isLoading, setIsLoading] = useState(true);
 
   const user = Cookies.get('user');
+  const role = Cookies.get('role');
   const token = user ? JSON.parse(user).token : null;
 
+  useEffect(() => {
+    // Check if we have all the required data
+    if (isLoggedIn !== undefined && role !== undefined && token !== undefined) {
+      setIsLoading(false);
+    }
+  }, [isLoggedIn, role, token]);
+  
+  // Show nothing while loading
+  if (isLoading) {
+    return null;
+  }
+
+  // Check permissions after loading
   if (!isLoggedIn || role === 'employee' || !token) {
     return null;
   }
