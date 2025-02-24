@@ -14,14 +14,12 @@ export function Dashboard() {
     const [devicesData, setDevicesData] = useState<{ [key: string]: ScanProps }>(
       {}
     );
+    const [deviceQueue, setDeviceQueue] = useState<ScanProps[]>([]);
 
   // const BIOSTAR_URI = 'https://127.0.0.1:4431'; // BioStar 2 IP and HTTPS port
   const WS_HOST ='wss://127.0.0.1:4431'
   // const API_HOST = '/api/proxy';
-  const BIOSTAR2_WS_URI = `${WS_HOST}/wsapi`;
-  // const PROXY_WS_URI = 'wss://localhost:3000/wsapi';
-
-  // const bsSessionId = '1a089fc5956b42e29d5726c164c89334';
+  const BIOSTAR2_WS_URI = `${WS_HOST}/wsapi`;;
 
   useEffect(() => {
     const fetchSessionId = async () => {
@@ -109,7 +107,6 @@ export function Dashboard() {
     device: DeviceProps,
     datetime: string
   ) => {
-    console.log(user);
     try {
       const response = await axios.get("api/users", {
         headers: {
@@ -148,6 +145,9 @@ export function Dashboard() {
         ? (livedNameField.item as string)
         : undefined;
 
+      const disabled = response.data.data.User.disabled;
+      const expiryDate = response.data.data.User.expiry_datetime;
+
       setDevicesData((prevData) => ({
         ...prevData,
         [device.id]: {
@@ -157,15 +157,30 @@ export function Dashboard() {
           remarks: remarks ?? "No remarks",
           livedName,
           userImage,
+          disabled,
+          expiryDate,
         },
       }));
 
+      setDeviceQueue((prevQueue) => {
+        const newDeviceData = {
+          user: userData,
+          device: deviceData,
+          datetime,
+          remarks: remarks ?? "No remarks",
+          livedName,
+          userImage,
+          disabled,
+          expiryDate,
+        };
+        const newQueue = [...prevQueue, newDeviceData];
+        // Remove first item if queue length exceeds 10
+        return newQueue.length > 25 ? newQueue.slice(1) : newQueue;
+      });
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
   };
-
-  console.log(devicesData)
 
   const fetchEventData = async (bsSessionId: string) => {
     try {
@@ -238,7 +253,7 @@ export function Dashboard() {
         </div>
 
         {/* Live Data Table */}
-        <LiveDataTable />
+        <LiveDataTable data={deviceQueue} />
       </div>
     </div>
   );

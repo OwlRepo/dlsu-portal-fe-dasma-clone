@@ -1,29 +1,22 @@
 import React from 'react';
-import { mockData } from '@/lib/mock-data';
 import CustomTable from '../custom/CustomTable';
-import { headers } from '@/lib/column-headers';
+import { liveDataHeaders } from '@/lib/column-headers';
 import { Button } from '../ui/button';
 import { FileX, Filter, Flame } from 'lucide-react';
+import { ScanProps } from '@/lib/types';
 
-export function LiveDataTable() {
-  const data = mockData.liveData.map((row) => ({
-    AT: (
-      <div
-        className={`h-2 w-2 rounded-full ${
-          row.status === 'allowed'
-            ? 'bg-[#00C853]'
-            : row.status === 'remarks'
-            ? 'bg-[#FFB300]'
-            : 'bg-[#F44336]'
-        }`}
-      />
-    ),
-    ID: row.id,
-    NAME: row.name,
-    TYPE: row.type,
-    GATE: row.gate,
-    ACTIVITY: row.activity,
+interface LiveData {
+  data: ScanProps[];
+}
+
+export function LiveDataTable({ data }: LiveData) {
+  const liveData = data.map((row) => ({
+    STATUS: row,
+    ID: row.user.user_id ? row.user.user_id : "N/A",
+    NAME: row.user.name ? row.user.name : "N/A",
+    ACTIVITY: "N/A",
   }));
+
 
   return (
     <div className="rounded-lg bg-white p-6 shadow-md">
@@ -58,25 +51,7 @@ export function LiveDataTable() {
         </div>
       </div>
 
-      <CustomTable columns={headers} data={data} />
-
-      {/* <div className="mt-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-600">1-10 of 97</span>
-          <select className="rounded-md border px-2 py-1 text-sm">
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="30">30</option>
-          </select>
-        </div>
-        <div className="flex items-center gap-2">
-          <button className="rounded-md border px-3 py-1 text-sm" disabled>
-            {'<'}
-          </button>
-          <span className="text-sm">1/10</span>
-          <button className="rounded-md border px-3 py-1 text-sm">{'>'}</button>
-        </div>
-      </div> */}
+      <CustomTable columns={liveDataHeaders} data={liveData} isLive />
     </div>
   );
 }

@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ScanDetailStatus } from "@/lib/types";
 
 interface PaginatedTableProps<T> {
   data: T[];
@@ -49,6 +50,31 @@ function CustomTable<T extends Record<string, unknown>>({
     return status.split(";")[0] || "N/A";
   };
 
+  // should put in utils in the future
+  const checkExpiry = (expiryDate: string | undefined) => {
+    if (expiryDate) {
+      const expiry = new Date(expiryDate);
+      const today = new Date();
+      return today > expiry;
+    }
+    return false;
+  };
+
+
+  const getLiveStatusColor = (scanDetail?: ScanDetailStatus): string => {
+    if (!scanDetail) return "N/A";
+    
+    const isExpired = checkExpiry(scanDetail.expiryDate);
+    const isDisabled = scanDetail.disabled === "true";
+    const hasRemarks = scanDetail.remarks !== "No remarks" && scanDetail.remarks !== null;
+    
+    if (isExpired || isDisabled) return "RED";
+    if (!isExpired && scanDetail.disabled === "false" && hasRemarks) return "YELLOW";
+    if (scanDetail.remarks === "No remarks" || scanDetail.remarks === null) return "GREEN";
+    
+    return "N/A";
+  };
+
   return (
     <div className="space-y-4">
       <div className="overflow-x-auto rounded-md border">
@@ -78,19 +104,31 @@ function CustomTable<T extends Record<string, unknown>>({
                 >
                   {columns.map((column, colIndex) => (
                     <td key={colIndex} className="p-3  text-[#0F416D]">
-                      {column.accessor === "STATUS" && isLive ? (
-                        <div
+                      {column.accessor === "STATUS" ? (
+                        isLive ? (
+                          <div
                           className={`h-2 w-2 rounded-full ${
-                            getStatusColor(row[column.accessor] as string) ===
-                            "GREEN"
+                            getLiveStatusColor(row[column.accessor] as ScanDetailStatus) === "GREEN"
                               ? "bg-[#00C853]"
-                              : getStatusColor(
-                                  row[column.accessor] as string
-                                ) === "YELLOW"
+                              : getLiveStatusColor(row[column.accessor] as ScanDetailStatus) === "YELLOW"
                               ? "bg-[#FFB300]"
                               : "bg-[#F44336]"
                           }`}
-                        />
+                          />
+                        ) : (
+                          <div
+                            className={`h-2 w-2 rounded-full ${
+                              getStatusColor(row[column.accessor] as string) ===
+                              "GREEN"
+                                ? "bg-[#00C853]"
+                                : getStatusColor(
+                                    row[column.accessor] as string
+                                  ) === "YELLOW"
+                                ? "bg-[#FFB300]"
+                                : "bg-[#F44336]"
+                            }`}
+                          />
+                        )
                       ) : column.cell ? (
                         column.cell(row)
                       ) : (
