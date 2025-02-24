@@ -67,7 +67,7 @@ export default function EntriesLog({ queue }: LogEntry) {
             </div>
           ) : (
             <div className="space-y-3">
-              {updatedScanQueue.map((entry, index) => (
+              {[...updatedScanQueue].reverse().map((entry, index) => (
                 <div
                   key={index}
                   className={`bg-white rounded-lg p-4 ${getBorderColorClass(entry
