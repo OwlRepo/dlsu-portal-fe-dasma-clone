@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         Cookies.set('user', JSON.stringify(userData), { expires: 7 });
         setUser(userData);
         if (role === 'employee') {
-          router.push('/test');
+          router.push('/employee-dashboard');
         } else {
           router.push('/dashboard');
         }
