@@ -11,9 +11,6 @@ import { CustomField, DeviceProps, ScanProps, UserProps } from '@/lib/types';
 
 export function Dashboard() {
   // const { role } = useUserToken();
-    const [devicesData, setDevicesData] = useState<{ [key: string]: ScanProps }>(
-      {}
-    );
     const [deviceQueue, setDeviceQueue] = useState<ScanProps[]>([]);
 
   // const BIOSTAR_URI = 'https://127.0.0.1:4431'; // BioStar 2 IP and HTTPS port
@@ -147,20 +144,6 @@ export function Dashboard() {
 
       const disabled = response.data.data.User.disabled;
       const expiryDate = response.data.data.User.expiry_datetime;
-
-      setDevicesData((prevData) => ({
-        ...prevData,
-        [device.id]: {
-          user: userData,
-          device: deviceData,
-          datetime,
-          remarks: remarks ?? "No remarks",
-          livedName,
-          userImage,
-          disabled,
-          expiryDate,
-        },
-      }));
 
       setDeviceQueue((prevQueue) => {
         const newDeviceData = {
