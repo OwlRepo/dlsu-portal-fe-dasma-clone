@@ -1,13 +1,13 @@
-'use client';
-import React, { useEffect, useState } from 'react';
-import { Download, Filter } from 'lucide-react';
-import axios from 'axios';
-import Cookies from 'js-cookie';
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
-import CustomTable from './CustomTable';
-import ViewProfileDialog from './ViewProfileDialog';
-import EditDetailsDialog from './EditDetailsDialog';
+"use client";
+import React, { useEffect, useState } from "react";
+import { Download, Filter } from "lucide-react";
+import axios from "axios";
+import Cookies from "js-cookie";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import CustomTable from "./CustomTable";
+import ViewProfileDialog from "./ViewProfileDialog";
+import EditDetailsDialog from "./EditDetailsDialog";
 // import { ViewProfileDialog } from './view-profile-dialog';
 
 interface User {
@@ -30,39 +30,39 @@ export interface UserHeader {
 }
 
 const UserManagementPageContainer = () => {
-  const [search, setSearch] = useState<string>('');
+  const [search, setSearch] = useState<string>("");
   const [userList, setUserList] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<UserHeader | null>(null);
-  // const [dateAdded, setDateAdded] = useState<string>('');
-  // const [showView, setShowView] = useState<boolean>(false);
   const [isViewProfileOpen, setIsViewProfileOpen] = useState(false);
   const [isEditDetailsOpen, setIsEditDetailsOpen] = useState(false);
+  // const [limit, setLimit] = useState<number>(10);
+  // const [page, setPage] = useState<number>(1);
 
   const usersHeaders: {
     header: string;
-    accessor: keyof UserHeader | '';
+    accessor: keyof UserHeader | "";
     cell?: (row: UserHeader) => React.ReactNode;
   }[] = [
-    { header: 'Employee ID', accessor: 'EMPLOYEE_ID' },
-    { header: 'Username', accessor: 'USERNAME' },
-    { header: 'First Name', accessor: 'FIRST_NAME' },
-    { header: 'Last Name', accessor: 'LAST_NAME' },
-    { header: 'Role', accessor: 'ROLE' },
-    { header: 'Date Added', accessor: 'DATE_ADDED' },
+    { header: "Employee ID", accessor: "EMPLOYEE_ID" },
+    { header: "Username", accessor: "USERNAME" },
+    { header: "First Name", accessor: "FIRST_NAME" },
+    { header: "Last Name", accessor: "LAST_NAME" },
+    { header: "Role", accessor: "ROLE" },
+    { header: "Date Added", accessor: "DATE_ADDED" },
   ];
 
   const data = userList.map((row) => ({
-    EMPLOYEE_ID: row.id ? row.id : 'N/A',
-    USERNAME: row.username ? row.username : 'N/A',
-    FIRST_NAME: row.first_name ? row.first_name : 'N/A',
-    LAST_NAME: row.last_name ? row.last_name : 'N/A',
-    ROLE: row.userType ? row.userType : 'N/A',
-    DATE_ADDED: row.created_at ? row.created_at : 'N/A',
+    EMPLOYEE_ID: row.id ? row.id : "N/A",
+    USERNAME: row.username ? row.username : "N/A",
+    FIRST_NAME: row.first_name ? row.first_name : "N/A",
+    LAST_NAME: row.last_name ? row.last_name : "N/A",
+    ROLE: row.userType ? row.userType : "N/A",
+    DATE_ADDED: row.created_at ? row.created_at : "N/A",
   }));
 
   const roleColors: Record<string, string> = {
-    admin: 'bg-green-100 text-green-600',
-    employee: 'bg-purple-100 text-purple-600',
+    admin: "bg-green-100 text-green-600",
+    employee: "bg-purple-100 text-purple-600",
   };
 
   const handleCloseView = () => {
@@ -87,7 +87,7 @@ const UserManagementPageContainer = () => {
 
   useEffect(() => {
     try {
-      const user = Cookies.get('user');
+      const user = Cookies.get("user");
       const token = user ? JSON.parse(user).token : null;
 
       const fetchUserList = async () => {
@@ -95,10 +95,10 @@ const UserManagementPageContainer = () => {
           `${process.env.NEXT_PUBLIC_API_URL}/users`,
           {
             headers: {
-              'Content-Type': 'multipart/form-data',
+              "Content-Type": "multipart/form-data",
               Authorization: `${token}`,
             },
-          },
+          }
         );
 
         if (res.data) {

@@ -52,15 +52,15 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // If the user cookie does not exist and the request is for the protected routes
-  if (
-    !userCookie &&
-    user.role === "employee" &&
-    protectedRoutes.includes(request.nextUrl.pathname)
-  ) {
-    // Redirect to the /login page
-    return NextResponse.redirect(new URL("/login/employee", request.url));
-  }
+  // If the user cookie does not exist, user role is employee, and the request is for the protected routes
+  // if (
+  //   !userCookie &&
+  //   user.role === "employee" &&
+  //   protectedRoutes.includes(request.nextUrl.pathname)
+  // ) {
+  //   // Redirect to the /login page
+  //   return NextResponse.redirect(new URL("/login/employee", request.url));
+  // }
 
   if (userCookie && request.nextUrl.pathname === "/login") {
     // Redirect to the dashboard page

@@ -1,16 +1,15 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+} from "@/components/ui/select";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginatedTableProps<T> {
   data: T[];
@@ -19,6 +18,7 @@ interface PaginatedTableProps<T> {
     accessor: keyof T | string;
     cell?: (item: T) => React.ReactNode;
   }[];
+  isLive?: boolean;
   initialItemsPerPage?: number;
 }
 
@@ -26,6 +26,7 @@ function CustomTable<T extends Record<string, unknown>>({
   data,
   columns,
   initialItemsPerPage = 10,
+  isLive = false,
 }: PaginatedTableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(initialItemsPerPage);
@@ -35,11 +36,6 @@ function CustomTable<T extends Record<string, unknown>>({
   const endIndex = startIndex + itemsPerPage;
   const paginatedData = data.slice(startIndex, endIndex);
 
-  const roleColors: Record<string, string> = {
-    admin: 'bg-green-100 text-green-600',
-    employee: 'bg-purple-100 text-purple-600',
-  };
-
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
   };
@@ -47,6 +43,10 @@ function CustomTable<T extends Record<string, unknown>>({
   const handleItemsPerPageChange = (value: string) => {
     setItemsPerPage(Number(value));
     setCurrentPage(1);
+  };
+
+  const getStatusColor = (status: string) => {
+    return status.split(";")[0] || "N/A";
   };
 
   return (
@@ -60,7 +60,7 @@ function CustomTable<T extends Record<string, unknown>>({
                   key={index}
                   className="p-3 text-left font-semibold  text-[#0F416D]"
                 >
-                  {column.header ? column.header.toUpperCase() : ''}
+                  {column.header ? column.header.toUpperCase() : ""}
                 </th>
               ))}
             </tr>
@@ -71,23 +71,26 @@ function CustomTable<T extends Record<string, unknown>>({
                 <tr
                   key={rowIndex}
                   className={`${
-                    rowIndex % 2 === 0 ? 'bg-white' : 'bg-[#F4F7FCBF]'
+                    rowIndex % 2 === 0 ? "bg-white" : "bg-[#F4F7FCBF]"
                   } hover:${
-                    rowIndex % 2 === 0 ? 'bg-white' : 'bg-[#F4F7FCBF]'
+                    rowIndex % 2 === 0 ? "bg-white" : "bg-[#F4F7FCBF]"
                   }`}
                 >
                   {columns.map((column, colIndex) => (
                     <td key={colIndex} className="p-3  text-[#0F416D]">
-                      {column.accessor === 'ROLE' ? (
-                        <Badge
-                          className={`${
-                            roleColors[row[column.accessor] as string]
-                          } rounded-lg font-normal hover:${
-                            roleColors[row[column.accessor] as string]
+                      {column.accessor === "STATUS" && isLive ? (
+                        <div
+                          className={`h-2 w-2 rounded-full ${
+                            getStatusColor(row[column.accessor] as string) ===
+                            "GREEN"
+                              ? "bg-[#00C853]"
+                              : getStatusColor(
+                                  row[column.accessor] as string
+                                ) === "YELLOW"
+                              ? "bg-[#FFB300]"
+                              : "bg-[#F44336]"
                           }`}
-                        >
-                          {(row[column.accessor] as string).toUpperCase()}
-                        </Badge>
+                        />
                       ) : column.cell ? (
                         column.cell(row)
                       ) : (
