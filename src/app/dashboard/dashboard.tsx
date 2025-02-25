@@ -1,39 +1,45 @@
-'use client';
+"use client";
 
-import { LogOut, LogIn, University } from 'lucide-react';
-import { StatisticsCard } from '@/components/dashboard/statistics-card';
-import { GateAccessStats } from '@/components/dashboard/gate-access-stats';
-import { LiveDataTable } from '@/components/dashboard/live-data-table';
+import { LogOut, LogIn, University } from "lucide-react";
+import { StatisticsCard } from "@/components/dashboard/statistics-card";
+import { GateAccessStats } from "@/components/dashboard/gate-access-stats";
+import { LiveDataTable } from "@/components/dashboard/live-data-table";
 // import useUserToken from '@/hooks/useUserToken';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { CustomField, DeviceProps, ScanProps, UserProps } from '@/lib/types';
+import { useCallback, useEffect, useState } from "react";
+import axios from "axios";
+import { CustomField, DeviceProps, ScanProps, UserProps } from "@/lib/types";
+import debounce from "lodash/debounce";
 
 export function Dashboard() {
   // const { role } = useUserToken();
-    const [deviceQueue, setDeviceQueue] = useState<ScanProps[]>([]);
+  const [tableQueue, setTableQueue] = useState<ScanProps[]>([]);
+  const [deviceQueue, setDeviceQueue] = useState<ScanProps[]>([]);
+  const [processedEvents, setProcessedEvents] = useState(new Set());
+  const [accessCounts, setAccessCounts] = useState({
+    entry: 0,
+    exit: 0,
+    onPremise: 0,
+  });
 
-  // const BIOSTAR_URI = 'https://127.0.0.1:4431'; // BioStar 2 IP and HTTPS port
-  const WS_HOST ='wss://127.0.0.1:4431'
-  // const API_HOST = '/api/proxy';
-  const BIOSTAR2_WS_URI = `${WS_HOST}/wsapi`;;
+  const WS_HOST = "wss://127.0.0.1:4431";
+  const BIOSTAR2_WS_URI = `${WS_HOST}/wsapi`;
 
   useEffect(() => {
     const fetchSessionId = async () => {
       try {
         const response = await axios.post(
-          '/api/login',
+          "/api/login",
           {
             User: {
-              login_id: 'admin',
-              password: 'ELIDtech1234',
+              login_id: "admin",
+              password: "ELIDtech1234",
             },
           },
           {
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
-          },
+          }
         );
 
         if (response) {
@@ -41,7 +47,7 @@ export function Dashboard() {
           const ws = new WebSocket(BIOSTAR2_WS_URI);
 
           ws.onopen = () => {
-            console.log('WebSocket connection established.');
+            console.log("WebSocket connection established.");
             // Send the session ID to the WebSocket server
             ws.send(`bs-session-id=${response.data.bsSessionId}`);
 
@@ -50,29 +56,35 @@ export function Dashboard() {
               fetchEventData(response.data.bsSessionId);
             }, 1000);
           };
-
           ws.onmessage = (event) => {
             const eventData = JSON.parse(event.data);
             if (eventData.Event) {
               const { user_id, device_id, datetime, tna_key } = eventData.Event;
-              if (user_id && device_id && datetime) {
-                fetchUserData(
-                  response.data.bsSessionId,
-                  user_id,
-                  device_id,
-                  tna_key,
-                  datetime
-                );
+
+              // Check if we've already processed this event
+              const eventKey = `${user_id}-${device_id}-${datetime}`;
+              if (!processedEvents.has(eventKey)) {
+                setProcessedEvents((prev) => new Set(prev).add(eventKey));
+
+                if (user_id && device_id && datetime) {
+                  debouncedFetchUserData(
+                    response.data.bsSessionId,
+                    user_id,
+                    device_id,
+                    tna_key,
+                    datetime
+                  );
+                }
               }
             }
           };
 
           ws.onerror = (error) => {
-            console.error('WebSocket error:', error);
+            console.error("WebSocket error:", error);
           };
 
           ws.onclose = () => {
-            console.log('WebSocket connection closed.');
+            console.log("WebSocket connection closed.");
           };
 
           // Cleanup on component unmount
@@ -83,14 +95,14 @@ export function Dashboard() {
           };
         } else {
           console.error(
-            'Session ID is missing. Cannot establish WebSocket connection.',
+            "Session ID is missing. Cannot establish WebSocket connection."
           );
           return;
         }
 
         // console.log('Login response:', response.data);
       } catch (error) {
-        console.error('Error logging in:', error);
+        console.error("Error logging in:", error);
       }
     };
 
@@ -98,6 +110,23 @@ export function Dashboard() {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const debouncedFetchUserData = useCallback(
+    debounce(
+      (
+        bsSessionId: string,
+        user: UserProps,
+        device: DeviceProps,
+        tna_key: string,
+        datetime: string
+      ) => {
+        fetchUserData(bsSessionId, user, device, tna_key, datetime);
+      },
+      300, // 300ms delay
+      { leading: true, trailing: false } // Only process the first call in the wait period
+    ),
+    []
+  );
 
   const fetchUserData = async (
     bsSessionId: string,
@@ -116,7 +145,7 @@ export function Dashboard() {
         },
       });
 
-      console.log("Fetched user data:", response.data);
+      console.log("WebSocket Event Received:", datetime); // Add this to track events
 
       const userImage = response.data.data.User.photo
         ? response.data.data.User.photo
@@ -149,22 +178,26 @@ export function Dashboard() {
       const disabled = response.data.data.User.disabled;
       const expiryDate = response.data.data.User.expiry_datetime;
 
-      setDeviceQueue((prevQueue) => {
-        const newDeviceData = {
-          user: userData,
-          device: deviceData,
-          datetime,
-          remarks: remarks ?? "No remarks",
-          livedName,
-          userImage,
-          disabled,
-          expiryDate,
-          tnaKey: tna_key,
-        };
+      const newDeviceData = {
+        user: userData,
+        device: deviceData,
+        datetime,
+        remarks: remarks ?? "No remarks",
+        livedName,
+        userImage,
+        disabled,
+        expiryDate,
+        tnaKey: tna_key,
+      };
+
+      // Update table queue with length limit
+      setTableQueue((prevQueue) => {
         const newQueue = [...prevQueue, newDeviceData];
-        // Remove first item if queue length exceeds 10
         return newQueue.length > 25 ? newQueue.slice(1) : newQueue;
       });
+
+      // Update stats queue without limit
+      setDeviceQueue((prevQueue) => [...prevQueue, newDeviceData]);
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
@@ -173,20 +206,20 @@ export function Dashboard() {
   const fetchEventData = async (bsSessionId: string) => {
     try {
       const response = await axios.post(
-        '/api/events',
+        "/api/events",
         {
           Query: {
             limit: 51,
             conditions: [
               {
-                column: 'datetime',
+                column: "datetime",
                 operator: 3,
                 values: [new Date().toISOString()],
               },
             ],
             orders: [
               {
-                column: 'datetime',
+                column: "datetime",
                 descending: false,
               },
             ],
@@ -194,17 +227,41 @@ export function Dashboard() {
         },
         {
           headers: {
-            'Content-Type': 'application/json',
-            'bs-session-id': bsSessionId,
+            "Content-Type": "application/json",
+            "bs-session-id": bsSessionId,
           },
-        },
+        }
       );
 
-      console.log('Fetched event data:', response.data);
+      console.log("Fetched event data:", response.data);
     } catch (error) {
-      console.error('Error fetching event data:', error);
+      console.error("Error fetching event data:", error);
     }
   };
+
+  const handleClear = useCallback(() => {
+    setTableQueue([]);
+  }, []);
+
+  // Clean up the debounced function
+  useEffect(() => {
+    return () => {
+      debouncedFetchUserData.cancel();
+    };
+  }, [debouncedFetchUserData]);
+
+  // calculate counts from deviceQueue
+  useEffect(() => {
+    const entry = deviceQueue.filter((item) => item.tnaKey === "1").length;
+    const exit = deviceQueue.filter((item) => item.tnaKey === "2").length;
+    const onPremise = entry - exit;
+
+    setAccessCounts({
+      entry,
+      exit,
+      onPremise: onPremise >= 0 ? onPremise : 0, // Ensure it doesn't go negative
+    });
+  }, [deviceQueue]);
 
   return (
     <div className="p-6">
@@ -216,19 +273,19 @@ export function Dashboard() {
           <div className="col-span-6 grid grid-cols-3 gap-4">
             <StatisticsCard
               icon={<University className="h-10 w-10 text-[#00bc65]" />}
-              count={15482}
+              count={accessCounts.onPremise}
               label="On Premise"
             />
             <StatisticsCard
               icon={
                 <LogIn className="h-10 w-10 text-[#4fd1c5] transform rotate-180" />
               }
-              count={20000}
+              count={accessCounts.entry}
               label="Entry"
             />
             <StatisticsCard
               icon={<LogOut className="h-10 w-10 text-[#ee5f62]" />}
-              count={4518}
+              count={accessCounts.exit}
               label="Exit"
             />
           </div>
@@ -241,7 +298,7 @@ export function Dashboard() {
         </div>
 
         {/* Live Data Table */}
-        <LiveDataTable data={deviceQueue} />
+        <LiveDataTable data={tableQueue} onClear={handleClear} />
       </div>
     </div>
   );

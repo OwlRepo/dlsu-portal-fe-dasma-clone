@@ -7,16 +7,16 @@ import { ScanProps } from '@/lib/types';
 
 interface LiveData {
   data: ScanProps[];
+  onClear: () => void;
 }
 
-export function LiveDataTable({ data }: LiveData) {
+export function LiveDataTable({ data, onClear }: LiveData) {
   const liveData = data.map((row) => ({
     STATUS: row,
     ID: row.user.user_id ? row.user.user_id : "N/A",
     NAME: row.user.name ? row.user.name : "N/A",
     ACTIVITY: row.tnaKey ? row.tnaKey === "1" ? "IN" : "OUT" : "N/A",
   }));
-
 
   return (
     <div className="rounded-lg bg-white p-6 shadow-md">
@@ -43,6 +43,7 @@ export function LiveDataTable({ data }: LiveData) {
             <Button
               variant="destructive"
               className="flex items-center gap-2 border"
+              onClick={onClear}
             >
               <FileX />
               Clear
