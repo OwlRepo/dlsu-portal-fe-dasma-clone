@@ -67,3 +67,11 @@ export interface ReportData {
   status: string;
   activity: string;
 }
+
+export interface ReportsList {
+  items: ReportData[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
