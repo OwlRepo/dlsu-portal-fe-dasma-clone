@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,15 +12,16 @@ import {
 import { Loader2, Moon, RefreshCw, Sun, Upload, UserMinus } from "lucide-react";
 import { ScreenSaverUpload } from "./screen-saver-upload";
 import { TimePicker } from "./time-picker";
+import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
 import Cookies from "js-cookie";
 
 export function OperationSettings() {
+  const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
   const [syncing, setSyncing] = useState(false);
-  const [morning, setMorning] = useState("6:00 AM");
-  const [evening, setEvening] = useState("6:00 PM");
+  const [morning, setMorning] = useState("");
+  const [evening, setEvening] = useState("");
   const [showTimePicker, setShowTimePicker] = useState<
     "morning" | "evening" | null
   >(null);
@@ -28,8 +29,7 @@ export function OperationSettings() {
   const handleSync = async () => {
     const user = Cookies.get("user");
     const token = user ? JSON.parse(user).token : null;
-    console.log(token);
-    // TODO: Implement sync functionality
+
     try {
       setSyncing(true);
       const res = await axios.post(
@@ -38,15 +38,26 @@ export function OperationSettings() {
         {
           headers: {
             Authorization: `${token}`,
-            'Accept': 'application/json',
+            Accept: "application/json",
           },
         }
       );
-      console.log(res);
       setSyncing(false);
+      if (res.data) {
+        toast({
+          title: "Success",
+          description:
+            "The database has been successfully synchronized manually.",
+        });
+      }
     } catch (error) {
       console.error(error);
       setSyncing(false);
+      toast({
+        title: "Error",
+        description: "An error occurred while synchronizing the database.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -56,11 +67,43 @@ export function OperationSettings() {
     }
   };
 
-  console.log(morning)
+  useEffect(() => {
+    const user = Cookies.get("user");
+    const token = user ? JSON.parse(user).token : null;
+
+    try {
+      const fetchSchedule = async () => {
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/database-sync/schedules`,
+          {
+            headers: {
+              Authorization: `${token}`,
+            },
+          }
+        );
+
+        if (res.data.length !== 0) {
+          // Handle array of schedules
+          res.data.forEach(
+            (schedule: { scheduleNumber: number; time: string }) => {
+              if (schedule.scheduleNumber === 1) {
+                setMorning(schedule.time);
+              } else if (schedule.scheduleNumber === 2) {
+                setEvening(schedule.time);
+              }
+            }
+          );
+        }
+      };
+      fetchSchedule();
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
-      <Card className="max-h-[320px]">
+      <Card>
         <CardHeader>
           <CardTitle>Scheduled Syncing</CardTitle>
           <CardDescription>
@@ -91,7 +134,7 @@ export function OperationSettings() {
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-muted-foreground">Or</span>
+              <span className="bg-white px-2 py-2 text-muted-foreground">Or</span>
             </div>
           </div>
           <Button className="w-full" onClick={handleSync} disabled={syncing}>
@@ -145,18 +188,18 @@ export function OperationSettings() {
         </CardContent>
       </Card>
 
-      <Card className="">
+      {/* <Card className="">
         <CardHeader>
           <CardTitle>Test</CardTitle>
           <CardDescription>Test</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4"></CardContent>
-      </Card>
+      </Card> */}
 
       {showTimePicker && (
         <TimePicker
           defaultValue={showTimePicker === "morning" ? morning : evening}
-          time={morning ? "morning" : "evening"}
+          time={showTimePicker}
           onSave={(time) => {
             if (showTimePicker === "morning") {
               setMorning(time);

@@ -11,6 +11,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { X } from "lucide-react";
+import Cookies from "js-cookie";
+import axios from "axios";
+import { useToast } from "@/hooks/use-toast";
 
 interface TimePickerProps {
   defaultValue?: string;
@@ -20,22 +23,47 @@ interface TimePickerProps {
 }
 
 export function TimePicker({
-  defaultValue = "12:00 AM",
+  defaultValue = "00:00",
   time,
   onSave,
   onClose,
 }: TimePickerProps) {
-  const [hour, setHour] = useState(defaultValue.split(":")[0]);
+  const { toast } = useToast();
+  const [hour, setHour] = useState(defaultValue.split(":")[0].padStart(2, "0"));
   const [minute, setMinute] = useState(
     defaultValue.split(":")[1].split(" ")[0]
   );
-  const [period, setPeriod] = useState(defaultValue.split(" ")[1]);
 
-  const handleSave = () => {
-    onSave(`${hour}:${minute} ${period}`);
+  const handleSave = async () => {
+    onSave(`${hour}:${minute}`);
+    const user = Cookies.get("user");
+    const token = user ? JSON.parse(user).token : null;
+
+    try {
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/database-sync/schedule`,
+        {
+          scheduleNumber: time === "morning" ? 1 : 2,
+          time: `${hour}:${minute}`,
+        },
+        {
+          headers: {
+            Authorization: `${token}`,
+            Accept: "application/json",
+          },
+        }
+      );
+      if (res.data) {
+        toast({
+          title: "Success",
+          description: "The time for syncing has been successfully set.",
+        });
+        onClose();
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
-
-  console.log(time);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 rounded-xl">
@@ -58,13 +86,23 @@ export function TimePicker({
                 <SelectValue placeholder="Hour" />
               </SelectTrigger>
               <SelectContent>
-                {Array.from({ length: 12 }, (_, i) =>
-                  (i + 1).toString().padStart(2, "0")
-                ).map((h) => (
-                  <SelectItem key={h} value={h}>
-                    {h}
-                  </SelectItem>
-                ))}
+                {time === "evening"
+                  ? Array.from({ length: 12 }, (_, i) => {
+                      const hour = i + 12; // Start from 12 and go up to 23
+                      return hour.toString().padStart(2, "0");
+                    }).map((h) => (
+                      <SelectItem key={h} value={h}>
+                        {h}
+                      </SelectItem>
+                    ))
+                  : Array.from({ length: 12 }, (_, i) => {
+                      const hour = i; // Start from 0 and go up to 11
+                      return hour.toString().padStart(2, "0");
+                    }).map((h) => (
+                      <SelectItem key={h} value={h}>
+                        {h}
+                      </SelectItem>
+                    ))}
               </SelectContent>
             </Select>
             <span className="text-xl">:</span>
@@ -80,16 +118,6 @@ export function TimePicker({
                     {m}
                   </SelectItem>
                 ))}
-              </SelectContent>
-            </Select>
-            <Select value={period} onValueChange={setPeriod}>
-              <SelectTrigger className="w-[70px]">
-                <SelectValue placeholder="AM/PM" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={time === "morning" ? "AM" : "PM"}>
-                  {time === "morning" ? "AM" : "PM"}
-                </SelectItem>
               </SelectContent>
             </Select>
           </div>

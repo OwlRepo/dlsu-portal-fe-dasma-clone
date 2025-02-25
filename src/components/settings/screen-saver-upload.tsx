@@ -116,14 +116,14 @@ export function ScreenSaverUpload() {
           }}
         >
           <CardTitle>{showConfigure ? 'Configure' : 'Screen Saver'}</CardTitle>
-          <Button
+          {showConfigure && <Button
             variant="ghost"
             size="icon"
             className="h-8 w-8"
             onClick={() => setShowConfigure(false)}
           >
             <X className="h-4 w-4" />
-          </Button>
+          </Button>}
         </div>
 
         <CardDescription>
