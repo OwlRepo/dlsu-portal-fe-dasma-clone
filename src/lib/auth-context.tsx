@@ -66,7 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       );
 
       if (response) {
-        const userData = { username, role, token: response.data.access_token };
+        const userData = { username, role, user: response.data.user,token: response.data.access_token };
         Cookies.set('user', JSON.stringify(userData), { expires: 7 });
         Cookies.set('role', role);
         setUser(userData);

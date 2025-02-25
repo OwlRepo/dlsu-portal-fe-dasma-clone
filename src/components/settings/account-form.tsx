@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
-import { Button } from '@/components/ui/button';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -11,13 +11,20 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Info } from 'lucide-react';
-import axios from 'axios';
-import { useToast } from '@/hooks/use-toast';
-import useUserToken from '@/hooks/useUserToken';
-import { useEffect } from 'react';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Info } from "lucide-react";
+import axios from "axios";
+import { useToast } from "@/hooks/use-toast";
+import useUserToken from "@/hooks/useUserToken";
+import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
 
 const accountFormSchema = z.object({
   employeeId: z.string(),
@@ -29,10 +36,10 @@ const accountFormSchema = z.object({
 type AccountFormValues = z.infer<typeof accountFormSchema>;
 
 const defaultValues: Partial<AccountFormValues> = {
-  employeeId: '',
-  username: '',
-  first_name: '',
-  last_name: '',
+  employeeId: "",
+  username: "",
+  first_name: "",
+  last_name: "",
 };
 
 export function AccountForm() {
@@ -40,14 +47,26 @@ export function AccountForm() {
     resolver: zodResolver(accountFormSchema),
     defaultValues,
   });
+
+  const passwordForm = useForm({
+    defaultValues: {
+      newPassword: "",
+    },
+  });
+
   const { toast } = useToast();
   const { token, userId, role } = useUserToken();
+  const user = Cookies.get("user");
+  const userInfo = user ? JSON.parse(user).user : null;
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
 
   const onSubmit = async (data: AccountFormValues) => {
     // TODO: Implement save functionality
     try {
       const res = await axios.patch(
-        `${process.env.NEXT_PUBLIC_API_URL}/super-admin/${userId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/super-admin/${
+          userInfo.super_admin_id || userInfo.admin_id
+        }`,
         {
           username: data.username,
           first_name: data.first_name,
@@ -57,29 +76,64 @@ export function AccountForm() {
           headers: {
             Authorization: `${token}`,
           },
-        },
+        }
       );
       if (res.status === 200) {
         toast({
-          title: 'Account Info Updated',
+          title: "Account Info Updated",
           description:
-            'Your account information has been updated successfully.',
+            "Your account information has been updated successfully.",
         });
       } else {
         toast({
-          title: 'Error',
+          title: "Error",
           description:
-            'An error occurred while updating your account information.',
-          variant: 'destructive',
+            "An error occurred while updating your account information.",
+          variant: "destructive",
         });
       }
     } catch (error) {
       console.error(error);
       toast({
-        title: 'Error',
+        title: "Error",
         description:
-          'An error occurred while updating your account information.',
-        variant: 'destructive',
+          "An error occurred while updating your account information.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const onPasswordSubmit = async (data: { newPassword: string }) => {
+    try {
+      const res = await axios.patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/${role}/${
+          userInfo.super_admin_id || userInfo.admin_id
+        }`,
+        {
+          password: data.newPassword,
+        },
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+
+      if (res.status === 200) {
+        toast({
+          title: "Password Updated",
+          description: "Your password has been updated successfully.",
+        });
+        setIsPasswordDialogOpen(false);
+        passwordForm.reset();
+      }
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Error",
+        description:
+          "Failed to update password. Please check your current password.",
+        variant: "destructive",
       });
     }
   };
@@ -88,22 +142,24 @@ export function AccountForm() {
     const fetchUserDetails = async () => {
       try {
         const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/${role}/${userId}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/${role}/${
+            userInfo.super_admin_id || userInfo.admin_id
+          }`,
           {
             headers: {
               Authorization: `${token}`,
             },
-          },
+          }
         );
         if (res.status === 200) {
           const user = res.data;
           form.setValue(
-            'employeeId',
-            role === 'super-admin' ? user.super_admin_id : user.admin_id,
+            "employeeId",
+            role === "super-admin" ? user.super_admin_id : user.admin_id
           );
-          form.setValue('username', user.username);
-          form.setValue('first_name', user.first_name || 'N/A');
-          form.setValue('last_name', user.last_name || 'N/A');
+          form.setValue("username", user.username);
+          form.setValue("first_name", user.first_name || "N/A");
+          form.setValue("last_name", user.last_name || "N/A");
         }
       } catch (error) {
         console.error(error);
@@ -113,7 +169,7 @@ export function AccountForm() {
       fetchUserDetails();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId, token, role]);
+  }, [userInfo, token, role]);
 
   return (
     <div className="space-y-6">
@@ -192,12 +248,54 @@ export function AccountForm() {
               variant="default"
               className="bg-[#00BC65] hover:bg-green-600"
               type="button"
+              onClick={() => setIsPasswordDialogOpen(true)}
             >
               Update Password
             </Button>
           </div>
         </form>
       </Form>
+
+      <Dialog
+        open={isPasswordDialogOpen}
+        onOpenChange={setIsPasswordDialogOpen}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Update Password</DialogTitle>
+          </DialogHeader>
+          <Form {...passwordForm}>
+            <form
+              onSubmit={passwordForm.handleSubmit(onPasswordSubmit)}
+              className="space-y-4"
+            >
+              <FormField
+                control={passwordForm.control}
+                name="newPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>New Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="flex justify-end space-x-4 mt-6">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsPasswordDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit">Update Password</Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
