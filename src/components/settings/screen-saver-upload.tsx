@@ -91,15 +91,18 @@ export function ScreenSaverUpload() {
           },
         );
 
-        if (res.status === 200) {
+        if (res.status === 200 && res.data?.data?.url) {
           setDefaultScreensaverUrl(res.data.data.url);
         }
       } catch (err) {
-        console.error(err);
+        console.error('Failed to fetch screensaver:', err);
+        setDefaultScreensaverUrl(null);
       }
     };
 
-    fetchData();
+    if (token) {
+      fetchData();
+    }
   }, [token]);
 
   return (

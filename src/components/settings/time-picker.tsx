@@ -1,37 +1,41 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { X } from 'lucide-react';
+} from "@/components/ui/select";
+import { X } from "lucide-react";
 
 interface TimePickerProps {
   defaultValue?: string;
+  time?: string;
   onSave: (time: string) => void;
   onClose: () => void;
 }
 
 export function TimePicker({
-  defaultValue = '12:00 AM',
+  defaultValue = "12:00 AM",
+  time,
   onSave,
   onClose,
 }: TimePickerProps) {
-  const [hour, setHour] = useState(defaultValue.split(':')[0]);
+  const [hour, setHour] = useState(defaultValue.split(":")[0]);
   const [minute, setMinute] = useState(
-    defaultValue.split(':')[1].split(' ')[0],
+    defaultValue.split(":")[1].split(" ")[0]
   );
-  const [period, setPeriod] = useState(defaultValue.split(' ')[1]);
+  const [period, setPeriod] = useState(defaultValue.split(" ")[1]);
 
   const handleSave = () => {
     onSave(`${hour}:${minute} ${period}`);
   };
+
+  console.log(time);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 rounded-xl">
@@ -55,7 +59,7 @@ export function TimePicker({
               </SelectTrigger>
               <SelectContent>
                 {Array.from({ length: 12 }, (_, i) =>
-                  (i + 1).toString().padStart(2, '0'),
+                  (i + 1).toString().padStart(2, "0")
                 ).map((h) => (
                   <SelectItem key={h} value={h}>
                     {h}
@@ -70,7 +74,7 @@ export function TimePicker({
               </SelectTrigger>
               <SelectContent>
                 {Array.from({ length: 60 }, (_, i) =>
-                  i.toString().padStart(2, '0'),
+                  i.toString().padStart(2, "0")
                 ).map((m) => (
                   <SelectItem key={m} value={m}>
                     {m}
@@ -83,8 +87,9 @@ export function TimePicker({
                 <SelectValue placeholder="AM/PM" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="AM">AM</SelectItem>
-                <SelectItem value="PM">PM</SelectItem>
+                <SelectItem value={time === "morning" ? "AM" : "PM"}>
+                  {time === "morning" ? "AM" : "PM"}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>

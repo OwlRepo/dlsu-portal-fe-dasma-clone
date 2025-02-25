@@ -1,33 +1,53 @@
-'use client';
+"use client";
 
-import { useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Loader2, Moon, RefreshCw, Sun, Upload, UserMinus } from 'lucide-react';
-import { ScreenSaverUpload } from './screen-saver-upload';
-import { TimePicker } from './time-picker';
+} from "@/components/ui/card";
+import { Loader2, Moon, RefreshCw, Sun, Upload, UserMinus } from "lucide-react";
+import { ScreenSaverUpload } from "./screen-saver-upload";
+import { TimePicker } from "./time-picker";
+import axios from "axios";
+import Cookies from "js-cookie";
 
 export function OperationSettings() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [syncing, setSyncing] = useState(false);
-  const [morning, setMorning] = useState('6:00 AM');
-  const [evening, setEvening] = useState('6:00 PM');
+  const [morning, setMorning] = useState("6:00 AM");
+  const [evening, setEvening] = useState("6:00 PM");
   const [showTimePicker, setShowTimePicker] = useState<
-    'morning' | 'evening' | null
+    "morning" | "evening" | null
   >(null);
 
   const handleSync = async () => {
-    setSyncing(true);
+    const user = Cookies.get("user");
+    const token = user ? JSON.parse(user).token : null;
+    console.log(token);
     // TODO: Implement sync functionality
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setSyncing(false);
+    try {
+      setSyncing(true);
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/database-sync/sync`,
+        {},
+        {
+          headers: {
+            Authorization: `${token}`,
+            'Accept': 'application/json',
+          },
+        }
+      );
+      console.log(res);
+      setSyncing(false);
+    } catch (error) {
+      console.error(error);
+      setSyncing(false);
+    }
   };
 
   const handleButtonClick = () => {
@@ -35,6 +55,8 @@ export function OperationSettings() {
       fileInputRef.current.click(); // Trigger the file input click
     }
   };
+
+  console.log(morning)
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
@@ -53,7 +75,7 @@ export function OperationSettings() {
                 {morning}
               </div>
             </div>
-            <Button onClick={() => setShowTimePicker('morning')}>Set</Button>
+            <Button onClick={() => setShowTimePicker("morning")}>Set</Button>
           </div>
           <div className="flex items-center justify-between bg-gray-100 py-2 px-4 rounded-md">
             <div className="flex items-center space-x-4">
@@ -62,7 +84,7 @@ export function OperationSettings() {
                 {evening}
               </div>
             </div>
-            <Button onClick={() => setShowTimePicker('evening')}>Set</Button>
+            <Button onClick={() => setShowTimePicker("evening")}>Set</Button>
           </div>
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
@@ -112,7 +134,7 @@ export function OperationSettings() {
               type="file"
               accept=".csv"
               ref={fileInputRef} // Attach the ref to the input
-              style={{ display: 'none' }} // Hide the file input
+              style={{ display: "none" }} // Hide the file input
             />
           </div>
 
@@ -133,9 +155,10 @@ export function OperationSettings() {
 
       {showTimePicker && (
         <TimePicker
-          defaultValue={showTimePicker === 'morning' ? morning : evening}
+          defaultValue={showTimePicker === "morning" ? morning : evening}
+          time={morning ? "morning" : "evening"}
           onSave={(time) => {
-            if (showTimePicker === 'morning') {
+            if (showTimePicker === "morning") {
               setMorning(time);
             } else {
               setEvening(time);
