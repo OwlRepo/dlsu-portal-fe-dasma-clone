@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -40,6 +40,11 @@ interface PaginatedTableProps<T> {
   onEdit?: (user: T) => void;
   onChangeRole?: () => void;
   onDelete?: () => void;
+  currentPage: number;
+  onPageChange: (page: number) => void;
+  onLimitChange: (limit: number) => void;
+  total: number;
+  limit: number;
 }
 
 function CustomTable<T extends Record<string, unknown>>({
@@ -50,28 +55,30 @@ function CustomTable<T extends Record<string, unknown>>({
   onEdit,
   onChangeRole,
   onDelete,
+  currentPage,
+  onPageChange,
+  onLimitChange,
+  total,
+  limit,
 }: PaginatedTableProps<T>) {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(initialItemsPerPage);
 
-  const totalPages = Math.ceil(data.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedData = data.slice(startIndex, endIndex);
-
+  const totalPages = Math.max(1, Math.ceil(total / limit));
+  const startIndex = (currentPage - 1) * limit;
+  const endIndex = Math.min(startIndex + data.length, total);
+  
   const roleColors: Record<string, string> = {
     admin: 'bg-green-100 text-green-600',
     employee: 'bg-purple-100 text-purple-600',
   };
 
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
-  };
-
-  const handleItemsPerPageChange = (value: string) => {
-    setItemsPerPage(Number(value));
-    setCurrentPage(1);
-  };
+    // Add validation for current page
+    useEffect(() => {
+      if (currentPage > totalPages && totalPages > 0) {
+        onPageChange(totalPages);
+      }
+  
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentPage, totalPages]);
 
   return (
     <div className="space-y-4">
@@ -93,8 +100,8 @@ function CustomTable<T extends Record<string, unknown>>({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedData.length > 0 ? (
-              paginatedData.map((row, rowIndex) => (
+            {data.length > 0 ? (
+              data.map((row, rowIndex) => (
                 <TableRow
                   key={rowIndex}
                   className={`${
@@ -170,8 +177,8 @@ function CustomTable<T extends Record<string, unknown>>({
         </div>
         <div className="flex items-center space-x-2">
           <Select
-            value={itemsPerPage.toString()}
-            onValueChange={handleItemsPerPageChange}
+            value={limit.toString()}
+            onValueChange={(value) => onLimitChange(Number(value))}
           >
             <SelectTrigger className="w-[120px]">
               <SelectValue placeholder="Items per page" />
@@ -184,7 +191,7 @@ function CustomTable<T extends Record<string, unknown>>({
             </SelectContent>
           </Select>
           <Button
-            onClick={() => handlePageChange(currentPage - 1)}
+            onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
             variant="outline"
             size="sm"
@@ -195,7 +202,7 @@ function CustomTable<T extends Record<string, unknown>>({
             {currentPage}/{totalPages}
           </span>
           <Button
-            onClick={() => handlePageChange(currentPage + 1)}
+            onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
             variant="outline"
             size="sm"

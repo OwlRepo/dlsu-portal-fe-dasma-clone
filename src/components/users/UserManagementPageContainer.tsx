@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Download, Filter } from "lucide-react";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -8,6 +8,7 @@ import { Button } from "../ui/button";
 import CustomTable from "./CustomTable";
 import ViewProfileDialog from "./ViewProfileDialog";
 import EditDetailsDialog from "./EditDetailsDialog";
+import { debounce } from "lodash";
 // import { ViewProfileDialog } from './view-profile-dialog';
 
 interface User {
@@ -35,8 +36,9 @@ const UserManagementPageContainer = () => {
   const [selectedUser, setSelectedUser] = useState<UserHeader | null>(null);
   const [isViewProfileOpen, setIsViewProfileOpen] = useState(false);
   const [isEditDetailsOpen, setIsEditDetailsOpen] = useState(false);
-  // const [limit, setLimit] = useState<number>(10);
-  // const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(10);
+  const [page, setPage] = useState<number>(1);
+  const [total, setTotal] = useState<number>(0);
 
   const usersHeaders: {
     header: string;
@@ -85,31 +87,86 @@ const UserManagementPageContainer = () => {
     setIsEditDetailsOpen(true);
   };
 
-  useEffect(() => {
+  const fetchUserList = async (
+    searchTerm: string,
+    newLimit?: number,
+    newPage?: number
+  ) => {
     try {
       const user = Cookies.get("user");
       const token = user ? JSON.parse(user).token : null;
 
-      const fetchUserList = async () => {
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/users`,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: `${token}`,
-            },
-          }
-        );
+      // Use new values if provided, otherwise use state values
+      const currentLimit = newLimit ?? limit;
+      const currentPage = newPage ?? page;
 
-        if (res.data) {
-          setUserList(res.data.items);
-        }
-      };
+      const params = new URLSearchParams();
+      if (searchTerm) params.append("search", searchTerm);
+      if (currentLimit) params.append("limit", currentLimit.toString());
+      if (currentPage) params.append("page", currentPage.toString());
 
-      fetchUserList();
+      const queryString = params.toString();
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/users${
+        queryString ? `?${queryString}` : ""
+      }`;
+
+      const res = await axios.get(url, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `${token}`,
+        },
+      });
+
+      if (res.data) {
+        setUserList(res.data.items);
+        setTotal(res.data.total);
+      }
     } catch (error) {
       console.error(error);
     }
+  };
+
+  // Create memoized debounced search function
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((searchTerm: string) => {
+        setPage(1); // Reset to first page on new search
+        fetchUserList(searchTerm);
+      }, 500),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
+  // Add handlers for pagination
+  const handlePageChange = async (newPage: number) => {
+    await fetchUserList(search, limit, newPage); // Call API first
+    setPage(newPage); // Update page state after successful API call
+  };
+
+  const handleLimitChange = async (newLimit: number) => {
+    await fetchUserList(search, newLimit, 1); // Call API first with page 1
+    setLimit(newLimit);
+    setPage(1);
+  };
+
+  // Handle search
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearch(value);
+    debouncedSearch(value);
+  };
+
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [debouncedSearch]);
+
+  useEffect(() => {
+    fetchUserList(search);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -117,9 +174,9 @@ const UserManagementPageContainer = () => {
       <div className="flex items-center justify-between mb-8">
         <div className="w-[500px]">
           <Input
-            placeholder="Search"
+            placeholder="Search..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={handleSearch}
           />
         </div>
 
@@ -143,6 +200,11 @@ const UserManagementPageContainer = () => {
         data={data}
         onView={(user) => handleView(user)}
         onEdit={(user) => handleEdit(user)}
+        onPageChange={handlePageChange}
+        onLimitChange={handleLimitChange}
+        currentPage={page}
+        total={total}
+        limit={limit}
       />
 
       <ViewProfileDialog
