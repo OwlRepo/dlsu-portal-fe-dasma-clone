@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -50,7 +50,6 @@ interface PaginatedTableProps<T> {
 function CustomTable<T extends Record<string, unknown>>({
   data,
   columns,
-  initialItemsPerPage = 10,
   onView,
   onEdit,
   onChangeRole,
