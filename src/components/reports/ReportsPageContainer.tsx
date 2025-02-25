@@ -64,6 +64,7 @@ const ReportsPageContainer = () => {
       console.error(error);
     }
   };
+
   // Create memoized debounced search function
   const debouncedSearch = useMemo(
     () =>
@@ -71,6 +72,7 @@ const ReportsPageContainer = () => {
         setPage(1); // Reset to first page on new search
         fetchReportsList(searchTerm);
       }, 500),
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -102,6 +104,8 @@ const ReportsPageContainer = () => {
 
   useEffect(() => {
     fetchReportsList(search);
+    
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
 
   // Handle search

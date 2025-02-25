@@ -46,6 +46,8 @@ const ReportsTable: React.FC<ReportsTableProps> = ({
     if (currentPage > totalPages && totalPages > 0) {
       onPageChange(totalPages);
     }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, totalPages]);
 
   return (

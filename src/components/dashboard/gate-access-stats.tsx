@@ -1,6 +1,6 @@
 "use client";
 import { checkExpiry } from "@/lib/checkExpiry";
-import { ScanDetailStatus, ScanProps } from "@/lib/types";
+import { ScanProps } from "@/lib/types";
 import { useGateStatsStore } from "@/store/gateStats";
 import React, { useEffect, useState } from "react";
 

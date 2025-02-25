@@ -125,6 +125,7 @@ export function Dashboard() {
       300, // 300ms delay
       { leading: true, trailing: false } // Only process the first call in the wait period
     ),
+     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
