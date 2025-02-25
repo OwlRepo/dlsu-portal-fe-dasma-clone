@@ -240,9 +240,9 @@ export function Dashboard() {
     }
   };
 
-  const handleClear = useCallback(() => {
-    setTableQueue([]);
-  }, []);
+  // const handleClear = useCallback(() => {
+  //   setTableQueue([]);
+  // }, []);
 
   // Clean up the debounced function
   useEffect(() => {
