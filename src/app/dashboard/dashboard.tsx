@@ -299,7 +299,7 @@ export function Dashboard() {
         </div>
 
         {/* Live Data Table */}
-        <LiveDataTable data={tableQueue} onClear={handleClear} />
+        <LiveDataTable data={tableQueue}/>
       </div>
     </div>
   );

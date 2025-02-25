@@ -21,6 +21,7 @@ interface PaginatedTableProps<T> {
   }[];
   isLive?: boolean;
   initialItemsPerPage?: number;
+  onRowClick?: (row: T) => void;
 }
 
 function CustomTable<T extends Record<string, unknown>>({
@@ -28,6 +29,7 @@ function CustomTable<T extends Record<string, unknown>>({
   columns,
   initialItemsPerPage = 10,
   isLive = false,
+  onRowClick,
 }: PaginatedTableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(initialItemsPerPage);
@@ -101,6 +103,7 @@ function CustomTable<T extends Record<string, unknown>>({
                   } hover:${
                     rowIndex % 2 === 0 ? "bg-white" : "bg-[#F4F7FCBF]"
                   }`}
+                  onClick={() => onRowClick?.(row)}
                 >
                   {columns.map((column, colIndex) => (
                     <td key={colIndex} className="p-3  text-[#0F416D]">
