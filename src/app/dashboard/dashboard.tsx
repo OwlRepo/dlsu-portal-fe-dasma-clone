@@ -7,11 +7,16 @@ import { LiveDataTable } from "@/components/dashboard/live-data-table";
 // import useUserToken from '@/hooks/useUserToken';
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
-import { CustomField, DeviceProps, ScanProps, UserProps } from "@/lib/types";
+import { CustomField, DeviceProps, GateStats, ReportData, ScanProps, UserProps } from "@/lib/types";
 import debounce from "lodash/debounce";
+import { checkExpiry } from "@/lib/checkExpiry";
+import useUserToken from "@/hooks/useUserToken";
+import io, { Socket } from 'socket.io-client';
+import { useReportsSocket } from "@/hooks/useReportSocket";
 
 export function Dashboard() {
-  // const { role } = useUserToken();
+  const { token } = useUserToken();
+  const { stats } = useReportsSocket(); 
   const [tableQueue, setTableQueue] = useState<ScanProps[]>([]);
   const [deviceQueue, setDeviceQueue] = useState<ScanProps[]>([]);
   const [processedEvents, setProcessedEvents] = useState(new Set());
@@ -20,9 +25,18 @@ export function Dashboard() {
     exit: 0,
     onPremise: 0,
   });
+  const [devicesData, setDevicesData] = useState<{ [key: string]: ScanProps }>(
+    {}
+  );
+  // const [stats, setStats] = useState<GateStats | null>(null);
+  // const [socket, setSocket] = useState<Socket | null>(null);
 
   const WS_HOST = "wss://127.0.0.1:4431";
   const BIOSTAR2_WS_URI = `${WS_HOST}/wsapi`;
+  // const SOCKET_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
+  // const SOCKET_URL = `http://localhost:9580/`;
+
+  console.log('stats:', stats);
 
   useEffect(() => {
     const fetchSessionId = async () => {
@@ -191,6 +205,22 @@ export function Dashboard() {
         tnaKey: tna_key,
       };
 
+      
+      setDevicesData((prevData) => ({
+        ...prevData,
+        [device.id]: {
+          user: userData,
+          device: deviceData,
+          datetime,
+          remarks: remarks ?? "No remarks",
+          livedName,
+          userImage,
+          disabled,
+          expiryDate,
+          tnaKey: tna_key,
+        },
+      }));
+
       // Update table queue with length limit
       setTableQueue((prevQueue) => {
         const newQueue = [...prevQueue, newDeviceData];
@@ -240,6 +270,22 @@ export function Dashboard() {
     }
   };
 
+  const getEntryStatus = (scan: ScanProps): string => {
+    const isDisabled = scan.disabled === "true";
+    const isExpired = checkExpiry(scan.expiryDate);
+    const hasRemarks = scan.remarks !== "No remarks";
+  
+    if (isDisabled || isExpired) {
+      return "RED;cannot enter with or without remarks";
+    }
+  
+    if (hasRemarks) {
+      return "YELLOW;can enter with remarks";
+    }
+  
+    return "GREEN;can enter without remarks";
+  };
+
   // const handleClear = useCallback(() => {
   //   setTableQueue([]);
   // }, []);
@@ -263,6 +309,48 @@ export function Dashboard() {
       onPremise: onPremise >= 0 ? onPremise : 0, // Ensure it doesn't go negative
     });
   }, [deviceQueue]);
+
+  useEffect(() => {
+    const sendReport = async (reportData: ReportData) => {
+      try {
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/reports`,
+          reportData,
+          {
+            headers: {
+              accept: "*/*",
+              "Content-Type": "application/json",
+              Authorization: `${token}`,
+            },
+          }
+        );
+        console.log("Report sent successfully:", response.data);
+      } catch (error) {
+        console.error("Error sending report:", error);
+      }
+    };
+
+    // Get the latest scan from devicesData
+    const latestScan = Object.values(devicesData)[0];
+
+    if (latestScan) {
+      const reportData: ReportData = {
+        datetime: latestScan.datetime,
+        // type: latestScan.tnaKey === '1' ? "IN" : "OUT",
+        type: latestScan.tnaKey!,
+        user_id: latestScan.user.user_id,
+        name: latestScan.user.name,
+        remarks: latestScan.remarks || "No remarks",
+        status: getEntryStatus(latestScan),
+        activity: latestScan.tnaKey === '1' ? "IN" : "OUT",
+      };
+
+      sendReport(reportData);
+    }
+    // include getEntryStatus if failing
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [devicesData, token]);
+  
 
   return (
     <div className="p-6">

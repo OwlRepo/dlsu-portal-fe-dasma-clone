@@ -75,3 +75,15 @@ export interface ReportsList {
   limit: number;
   totalPages: number;
 }
+
+export interface GateStats {
+  onPremise: number;
+  entry: number;
+  exit: number;
+  gateAccessStats: {
+    allowed: number;
+    allowedWithRemarks: number;
+    notAllowed: number;
+  };
+  lastUpdated: Date;
+}
