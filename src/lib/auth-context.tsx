@@ -10,7 +10,6 @@ import {
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-
 type User = {
   username: string;
   // password: string;
@@ -53,9 +52,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (username: string, password: string, role: string) => {
-    // Store user data in cookie (expires in 7 days)
-    // Should include token
-
     try {
       const response = await api.post(
         `/auth/${role === 'employee' ? 'employee' : 'login'}`,
@@ -67,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (response) {
         const userData = { username, role, user: response.data.user,token: response.data.access_token };
-        Cookies.set('user', JSON.stringify(userData), { expires: 7 });
+        Cookies.set('user', JSON.stringify(userData));
         Cookies.set('role', role);
         setUser(userData);
         if (role === 'employee') {

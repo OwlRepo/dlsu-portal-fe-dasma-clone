@@ -11,20 +11,19 @@ import { CustomField, DeviceProps, GateStats, ReportData, ScanProps, UserProps }
 import debounce from "lodash/debounce";
 import { checkExpiry } from "@/lib/checkExpiry";
 import useUserToken from "@/hooks/useUserToken";
-import io, { Socket } from 'socket.io-client';
 import { useReportsSocket } from "@/hooks/useReportSocket";
 
 export function Dashboard() {
   const { token } = useUserToken();
   const { stats } = useReportsSocket(); 
   const [tableQueue, setTableQueue] = useState<ScanProps[]>([]);
-  const [deviceQueue, setDeviceQueue] = useState<ScanProps[]>([]);
+  // const [deviceQueue, setDeviceQueue] = useState<ScanProps[]>([]);
   const [processedEvents, setProcessedEvents] = useState(new Set());
-  const [accessCounts, setAccessCounts] = useState({
-    entry: 0,
-    exit: 0,
-    onPremise: 0,
-  });
+  // const [accessCounts, setAccessCounts] = useState({
+  //   entry: 0,
+  //   exit: 0,
+  //   onPremise: 0,
+  // });
   const [devicesData, setDevicesData] = useState<{ [key: string]: ScanProps }>(
     {}
   );
@@ -228,7 +227,7 @@ export function Dashboard() {
       });
 
       // Update stats queue without limit
-      setDeviceQueue((prevQueue) => [...prevQueue, newDeviceData]);
+      // setDeviceQueue((prevQueue) => [...prevQueue, newDeviceData]);
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
@@ -298,17 +297,17 @@ export function Dashboard() {
   }, [debouncedFetchUserData]);
 
   // calculate counts from deviceQueue
-  useEffect(() => {
-    const entry = deviceQueue.filter((item) => item.tnaKey === "1").length;
-    const exit = deviceQueue.filter((item) => item.tnaKey === "2").length;
-    const onPremise = entry - exit;
+  // useEffect(() => {
+  //   const entry = deviceQueue.filter((item) => item.tnaKey === "1").length;
+  //   const exit = deviceQueue.filter((item) => item.tnaKey === "2").length;
+  //   const onPremise = entry - exit;
 
-    setAccessCounts({
-      entry,
-      exit,
-      onPremise: onPremise >= 0 ? onPremise : 0, // Ensure it doesn't go negative
-    });
-  }, [deviceQueue]);
+  //   setAccessCounts({
+  //     entry,
+  //     exit,
+  //     onPremise: onPremise >= 0 ? onPremise : 0, // Ensure it doesn't go negative
+  //   });
+  // }, [deviceQueue]);
 
   useEffect(() => {
     const sendReport = async (reportData: ReportData) => {
@@ -359,30 +358,30 @@ export function Dashboard() {
 
         <div className="mb-6 grid grid-cols-12 gap-4">
           {/* Stats and Gate Access in same row */}
-          <div className="col-span-6 grid grid-cols-3 gap-4">
+         { <div className="col-span-6 grid grid-cols-3 gap-4">
             <StatisticsCard
               icon={<University className="h-10 w-10 text-[#00bc65]" />}
-              count={accessCounts.onPremise}
+              count={stats?.onPremise}
               label="On Premise"
             />
             <StatisticsCard
               icon={
                 <LogIn className="h-10 w-10 text-[#4fd1c5] transform rotate-180" />
               }
-              count={accessCounts.entry}
+              count={stats?.entry}
               label="Entry"
             />
             <StatisticsCard
               icon={<LogOut className="h-10 w-10 text-[#ee5f62]" />}
-              count={accessCounts.exit}
+              count={stats?.exit}
               label="Exit"
             />
-          </div>
+          </div>}
 
           {/* Gate Access Stats */}
           <div className="col-span-6 rounded-lg p-6">
             <h2 className="mb-4 text-lg font-medium">Gate Access Stats</h2>
-            <GateAccessStats data={deviceQueue} />
+            <GateAccessStats data={stats?.gateAccessStats}  />
           </div>
         </div>
 
