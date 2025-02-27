@@ -102,7 +102,7 @@ function CustomTable<T extends Record<string, unknown>>({
           <TableBody>
             {isLoading ? (
               // Loading skeleton
-              Array.from({ length: limit }).map((_, rowIndex) => (
+              Array.from({ length: 1 }).map((_, rowIndex) => (
                 <TableRow
                   key={`loading-${rowIndex}`}
                   className={`${

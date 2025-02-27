@@ -19,6 +19,7 @@ interface User {
   first_name: string;
   last_name: string;
   created_at: string;
+  email?: string;
 }
 
 export interface UserHeader {
@@ -27,6 +28,7 @@ export interface UserHeader {
   USERNAME: string;
   FIRST_NAME: string;
   LAST_NAME: string;
+  EMAIL?: string;
   ROLE: string;
   DATE_ADDED: string;
 }
@@ -63,12 +65,15 @@ const UserManagementPageContainer = () => {
     LAST_NAME: row.last_name ? row.last_name : "N/A",
     ROLE: row.userType ? row.userType : "N/A",
     DATE_ADDED: row.created_at ? row.created_at : "N/A",
+    EMAIL: row.email ? row.email : "N/A",
   }));
 
   const roleColors: Record<string, string> = {
     admin: "bg-green-100 text-green-600",
     employee: "bg-purple-100 text-purple-600",
   };
+
+  const typeOptions = ["super-admin", "admin", "employee"]
 
   const handleCloseView = () => {
     setSelectedUser(null);
@@ -112,8 +117,8 @@ const UserManagementPageContainer = () => {
       if (currentPage) params.append("page", currentPage.toString());
       // Add filter parameters only if they have complete values
       currentFilters.forEach((filter) => {
-        if (filter.type === "type" && filter.value.userType) {
-          params.append("type", filter.value.userType);
+        if (filter.type === "type" && filter.value.type) {
+          params.append("type", filter.value.type);
         }
   
         if (filter.type === "dateRange") {
@@ -155,7 +160,7 @@ const UserManagementPageContainer = () => {
     // Only consider filters that have valid values
     const validFilters = newFilters.filter((filter) => {
       if (filter.type === "type") {
-        return !!filter.value.userType; // Only include if userType is set
+        return !!filter.value.type; // Only include if userType is set
       }
   
       if (filter.type === "dateRange") {
@@ -205,6 +210,10 @@ const UserManagementPageContainer = () => {
     debouncedSearch(value);
   };
 
+  const refetchUserList = () => {
+    fetchUserList(search, limit, page, activeFilters);
+  };
+
   // Cleanup debounce on unmount
   useEffect(() => {
     return () => {
@@ -230,7 +239,7 @@ const UserManagementPageContainer = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          <CustomFilter onFiltersChange={handleFiltersChange} />
+          <CustomFilter onFiltersChange={handleFiltersChange} typeOptions={typeOptions} />
           <Button className="flex items-center gap-2">
             <Download />
             Export
@@ -262,7 +271,7 @@ const UserManagementPageContainer = () => {
         isOpen={isEditDetailsOpen}
         onClose={handleCloseEdit}
         user={selectedUser}
-        // onSave={handleSaveEdit}
+        refetchUserList={refetchUserList}
       />
     </div>
   );

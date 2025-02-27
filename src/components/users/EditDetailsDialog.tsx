@@ -11,13 +11,6 @@ import {
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { UserHeader } from './UserManagementPageContainer';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useToast } from '@/hooks/use-toast';
@@ -26,6 +19,7 @@ interface EditDetailsDialogProps {
   isOpen: boolean;
   onClose: () => void;
   user: UserHeader | null;
+  refetchUserList: () => void;
   // onSave: (updatedUser: UserHeader) => void;
 }
 
@@ -33,16 +27,18 @@ const EditDetailsDialog: React.FC<EditDetailsDialogProps> = ({
   isOpen,
   onClose,
   user,
+  refetchUserList,
   // onSave,
 }) => {
   const { toast } = useToast();
 
-  const [username, setUsername] = useState(user?.USERNAME || '');
   const [role, setRole] = useState(user?.ROLE || '');
+  const [firstName, setFirstName] = useState(user?.FIRST_NAME || '');
+  const [lastName, setLastName] = useState(user?.LAST_NAME || '');
+  const [email, setEmail] = useState(user?.EMAIL || '');
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(username, role);
     try {
       if (user) {
         const userData = Cookies.get('user');
@@ -51,8 +47,9 @@ const EditDetailsDialog: React.FC<EditDetailsDialogProps> = ({
         const res = await axios.patch(
           `${process.env.NEXT_PUBLIC_API_URL}/${role}/${user.EMPLOYEE_ID}`,
           {
-            username,
-            role,
+            first_name: firstName,
+            last_name: lastName,
+            email
           },
           {
             headers: {
@@ -68,6 +65,7 @@ const EditDetailsDialog: React.FC<EditDetailsDialogProps> = ({
             description: 'User details updated successfully',
             duration: 3000,
           });
+          refetchUserList();
           onClose();
         } else {
           toast({
@@ -91,7 +89,9 @@ const EditDetailsDialog: React.FC<EditDetailsDialogProps> = ({
 
   useEffect(() => {
     if (user) {
-      setUsername(user.USERNAME);
+      setFirstName(user.FIRST_NAME);
+      setLastName(user.LAST_NAME);
+      setEmail(user.EMAIL || '');
       setRole(user.ROLE);
     }
   }, [user]);
@@ -105,7 +105,7 @@ const EditDetailsDialog: React.FC<EditDetailsDialogProps> = ({
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
-            <div>
+            {/* <div>
               <p className="text-sm font-medium text-muted-foreground">
                 Username
               </p>
@@ -114,8 +114,38 @@ const EditDetailsDialog: React.FC<EditDetailsDialogProps> = ({
                 onChange={(e) => setUsername(e.target.value)}
                 className="mt-1"
               />
+            </div> */}
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">
+                First Name
+              </p>
+              <Input
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="mt-1"
+              />
             </div>
             <div>
+              <p className="text-sm font-medium text-muted-foreground">
+                Last Name
+              </p>
+              <Input
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">
+                Email
+              </p>
+              <Input
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mt-1"
+              />
+            </div>
+            {/* <div>
               <p className="text-sm font-medium text-muted-foreground">Role</p>
               <Select value={role} onValueChange={setRole}>
                 <SelectTrigger>
@@ -126,7 +156,7 @@ const EditDetailsDialog: React.FC<EditDetailsDialogProps> = ({
                   <SelectItem value="employee">Employee</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
             <DialogFooter>
               <div className="flex justify-end space-x-2">
                 <Button variant="outline" onClick={onClose}>

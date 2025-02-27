@@ -15,14 +15,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Filter, Plus, X } from "lucide-react";
 
-type UserType = "super-admin" | "admin" | "employee";
+type Type = string;
 type FilterType = "type" | "dateRange";
 
 export interface FilterItem {
   id: string;
   type: FilterType;
   value: {
-    userType?: UserType;
+    type?: Type;
     dateFrom?: string;
     dateTo?: string;
   };
@@ -30,11 +30,10 @@ export interface FilterItem {
 
 interface CustomFilterProps {
     onFiltersChange?: (filters: FilterItem[]) => void;
+    typeOptions?: string[];
   }
 
-const userTypes: UserType[] = ["super-admin", "admin", "employee"];
-
-export default function CustomFilter({ onFiltersChange }: CustomFilterProps) {
+export default function CustomFilter({ onFiltersChange, typeOptions = [""] }: CustomFilterProps) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState<FilterItem[]>([]);
   const [selectedFilterType, setSelectedFilterType] =
@@ -90,7 +89,7 @@ export default function CustomFilter({ onFiltersChange }: CustomFilterProps) {
       <Button
         variant="outline"
         onClick={toggleFilterContainer}
-        className="flex items-center gap-2"
+        className="flex items-center gap-2 text-green-500 border-green-500 hover:text-green-500 hover:bg-white"
       >
         <Filter className="h-4 w-4" />
         Filters
@@ -176,9 +175,9 @@ export default function CustomFilter({ onFiltersChange }: CustomFilterProps) {
                         </Button>
                       </div>
                       <Select
-                        value={filter.value.userType || ""}
+                        value={filter.value.type || ""}
                         onValueChange={(value) =>
-                          updateFilter(filter.id, { userType: value })
+                          updateFilter(filter.id, { type: value })
                         }
                       >
                         <SelectTrigger
@@ -188,7 +187,7 @@ export default function CustomFilter({ onFiltersChange }: CustomFilterProps) {
                           <SelectValue placeholder="Select user type" />
                         </SelectTrigger>
                         <SelectContent>
-                          {userTypes.map((type) => (
+                        {typeOptions.map((type) => (
                             <SelectItem key={type} value={type}>
                               {type.charAt(0).toUpperCase() + type.slice(1)}
                             </SelectItem>
