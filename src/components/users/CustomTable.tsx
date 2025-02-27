@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import React, { useEffect } from 'react';
-import { Button } from '@/components/ui/button';
+import React, { useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import {
   ChevronLeft,
   ChevronRight,
@@ -17,7 +17,7 @@ import {
   PenSquare,
   Trash2,
   User,
-} from 'lucide-react';
+} from "lucide-react";
 import {
   Table,
   TableBody,
@@ -25,8 +25,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../ui/table';
-import { CustomDropdown } from './CustomDropdown';
+} from "../ui/table";
+import { CustomDropdown } from "./CustomDropdown";
 
 interface PaginatedTableProps<T> {
   data: T[];
@@ -45,6 +45,7 @@ interface PaginatedTableProps<T> {
   onLimitChange: (limit: number) => void;
   total: number;
   limit: number;
+  isLoading?: boolean;
 }
 
 function CustomTable<T extends Record<string, unknown>>({
@@ -59,25 +60,25 @@ function CustomTable<T extends Record<string, unknown>>({
   onLimitChange,
   total,
   limit,
+  isLoading = false,
 }: PaginatedTableProps<T>) {
-
   const totalPages = Math.max(1, Math.ceil(total / limit));
   const startIndex = (currentPage - 1) * limit;
   const endIndex = Math.min(startIndex + data.length, total);
-  
+
   const roleColors: Record<string, string> = {
-    admin: 'bg-green-100 text-green-600',
-    employee: 'bg-purple-100 text-purple-600',
+    admin: "bg-green-100 text-green-600",
+    employee: "bg-purple-100 text-purple-600",
   };
 
-    // Add validation for current page
-    useEffect(() => {
-      if (currentPage > totalPages && totalPages > 0) {
-        onPageChange(totalPages);
-      }
-  
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentPage, totalPages]);
+  // Add validation for current page
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      onPageChange(totalPages);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, totalPages]);
 
   return (
     <div className="space-y-4">
@@ -90,7 +91,7 @@ function CustomTable<T extends Record<string, unknown>>({
                   key={index}
                   className="p-3 text-left font-semibold text-[#0F416D]"
                 >
-                  {column.header ? column.header.toUpperCase() : ''}
+                  {column.header ? column.header.toUpperCase() : ""}
                 </TableHead>
               ))}
               <TableHead className="p-3 text-left font-semibold">
@@ -99,19 +100,39 @@ function CustomTable<T extends Record<string, unknown>>({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.length > 0 ? (
+            {isLoading ? (
+              // Loading skeleton
+              Array.from({ length: limit }).map((_, rowIndex) => (
+                <TableRow
+                  key={`loading-${rowIndex}`}
+                  className={`${
+                    rowIndex % 2 === 0 ? "bg-white" : "bg-[#F4F7FCBF]"
+                  }`}
+                >
+                  {columns.map((_, colIndex) => (
+                    <TableCell key={`skeleton-${colIndex}`} className="p-3">
+                      <div className="h-6 bg-gray-200 rounded animate-pulse"></div>
+                    </TableCell>
+                  ))}
+                  <TableCell className="p-3">
+                    <div className="h-6 w-8 bg-gray-200 rounded animate-pulse"></div>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : data.length > 0 ? (
+              // Render actual data rows
               data.map((row, rowIndex) => (
                 <TableRow
                   key={rowIndex}
                   className={`${
-                    rowIndex % 2 === 0 ? 'bg-white' : 'bg-[#F4F7FCBF]'
+                    rowIndex % 2 === 0 ? "bg-white" : "bg-[#F4F7FCBF]"
                   } hover:${
-                    rowIndex % 2 === 0 ? 'bg-white' : 'bg-[#F4F7FCBF]'
+                    rowIndex % 2 === 0 ? "bg-white" : "bg-[#F4F7FCBF]"
                   }`}
                 >
                   {columns.map((column, colIndex) => (
                     <TableCell key={colIndex} className="p-3 text-[#0F416D]">
-                      {column.accessor === 'ROLE' ? (
+                      {column.accessor === "ROLE" ? (
                         <Badge
                           className={`${
                             roleColors[row[column.accessor] as string]
@@ -133,22 +154,22 @@ function CustomTable<T extends Record<string, unknown>>({
                       actions={[
                         {
                           icon: <User className="h-4 w-4 text-gray-500" />,
-                          label: 'View Profile',
+                          label: "View Profile",
                           onClick: () => onView && onView(row),
                         },
                         {
                           icon: <PenSquare className="h-4 w-4 text-gray-500" />,
-                          label: 'Edit Details',
+                          label: "Edit Details",
                           onClick: () => onEdit && onEdit(row),
                         },
                         {
                           icon: <KeyRound className="h-4 w-4 text-gray-500" />,
-                          label: 'Change Role',
+                          label: "Change Role",
                           onClick: () => onChangeRole,
                         },
                         {
                           icon: <Trash2 className="h-4 w-4 text-gray-500" />,
-                          label: 'Delete User',
+                          label: "Delete User",
                           onClick: () => onDelete,
                         },
                       ]}
@@ -157,6 +178,7 @@ function CustomTable<T extends Record<string, unknown>>({
                 </TableRow>
               ))
             ) : (
+              // No data state
               <TableRow>
                 <TableCell
                   colSpan={columns.length + 1}

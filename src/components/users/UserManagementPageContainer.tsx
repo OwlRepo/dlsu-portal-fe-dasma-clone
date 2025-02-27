@@ -9,6 +9,7 @@ import CustomTable from "./CustomTable";
 import ViewProfileDialog from "./ViewProfileDialog";
 import EditDetailsDialog from "./EditDetailsDialog";
 import { debounce } from "lodash";
+import CustomFilter, { FilterItem } from "../custom/CustomFilter";
 // import { ViewProfileDialog } from './view-profile-dialog';
 
 interface User {
@@ -39,6 +40,8 @@ const UserManagementPageContainer = () => {
   const [limit, setLimit] = useState<number>(10);
   const [page, setPage] = useState<number>(1);
   const [total, setTotal] = useState<number>(0);
+  const [activeFilters, setActiveFilters] = useState<FilterItem[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const usersHeaders: {
     header: string;
@@ -90,20 +93,37 @@ const UserManagementPageContainer = () => {
   const fetchUserList = async (
     searchTerm: string,
     newLimit?: number,
-    newPage?: number
+    newPage?: number,
+    filters?: FilterItem[]
   ) => {
     try {
+      setIsLoading(true);
       const user = Cookies.get("user");
       const token = user ? JSON.parse(user).token : null;
 
       // Use new values if provided, otherwise use state values
       const currentLimit = newLimit ?? limit;
       const currentPage = newPage ?? page;
+      const currentFilters = filters ?? activeFilters;
 
       const params = new URLSearchParams();
       if (searchTerm) params.append("search", searchTerm);
       if (currentLimit) params.append("limit", currentLimit.toString());
       if (currentPage) params.append("page", currentPage.toString());
+      // Add filter parameters only if they have complete values
+      currentFilters.forEach((filter) => {
+        if (filter.type === "type" && filter.value.userType) {
+          params.append("type", filter.value.userType);
+        }
+  
+        if (filter.type === "dateRange") {
+          // Only append date parameters if BOTH dates are provided
+          if (filter.value.dateFrom && filter.value.dateTo) {
+            params.append("startDate", filter.value.dateFrom);
+            params.append("endDate", filter.value.dateTo);
+          }
+        }
+      });
 
       const queryString = params.toString();
       const url = `${process.env.NEXT_PUBLIC_API_URL}/users${
@@ -123,7 +143,36 @@ const UserManagementPageContainer = () => {
       }
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const handleFiltersChange = (newFilters: FilterItem[]) => {
+    // Log all filters for debugging
+    console.log("All filters:", newFilters);
+  
+    // Only consider filters that have valid values
+    const validFilters = newFilters.filter((filter) => {
+      if (filter.type === "type") {
+        return !!filter.value.userType; // Only include if userType is set
+      }
+  
+      if (filter.type === "dateRange") {
+        // Include only if BOTH dates are set
+        return !!filter.value.dateFrom && !!filter.value.dateTo;
+      }
+  
+      return false; // Ignore other filter types
+    });
+  
+    console.log("Valid filters for API:", validFilters);
+  
+    setActiveFilters(validFilters);
+    // Reset to page 1 when filters change
+    setPage(1);
+    // Apply the filters
+    fetchUserList(search, limit, 1, validFilters);
   };
 
   // Create memoized debounced search function
@@ -181,13 +230,7 @@ const UserManagementPageContainer = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            className="flex items-center gap-2 text-green-500 bg-white border-[1px] border-green-500 hover:text-green-500 hover:bg-gray-50"
-          >
-            <Filter />
-            Filter
-          </Button>
+          <CustomFilter onFiltersChange={handleFiltersChange} />
           <Button className="flex items-center gap-2">
             <Download />
             Export
@@ -205,6 +248,7 @@ const UserManagementPageContainer = () => {
         currentPage={page}
         total={total}
         limit={limit}
+        isLoading={isLoading}
       />
 
       <ViewProfileDialog
