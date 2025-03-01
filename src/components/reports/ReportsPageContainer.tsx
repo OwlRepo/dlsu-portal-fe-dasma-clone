@@ -12,6 +12,7 @@ import { debounce } from "lodash";
 import ReportsTable from "./ReportsTable";
 import CustomFilter, { FilterItem } from "../custom/CustomFilter";
 import { useToast } from "@/hooks/use-toast";
+import CustomExport from "../custom/CustomExport";
 
 export interface ReportsHeader {
   STATUS: string;
@@ -29,7 +30,7 @@ const ReportsPageContainer = () => {
   const [page, setPage] = useState<number>(1);
   const [total, setTotal] = useState<number>(0);
   const [activeFilters, setActiveFilters] = useState<FilterItem[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [exportLoading, setExportLoading] = useState<boolean>(false);
 
   const typeOptions = ["1", "2"];
 
@@ -39,7 +40,6 @@ const ReportsPageContainer = () => {
     newPage?: number,
     filters?: FilterItem[]
   ) => {
-    setIsLoading(true);
     try {
       const user = Cookies.get("user");
       const token = user ? JSON.parse(user).token : null;
@@ -118,9 +118,7 @@ const ReportsPageContainer = () => {
         });
         console.error(error);
       }
-    } finally {
-      setIsLoading(false);
-    }
+    } 
   };
 
   const handleFiltersChange = (newFilters: FilterItem[]) => {
@@ -143,6 +141,57 @@ const ReportsPageContainer = () => {
     setPage(1);
     // Apply the filters
     fetchReportsList(search, limit, 1, validFilters);
+  };
+
+  const handleExport = async (settings: { includePhoto: boolean; dateFrom: string; dateTo: string }) => {
+    setExportLoading(true);
+    try {
+      const user = Cookies.get("user");
+      const token = user ? JSON.parse(user).token : null;
+
+      // Build URL with query parameters
+      const params = new URLSearchParams();
+      params.append("includePhoto", settings.includePhoto.toString());
+      params.append("startDate", settings.dateFrom);
+      params.append("endDate", settings.dateTo);
+      
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/reports/generate-csv?${params.toString()}`;
+      
+      const res = await axios.get(url, {
+        responseType: "blob",
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
+      
+      // Create a blob from the response data
+      const blob = new Blob([res.data], { type: 'text/csv' });
+      
+      // Create a download link and trigger the download
+      const downloadLink = document.createElement('a');
+      downloadLink.href = URL.createObjectURL(blob);
+      downloadLink.download = `reports_${settings.dateFrom}_to_${settings.dateTo}.csv`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+
+      setExportLoading(false);
+      
+      toast({
+        title: "Export Successful",
+        description: "Report data has been exported successfully",
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error("Error exporting data:", error);
+      setExportLoading(false);
+      toast({
+        title: "Export Error",
+        description: "An error occurred while exporting data",
+        variant: "destructive",
+        duration: 5000,
+      });
+    }
   };
 
   // Create memoized debounced search function
@@ -215,10 +264,8 @@ const ReportsPageContainer = () => {
             onFiltersChange={handleFiltersChange}
             typeOptions={typeOptions}
           />
-          <Button className="flex items-center gap-2">
-            <Download />
-            Export
-          </Button>
+
+          <CustomExport onExport={handleExport} loading={exportLoading} />
         </div>
       </div>
       <ReportsTable
