@@ -8,15 +8,19 @@ import Image from "next/image";
 import Cookies from 'js-cookie';
 
 export function AppBar() {
+  const { user, logout, isLoggedIn } = useAuth();
+  const pathname = usePathname(); // Get the current pathname
+
+  const userCookie = Cookies.get('user');
   const role = Cookies.get('role');
+  const token = userCookie ? JSON.parse(userCookie).token : null;
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [formattedDate, setFormattedDate] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const pathname = usePathname(); // Get the current pathname
-
-  const { user, logout, isLoggedIn } = useAuth();
+  const isLoginPage = pathname === '/login' || pathname === '/login/employee';
 
   // Determine the title based on the current pathname
   const getTitle = () => {
@@ -62,6 +66,23 @@ export function AppBar() {
       setFormattedDate(formattedDate);
     }
   }, [currentDate, isLoggedIn]);
+
+    useEffect(() => {
+      // Check if we have all the required data
+      if (isLoggedIn !== undefined && role !== undefined && token !== undefined) {
+        setIsLoading(false);
+      }
+    }, [isLoggedIn, role, token]);
+    
+    // Show nothing while loading
+    if (isLoading) {
+      return null;
+    }
+
+      // Hide AppBar when on login pages
+  if (isLoginPage) {
+    return null;
+  }
 
   if (!isLoggedIn || !role) {
     return null;
