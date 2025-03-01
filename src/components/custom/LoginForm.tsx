@@ -1,18 +1,22 @@
-'use client';
-import React, { useState } from 'react';
-import { Logo } from '../logo';
-import { useAuth } from '@/lib/auth-context';
-import { Input } from '../ui/input';
-import { useToast } from '@/hooks/use-toast';
+"use client";
+import React, { useState } from "react";
+import { Logo } from "../logo";
+import { useAuth } from "@/lib/auth-context";
+import { Input } from "../ui/input";
+import { useToast } from "@/hooks/use-toast";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface LoginProps {
   role: string;
 }
 
 const LoginForm = ({ role }: LoginProps) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const pathname = usePathname();
+
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const { login } = useAuth();
   const { toast } = useToast();
@@ -22,7 +26,7 @@ const LoginForm = ({ role }: LoginProps) => {
 
     // Check if username, password, and role are provided
     if (!username || !password || !role) {
-      setError('Please enter username, password, and select a role.');
+      setError("Please enter username, password, and select a role.");
       return;
     }
 
@@ -30,16 +34,16 @@ const LoginForm = ({ role }: LoginProps) => {
       await login(username, password, role);
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : 'An unexpected error occurred';
+        error instanceof Error ? error.message : "An unexpected error occurred";
       toast({
-        title: 'Error',
+        title: "Error",
         description: message,
-        variant: 'destructive',
+        variant: "destructive",
         duration: 3000,
       });
     }
 
-    setError('');
+    setError("");
   };
 
   const isButtonDisabled = !username || !password || !role;
@@ -47,7 +51,7 @@ const LoginForm = ({ role }: LoginProps) => {
   return (
     <div className="flex min-h-screen">
       <div className="flex flex-col justify-between items-center w-[50%] p-8">
-        {' '}
+        {" "}
         {/* Use justify-between to push footer down */}
         <div className="my-auto">
           <h1 className="text-2xl font-bold text-[#00bc65]">
@@ -97,6 +101,11 @@ const LoginForm = ({ role }: LoginProps) => {
             >
               Sign In
             </button>
+            <div className="flex justify-end">
+              <Link href={pathname === "/login" ? "/login/employee" : "/login"}>
+                <p className="text-[#00bc65] text-sm">Login as {pathname === "/login" ? "employee" : "admin"}?</p>
+              </Link>
+            </div>
           </form>
         </div>
         {/* Footer Section */}
@@ -109,11 +118,11 @@ const LoginForm = ({ role }: LoginProps) => {
       <div className="relative w-[50%] h-[95vh] bg-[#02a65b] rounded-xl my-auto mr-6">
         <div
           style={{
-            backgroundImage: 'url(/image-pattern.png)', // Adjust the path as needed
+            backgroundImage: "url(/image-pattern.png)", // Adjust the path as needed
             // backgroundSize: 'cover',
             // backgroundPosition: 'center',
             opacity: 0.05, // Adjust opacity to make the image less noticeable
-            position: 'absolute',
+            position: "absolute",
             top: 0,
             left: 0,
             right: 0,

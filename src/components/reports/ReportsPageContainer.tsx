@@ -3,8 +3,6 @@ import React, { useEffect, useMemo, useState } from "react";
 // import CustomTable from "../custom/CustomTable";
 import { headers } from "@/lib/column-headers";
 import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { Download } from "lucide-react";
 import { ReportData } from "@/lib/types";
 import axios from "axios";
 import Cookies from "js-cookie";
