@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { io, Socket } from "socket.io-client";
+import { io } from "socket.io-client";
 
 interface GateStats {
   onPremise: number;
@@ -14,7 +14,6 @@ interface GateStats {
 }
 
 export const useReportsSocket = () => {
-  const [socket, setSocket] = useState<Socket | null>(null);
   const [stats, setStats] = useState<GateStats | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
@@ -47,8 +46,6 @@ export const useReportsSocket = () => {
         lastUpdated: new Date(newStats.lastUpdated),
       });
     });
-
-    setSocket(socketInstance);
 
     return () => {
       socketInstance.disconnect();

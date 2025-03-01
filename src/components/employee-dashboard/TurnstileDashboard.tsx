@@ -1,12 +1,5 @@
 "use client";
 
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from '@/components/ui/select';
 import TurnstileGrid from "./TurnstileGrid";
 import EntriesLog from "./EntriesLog";
 import {
@@ -36,15 +29,6 @@ export default function TurnstileDashboard() {
 
   const WS_HOST = "wss://127.0.0.1:4431";
   const BIOSTAR2_WS_URI = `${WS_HOST}/wsapi`;
-
-  const checkExpiry = (expiryDate: string | undefined) => {
-    if (expiryDate) {
-      const expiry = new Date(expiryDate);
-      const today = new Date();
-      return today > expiry;
-    }
-    return false;
-  };
 
   // const getEntryStatus = (scan: ScanProps): string => {
   //   const isDisabled = scan.disabled === "true";
@@ -84,7 +68,7 @@ export default function TurnstileDashboard() {
           const ws = new WebSocket(BIOSTAR2_WS_URI);
 
           ws.onopen = () => {
-            // console.log('WebSocket connection established.');
+            console.log('WebSocket connection established.');
             // Send the session ID to the WebSocket server
             ws.send(`bs-session-id=${response.data.bsSessionId}`);
 

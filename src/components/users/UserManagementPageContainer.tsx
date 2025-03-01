@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
-import { Download, Filter } from "lucide-react";
+import { Download } from "lucide-react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { Input } from "../ui/input";
@@ -154,8 +154,6 @@ const UserManagementPageContainer = () => {
   };
 
   const handleFiltersChange = (newFilters: FilterItem[]) => {
-    // Log all filters for debugging
-    console.log("All filters:", newFilters);
   
     // Only consider filters that have valid values
     const validFilters = newFilters.filter((filter) => {
@@ -170,8 +168,6 @@ const UserManagementPageContainer = () => {
   
       return false; // Ignore other filter types
     });
-  
-    console.log("Valid filters for API:", validFilters);
   
     setActiveFilters(validFilters);
     // Reset to page 1 when filters change

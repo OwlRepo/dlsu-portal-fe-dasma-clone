@@ -7,7 +7,7 @@ import { LiveDataTable } from "@/components/dashboard/live-data-table";
 // import useUserToken from '@/hooks/useUserToken';
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
-import { CustomField, DeviceProps, GateStats, ReportData, ScanProps, UserProps } from "@/lib/types";
+import { CustomField, DeviceProps, ReportData, ScanProps, UserProps } from "@/lib/types";
 import debounce from "lodash/debounce";
 import { checkExpiry } from "@/lib/checkExpiry";
 import useUserToken from "@/hooks/useUserToken";
@@ -347,7 +347,6 @@ export function Dashboard() {
       sendReport(reportData);
     }
     // include getEntryStatus if failing
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [devicesData, token]);
   
 

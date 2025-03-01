@@ -29,11 +29,14 @@ export interface FilterItem {
 }
 
 interface CustomFilterProps {
-    onFiltersChange?: (filters: FilterItem[]) => void;
-    typeOptions?: string[];
-  }
+  onFiltersChange?: (filters: FilterItem[]) => void;
+  typeOptions?: string[];
+}
 
-export default function CustomFilter({ onFiltersChange, typeOptions = [""] }: CustomFilterProps) {
+export default function CustomFilter({
+  onFiltersChange,
+  typeOptions = [""],
+}: CustomFilterProps) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState<FilterItem[]>([]);
   const [selectedFilterType, setSelectedFilterType] =
@@ -46,14 +49,17 @@ export default function CustomFilter({ onFiltersChange, typeOptions = [""] }: Cu
 
   // Add a new filter
   const addFilter = (type: FilterType) => {
-    const newFilters = [...filters, { id: crypto.randomUUID(), type, value: {} }];
+    const newFilters = [
+      ...filters,
+      { id: crypto.randomUUID(), type, value: {} },
+    ];
     setFilters(newFilters);
     setSelectedFilterType(null);
     onFiltersChange?.(newFilters);
   };
 
   // Update a specific filter
-  const updateFilter = (id: string, value: any) => {
+  const updateFilter = (id: string, value: Partial<FilterItem["value"]>) => {
     const updatedFilters = filters.map((filter) =>
       filter.id === id
         ? { ...filter, value: { ...filter.value, ...value } }
@@ -85,7 +91,7 @@ export default function CustomFilter({ onFiltersChange, typeOptions = [""] }: Cu
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4">
+    <div className="w-full max-w-4xl mx-auto">
       <Button
         variant="outline"
         onClick={toggleFilterContainer}
@@ -94,7 +100,7 @@ export default function CustomFilter({ onFiltersChange, typeOptions = [""] }: Cu
         <Filter className="h-4 w-4" />
         Filters
         {isFilterApplied && (
-          <Badge variant="secondary" className="ml-1">
+          <Badge variant="default" className="ml-1">
             {filters.length}
           </Badge>
         )}
@@ -123,14 +129,14 @@ export default function CustomFilter({ onFiltersChange, typeOptions = [""] }: Cu
                   }
                 >
                   <SelectTrigger className="w-[130px]">
-                    <SelectValue placeholder="Add filter" />
+                    <SelectValue placeholder="Select filter" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem
                       value="type"
                       disabled={isFilterTypeInUse("type")}
                     >
-                      User Type{isFilterTypeInUse("type") && " (Added)"}
+                      Type{isFilterTypeInUse("type") && " (Added)"}
                     </SelectItem>
                     <SelectItem
                       value="dateRange"
@@ -162,9 +168,7 @@ export default function CustomFilter({ onFiltersChange, typeOptions = [""] }: Cu
                   {filter.type === "type" && (
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label htmlFor={`type-filter-${filter.id}`}>
-                          User Type
-                        </Label>
+                        <Label htmlFor={`type-filter-${filter.id}`}>Type</Label>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -187,9 +191,13 @@ export default function CustomFilter({ onFiltersChange, typeOptions = [""] }: Cu
                           <SelectValue placeholder="Select user type" />
                         </SelectTrigger>
                         <SelectContent>
-                        {typeOptions.map((type) => (
+                          {typeOptions.map((type) => (
                             <SelectItem key={type} value={type}>
-                              {type.charAt(0).toUpperCase() + type.slice(1)}
+                              {type === "1"
+                                ? "IN"
+                                : type === "2"
+                                ? "OUT"
+                                : type.charAt(0).toUpperCase() + type.slice(1)}
                             </SelectItem>
                           ))}
                         </SelectContent>
