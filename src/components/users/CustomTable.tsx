@@ -13,7 +13,6 @@ import { Badge } from "@/components/ui/badge";
 import {
   ChevronLeft,
   ChevronRight,
-  KeyRound,
   PenSquare,
   Trash2,
   User,
@@ -38,8 +37,7 @@ interface PaginatedTableProps<T> {
   initialItemsPerPage?: number;
   onView?: (user: T) => void;
   onEdit?: (user: T) => void;
-  onChangeRole?: () => void;
-  onDelete?: () => void;
+  onDelete?: (user: T) => void;
   currentPage: number;
   onPageChange: (page: number) => void;
   onLimitChange: (limit: number) => void;
@@ -53,8 +51,7 @@ function CustomTable<T extends Record<string, unknown>>({
   columns,
   onView,
   onEdit,
-  onChangeRole,
-  onDelete,
+  // onDelete,
   currentPage,
   onPageChange,
   onLimitChange,
@@ -62,6 +59,7 @@ function CustomTable<T extends Record<string, unknown>>({
   limit,
   isLoading = false,
 }: PaginatedTableProps<T>) {
+
   const totalPages = Math.max(1, Math.ceil(total / limit));
   const startIndex = (currentPage - 1) * limit;
   const endIndex = Math.min(startIndex + data.length, total);
@@ -156,22 +154,28 @@ function CustomTable<T extends Record<string, unknown>>({
                           icon: <User className="h-4 w-4 text-gray-500" />,
                           label: "View Profile",
                           onClick: () => onView && onView(row),
+                          disabled: false,
                         },
                         {
                           icon: <PenSquare className="h-4 w-4 text-gray-500" />,
                           label: "Edit Details",
                           onClick: () => onEdit && onEdit(row),
+                          disabled: false,
                         },
-                        {
-                          icon: <KeyRound className="h-4 w-4 text-gray-500" />,
-                          label: "Change Role",
-                          onClick: () => onChangeRole,
-                        },
-                        {
-                          icon: <Trash2 className="h-4 w-4 text-gray-500" />,
-                          label: "Delete User",
-                          onClick: () => onDelete,
-                        },
+                        // {
+                        //   icon: <Trash2 className="h-4 w-4 text-gray-500" />,
+                        //   label: "Delete User",
+                        //   onClick: () => onDelete && onDelete(row),
+                        //   disabled: userInfo && (
+                        //     // Don't allow deletion if it's the current user and not a super-admin
+                        //     (row as any).EMPLOYEE_ID === (
+                        //       userInfo.role === 'super-admin'
+                        //         ? userInfo.user.super_admin_id
+                        //         : userInfo.user.admin_id
+                        //     ) ||
+                        //     (row as any).ROLE === 'super-admin'
+                        //   )
+                        // },
                       ]}
                     />
                   </TableCell>

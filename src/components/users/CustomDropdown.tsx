@@ -7,6 +7,7 @@ import { MoreVertical } from 'lucide-react';
 interface Action {
   icon: React.ReactNode;
   label: string;
+  disabled?: boolean;
   onClick: () => void;
 }
 
@@ -67,11 +68,18 @@ export function CustomDropdown({ actions }: CustomDropdownProps) {
               <button
                 key={index}
                 onClick={() => {
-                  action.onClick();
-                  setIsOpen(false);
+                  if (!action.disabled) {
+                    action.onClick();
+                    setIsOpen(false);
+                  }
                 }}
-                className="flex items-center w-full px-4 py-2 my-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 gap-3"
+                className={`flex items-center w-full px-4 py-2 my-2 text-sm gap-3 ${
+                  action.disabled
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                }`}
                 role="menuitem"
+                disabled={action.disabled}
               >
                 {action.icon}
                 <span>{action.label}</span>

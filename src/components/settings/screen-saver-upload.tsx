@@ -127,7 +127,9 @@ export function ScreenSaverUpload() {
         </div>
 
         <CardDescription>
-          Corem ipsum dolor sit amet, consectetur
+          {showConfigure
+            ? 'Set the interval for the screen saver'
+            : 'Upload an image to be used as the screen saver'}
         </CardDescription>
       </CardHeader>
       <CardContent>
