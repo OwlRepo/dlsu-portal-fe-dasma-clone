@@ -6,6 +6,7 @@ import { Input } from "../ui/input";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 interface LoginProps {
   role: string;
@@ -17,6 +18,7 @@ const LoginForm = ({ role }: LoginProps) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const { login } = useAuth();
   const { toast } = useToast();
@@ -30,8 +32,13 @@ const LoginForm = ({ role }: LoginProps) => {
       return;
     }
 
+    setLoading(true);
+
     try {
-      await login(username, password, role);
+      const res = await login(username, password, role);
+      if (res) {
+        setLoading(false);
+      }
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "An unexpected error occurred";
@@ -41,6 +48,7 @@ const LoginForm = ({ role }: LoginProps) => {
         variant: "destructive",
         duration: 3000,
       });
+      setLoading(false);
     }
 
     setError("");
@@ -96,14 +104,20 @@ const LoginForm = ({ role }: LoginProps) => {
             </div>
             <button
               type="submit"
-              className="w-full bg-[#00bc65] text-white py-2 rounded-md"
+              className="w-full bg-[#00bc65] text-white py-2 rounded-md flex items-center justify-center"
               disabled={isButtonDisabled}
             >
-              Sign In
+              {loading ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                "Sign in"
+              )}
             </button>
             <div className="flex justify-end">
               <Link href={pathname === "/login" ? "/login/employee" : "/login"}>
-                <p className="text-[#00bc65] text-sm">Login as {pathname === "/login" ? "employee" : "admin"}?</p>
+                <p className="text-[#00bc65] text-sm">
+                  Login as {pathname === "/login" ? "employee" : "admin"}?
+                </p>
               </Link>
             </div>
           </form>
