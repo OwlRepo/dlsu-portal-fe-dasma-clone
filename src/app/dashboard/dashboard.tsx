@@ -4,29 +4,26 @@ import { LogOut, LogIn, University } from "lucide-react";
 import { StatisticsCard } from "@/components/dashboard/statistics-card";
 import { GateAccessStats } from "@/components/dashboard/gate-access-stats";
 import { LiveDataTable } from "@/components/dashboard/live-data-table";
-// import useUserToken from '@/hooks/useUserToken';
 import { useCallback, useEffect, useState } from "react";
-import axios from "axios";
+// import axios from "axios";
+import axios from '@/lib/axios-interceptor';
 import { CustomField, DeviceProps, ReportData, ScanProps, UserProps } from "@/lib/types";
 import debounce from "lodash/debounce";
 import { checkExpiry } from "@/lib/checkExpiry";
 import useUserToken from "@/hooks/useUserToken";
 import { useReportsSocket } from "@/hooks/useReportSocket";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 export function Dashboard() {
   const { token } = useUserToken();
   const { stats } = useReportsSocket(); 
   const [tableQueue, setTableQueue] = useState<ScanProps[]>([]);
-  // const [deviceQueue, setDeviceQueue] = useState<ScanProps[]>([]);
   const [processedEvents, setProcessedEvents] = useState(new Set());
-  // const [accessCounts, setAccessCounts] = useState({
-  //   entry: 0,
-  //   exit: 0,
-  //   onPremise: 0,
-  // });
   const [devicesData, setDevicesData] = useState<{ [key: string]: ScanProps }>(
     {}
   );
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   // const [stats, setStats] = useState<GateStats | null>(null);
   // const [socket, setSocket] = useState<Socket | null>(null);
 
@@ -35,7 +32,6 @@ export function Dashboard() {
   // const SOCKET_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
   // const SOCKET_URL = `http://localhost:9580/`;
 
-  console.log('stats:', stats);
 
   useEffect(() => {
     const fetchSessionId = async () => {
@@ -285,9 +281,18 @@ export function Dashboard() {
     return "GREEN;can enter without remarks";
   };
 
-  // const handleClear = useCallback(() => {
-  //   setTableQueue([]);
-  // }, []);
+  const handleClear = useCallback(() => {
+    setIsDialogOpen(true);
+  }, []);
+
+  const handleConfirmClear = useCallback(() => {
+    setTableQueue([]);
+    setIsDialogOpen(false);
+  }, []);
+
+  const handleCancelClear = useCallback(() => {
+    setIsDialogOpen(false);
+  }, []);
 
   // Clean up the debounced function
   useEffect(() => {
@@ -385,8 +390,29 @@ export function Dashboard() {
         </div>
 
         {/* Live Data Table */}
-        <LiveDataTable data={tableQueue}/>
+        <LiveDataTable data={tableQueue} handleClear={handleClear} />
       </div>
+       {/* Confirmation Dialog */}
+       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Clear Live Data</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to clear all entries from the live data table?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={handleCancelClear}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleConfirmClear}>
+                Clear Data
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 import { useIdleTimer } from '../hooks/useIdleTimer';
 import Image from 'next/image';
 import Cookies from 'js-cookie';
-import axios from '@/lib/axios-interceptor';
+// import axios from '@/lib/axios-interceptor';
 import { usePathname } from 'next/navigation';
-import '@/lib/axios-interceptor';
+import axios from 'axios';
 
 export function IdleScreensaver() {
   const pathname = usePathname();

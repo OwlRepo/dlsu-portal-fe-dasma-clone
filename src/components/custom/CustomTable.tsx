@@ -102,7 +102,7 @@ function CustomTable<T extends Record<string, unknown>>({
                     rowIndex % 2 === 0 ? "bg-white" : "bg-[#F4F7FCBF]"
                   } hover:${
                     rowIndex % 2 === 0 ? "bg-white" : "bg-[#F4F7FCBF]"
-                  }`}
+                  } ${onRowClick ? "cursor-pointer" : ""}`}
                   onClick={() => onRowClick?.(row)}
                 >
                   {columns.map((column, colIndex) => (
