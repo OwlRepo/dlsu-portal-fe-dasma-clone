@@ -8,24 +8,34 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Download, LoaderCircle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 interface ExportSettings {
   includePhoto: boolean;
   dateFrom: string;
   dateTo: string;
+  types?: string[];
 }
 
 interface CustomExportProps {
   onExport: (settings: ExportSettings) => void;
   loading?: boolean;
+  typeOptions?: string[];
+  showIncludePhoto?: boolean;
 }
 
-export default function CustomExport({ onExport, loading }: CustomExportProps) {
+export default function CustomExport({
+  onExport,
+  loading,
+  typeOptions = ["admin", "super-admin", "employee"],
+  showIncludePhoto = false,
+}: CustomExportProps) {
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [exportSettings, setExportSettings] = useState<ExportSettings>({
     includePhoto: false,
     dateFrom: "",
     dateTo: "",
+    types: [],
   });
 
   // Toggle export container
@@ -36,7 +46,7 @@ export default function CustomExport({ onExport, loading }: CustomExportProps) {
   // Update export settings
   const updateExportSettings = (
     field: keyof ExportSettings,
-    value: boolean | string
+    value: boolean | string | string[]
   ) => {
     setExportSettings((prevSettings) => ({
       ...prevSettings,
@@ -50,6 +60,7 @@ export default function CustomExport({ onExport, loading }: CustomExportProps) {
       includePhoto: false,
       dateFrom: "",
       dateTo: "",
+      types: [],
     });
   };
 
@@ -61,6 +72,7 @@ export default function CustomExport({ onExport, loading }: CustomExportProps) {
       includePhoto: false,
       dateFrom: "",
       dateTo: "",
+      types: [],
     });
   };
 
@@ -68,7 +80,8 @@ export default function CustomExport({ onExport, loading }: CustomExportProps) {
   const isSettingApplied =
     exportSettings.includePhoto ||
     exportSettings.dateFrom ||
-    exportSettings.dateTo;
+    exportSettings.dateTo ||
+    (exportSettings.types && exportSettings.types.length > 0);
 
   return (
     <div className="w-full max-w-4xl mx-auto">
@@ -111,16 +124,44 @@ export default function CustomExport({ onExport, loading }: CustomExportProps) {
             </div>
 
             {/* Include Photo Option */}
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="include-photo"
-                checked={exportSettings.includePhoto}
-                onCheckedChange={(checked) =>
-                  updateExportSettings("includePhoto", checked as boolean)
-                }
-              />
-              <Label htmlFor="include-photo">Include Photo</Label>
-            </div>
+            {showIncludePhoto && (
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="include-photo"
+                  checked={exportSettings.includePhoto}
+                  onCheckedChange={(checked) =>
+                    updateExportSettings("includePhoto", checked as boolean)
+                  }
+                />
+                <Label htmlFor="include-photo">Include Photo</Label>
+              </div>
+            )}
+
+            {/* Type Selection */}
+{typeOptions && (
+  <div className="space-y-2">
+    <Label htmlFor="type-select">Type</Label>
+    <Select
+      value={exportSettings.types?.[0] || ""}
+      onValueChange={(value) => {
+        updateExportSettings("types", [value]);
+      }}
+    >
+      <SelectTrigger id="type-select" className="w-full">
+        <SelectValue placeholder="Select user type" />
+      </SelectTrigger>
+      <SelectContent>
+        {typeOptions.map((type) => (
+          <SelectItem key={type} value={type}>
+            {type === "super-admin"
+              ? "Super Admin"
+              : type.charAt(0).toUpperCase() + type.slice(1)}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  </div>
+)}
 
             {/* Date Range Picker */}
             <div className="space-y-2">

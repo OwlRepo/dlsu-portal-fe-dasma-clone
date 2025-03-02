@@ -10,6 +10,8 @@ import ViewProfileDialog from "./ViewProfileDialog";
 import EditDetailsDialog from "./EditDetailsDialog";
 import { debounce } from "lodash";
 import CustomFilter, { FilterItem } from "../custom/CustomFilter";
+import { useToast } from "@/hooks/use-toast";
+import CustomExport from "../custom/CustomExport";
 // import { ViewProfileDialog } from './view-profile-dialog';
 
 interface User {
@@ -34,6 +36,8 @@ export interface UserHeader {
 }
 
 const UserManagementPageContainer = () => {
+  const { toast } = useToast();
+
   const [search, setSearch] = useState<string>("");
   const [userList, setUserList] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<UserHeader | null>(null);
@@ -42,8 +46,9 @@ const UserManagementPageContainer = () => {
   const [limit, setLimit] = useState<number>(10);
   const [page, setPage] = useState<number>(1);
   const [total, setTotal] = useState<number>(0);
-  const [activeFilters, setActiveFilters] = useState<FilterItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [activeFilters, setActiveFilters] = useState<FilterItem[]>([]);
+  const [exportLoading, setExportLoading] = useState<boolean>(false);
 
   const usersHeaders: {
     header: string;
@@ -73,7 +78,7 @@ const UserManagementPageContainer = () => {
     employee: "bg-purple-100 text-purple-600",
   };
 
-  const typeOptions = ["super-admin", "admin", "employee"]
+  const typeOptions = ["super-admin", "admin", "employee"];
 
   const handleCloseView = () => {
     setSelectedUser(null);
@@ -120,7 +125,7 @@ const UserManagementPageContainer = () => {
         if (filter.type === "type" && filter.value.type) {
           params.append("type", filter.value.type);
         }
-  
+
         if (filter.type === "dateRange") {
           // Only append date parameters if BOTH dates are provided
           if (filter.value.dateFrom && filter.value.dateTo) {
@@ -153,22 +158,103 @@ const UserManagementPageContainer = () => {
     }
   };
 
+  const handleExport = async (settings: {
+    types?: string[];
+    dateFrom: string;
+    dateTo: string;
+  }) => {
+    setExportLoading(true);
+    try {
+      const user = Cookies.get("user");
+      const token = user ? JSON.parse(user).token : null;
+
+      // Check if required fields are provided
+      if (!settings.dateFrom || !settings.dateTo) {
+        toast({
+          title: "Export Error",
+          description: "Date range is required for export",
+          variant: "destructive",
+          duration: 5000,
+        });
+        setExportLoading(false);
+        return;
+      }
+
+      // Build URL with query parameters
+      const params = new URLSearchParams();
+
+      // Add types parameter if any types are selected
+      if (settings.types && settings.types.length > 0) {
+        settings.types.forEach((type) => {
+          params.append("types", type);
+        });
+      }
+
+      // Add date parameters
+      params.append("startDate", settings.dateFrom);
+      params.append("endDate", settings.dateTo);
+
+      const url = `${
+        process.env.NEXT_PUBLIC_API_URL
+      }/users/generate-csv?${params.toString()}`;
+
+      const res = await axios.get(url, {
+        responseType: "blob",
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
+
+      // Create a blob from the response data
+      const blob = new Blob([res.data], { type: "text/csv" });
+
+      // Create a download link and trigger the download
+      const downloadLink = document.createElement("a");
+      downloadLink.href = URL.createObjectURL(blob);
+
+      // Generate filename including selected types if available
+      const typeString =
+        settings.types && settings.types.length > 0
+          ? `_${settings.types.join("-")}`
+          : "";
+      downloadLink.download = `users${typeString}_${settings.dateFrom}_to_${settings.dateTo}.csv`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+
+      toast({
+        title: "Export Successful",
+        description: "User data has been exported successfully",
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error("Error exporting data:", error);
+      toast({
+        title: "Export Error",
+        description: "An error occurred while exporting data",
+        variant: "destructive",
+        duration: 5000,
+      });
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
   const handleFiltersChange = (newFilters: FilterItem[]) => {
-  
     // Only consider filters that have valid values
     const validFilters = newFilters.filter((filter) => {
       if (filter.type === "type") {
         return !!filter.value.type; // Only include if userType is set
       }
-  
+
       if (filter.type === "dateRange") {
         // Include only if BOTH dates are set
         return !!filter.value.dateFrom && !!filter.value.dateTo;
       }
-  
+
       return false; // Ignore other filter types
     });
-  
+
     setActiveFilters(validFilters);
     // Reset to page 1 when filters change
     setPage(1);
@@ -235,11 +321,15 @@ const UserManagementPageContainer = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          <CustomFilter onFiltersChange={handleFiltersChange} typeOptions={typeOptions} />
-          <Button className="flex items-center gap-2">
-            <Download />
-            Export
-          </Button>
+          <CustomFilter
+            onFiltersChange={handleFiltersChange}
+            typeOptions={typeOptions}
+          />
+          <CustomExport
+            onExport={handleExport}
+            loading={exportLoading}
+            typeOptions={typeOptions}
+          />
         </div>
       </div>
 
