@@ -14,7 +14,7 @@ import {
   ChevronLeft,
   ChevronRight,
   PenSquare,
-  Trash2,
+  // Trash2,
   User,
 } from "lucide-react";
 import {
