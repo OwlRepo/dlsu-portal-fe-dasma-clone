@@ -150,9 +150,20 @@ const UserManagementPageContainer = () => {
       if (res.data) {
         setUserList(res.data.items);
         setTotal(res.data.total);
+        toast({
+          title: "Success",
+          description: "User list has been fetched successfully",
+          duration: 3000,
+        })
       }
     } catch (error) {
       console.error(error);
+      toast({
+        title: "Error",
+        description: "User list could not be fetched",
+        variant: "destructive",
+        duration: 3000,
+      })
     } finally {
       setIsLoading(false);
     }

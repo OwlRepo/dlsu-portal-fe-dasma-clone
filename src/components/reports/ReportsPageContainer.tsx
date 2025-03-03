@@ -11,12 +11,14 @@ import ReportsTable from "./ReportsTable";
 import CustomFilter, { FilterItem } from "../custom/CustomFilter";
 import { useToast } from "@/hooks/use-toast";
 import CustomExport from "../custom/CustomExport";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 
 export interface ReportsHeader {
   STATUS: string;
   ID: string;
   NAME: string;
   ACTIVITY: string;
+  REMARKS?: string;
 }
 
 const ReportsPageContainer = () => {
@@ -29,6 +31,8 @@ const ReportsPageContainer = () => {
   const [total, setTotal] = useState<number>(0);
   const [activeFilters, setActiveFilters] = useState<FilterItem[]>([]);
   const [exportLoading, setExportLoading] = useState<boolean>(false);
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [selectedData, setSelectedData] = useState<ReportsHeader | null>(null);
 
   const typeOptions = ["1", "2"];
 
@@ -231,7 +235,8 @@ const ReportsPageContainer = () => {
     STATUS: row.status ? row.status : "N/A",
     ID: row.user_id ? row.user_id : "N/A",
     NAME: row.name ? row.name : "N/A",
-    ACTIVITY: "N/A",
+    ACTIVITY: row.type ? (row.type === "1" ? "IN" : "OUT") : "N/A",
+    REMARKS: row.remarks ? row.remarks : "N/A",
   }));
 
   useEffect(() => {
@@ -250,6 +255,8 @@ const ReportsPageContainer = () => {
   // const refetchReportsList = () => {
   //   fetchReportsList(search, limit, page, activeFilters);
   // };
+
+  console.log(selectedData);
 
   return (
     <div className="rounded-lg bg-white p-6 shadow-md">
@@ -283,7 +290,56 @@ const ReportsPageContainer = () => {
         currentPage={page}
         total={total}
         limit={limit}
+        onRowClick={(row) => {
+          setSelectedData(row);
+          setIsDialogOpen(true);
+        }}
       />
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Report Details</DialogTitle>
+          </DialogHeader>
+          {selectedData &&
+            (() => {
+
+              return (
+                <div className="flex gap-4 items-center">
+                  <div className="space-y-4 w-full">
+                    <div className="flex flex-col gap-4">
+                      <div className="space-2">
+                        <p className="text-sm font-medium text-green-500">
+                          ID : {selectedData.ID}
+                        </p>
+
+                        <div className="flex items-center justify-between">
+                        <p className="text-xl font-semibold">
+                          {selectedData.NAME}
+                        </p>
+                        <p className="text-m text-muted-foreground">
+                          {selectedData.ACTIVITY}
+                        </p>
+                        </div>
+
+                       
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-sm">Remarks: </p>
+                        <div
+                          className="p-2 rounded-md text-muted-foreground bg-gray-100"
+                          style={{ minHeight: "5rem", whiteSpace: "pre-wrap" }}
+                        >
+                          {selectedData.REMARKS || undefined}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

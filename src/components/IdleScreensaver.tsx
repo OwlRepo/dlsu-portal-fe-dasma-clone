@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useIdleTimer } from '../hooks/useIdleTimer';
-import Image from 'next/image';
+// import Image from 'next/image';
 import Cookies from 'js-cookie';
 // import axios from '@/lib/axios-interceptor';
 import { usePathname } from 'next/navigation';
@@ -61,7 +61,9 @@ export function IdleScreensaver() {
     }
   }, [pathname, token]);
 
-  if (!showScreensaver || !screensaverUrl) return null;
+  console.log(showScreensaver, screensaverUrl)
+
+  // if (!showScreensaver || !screensaverUrl) return null;
 
   return (
     <div
@@ -70,13 +72,13 @@ export function IdleScreensaver() {
       onMouseMove={handleActivity}
       onKeyDown={handleActivity}
     >
-      <Image
+      {/* <Image
         src={screensaverUrl}
         alt="Screensaver"
         layout="fill"
         objectFit="cover"
         priority
-      />
+      /> */}
     </div>
   );
 }

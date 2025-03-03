@@ -14,14 +14,16 @@ import axios from "axios";
 import {
   CustomField,
   DeviceProps,
+  ReportData,
   // ReportData,
   ScanProps,
   UserProps,
 } from "@/lib/types";
-// import useUserToken from "@/hooks/useUserToken";
+import useUserToken from "@/hooks/useUserToken";
+import { checkExpiry } from "@/lib/checkExpiry";
 
 export default function TurnstileDashboard() {
-  // const { token } = useUserToken();
+  const { token } = useUserToken();
   const [devicesData, setDevicesData] = useState<{ [key: string]: ScanProps }>(
     {}
   );
@@ -253,45 +255,61 @@ export default function TurnstileDashboard() {
     return () => clearTimeout(timer);
   }, [devicesData]);
 
-  // useEffect(() => {
-  //   const sendReport = async (reportData: ReportData) => {
-  //     try {
-  //       const response = await axios.post(
-  //         `${process.env.NEXT_PUBLIC_API_URL}/reports`,
-  //         reportData,
-  //         {
-  //           headers: {
-  //             accept: "*/*",
-  //             "Content-Type": "application/json",
-  //             Authorization: `${token}`,
-  //           },
-  //         }
-  //       );
-  //       console.log("Report sent successfully:", response.data);
-  //     } catch (error) {
-  //       console.error("Error sending report:", error);
-  //     }
-  //   };
+    const getEntryStatus = (scan: ScanProps): string => {
+      const isDisabled = scan.disabled === "true";
+      const isExpired = checkExpiry(scan.expiryDate);
+      const hasRemarks = scan.remarks !== "No remarks";
+  
+      if (isDisabled || isExpired) {
+        return "RED;cannot enter with or without remarks";
+      }
+  
+      if (hasRemarks) {
+        return "YELLOW;can enter with remarks";
+      }
+  
+      return "GREEN;can enter without remarks";
+    };
 
-  //   // Get the latest scan from devicesData
-  //   const latestScan = Object.values(devicesData)[0];
+  useEffect(() => {
+    const sendReport = async (reportData: ReportData) => {
+      try {
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/reports`,
+          reportData,
+          {
+            headers: {
+              accept: "*/*",
+              "Content-Type": "application/json",
+              Authorization: `${token}`,
+            },
+          }
+        );
+        console.log("Report sent successfully:", response.data);
+      } catch (error) {
+        console.error("Error sending report:", error);
+      }
+    };
 
-  //   if (latestScan) {
-  //     const reportData: ReportData = {
-  //       datetime: latestScan.datetime,
-  //       type: "0",
-  //       user_id: latestScan.user.user_id,
-  //       name: latestScan.user.name,
-  //       remarks: latestScan.remarks || "No remarks",
-  //       status: getEntryStatus(latestScan),
-  //       activity: latestScan.tnaKey === '1' ? "IN" : "OUT",
-  //     };
+    // Get the latest scan from devicesData
+    const latestScan = Object.values(devicesData)[0];
 
-  //     sendReport(reportData);
-  //   }
-  //   // include getEntryStatus if failing
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [devicesData, token]);
+    if (latestScan) {
+      const reportData: ReportData = {
+        datetime: latestScan.datetime,
+        type: latestScan.tnaKey!,
+        user_id: latestScan.user.user_id,
+        name: latestScan.user.name,
+        remarks: latestScan.remarks || "No remarks",
+        status: getEntryStatus(latestScan),
+        activity: latestScan.tnaKey === '1' ? "IN" : "OUT",
+      };
+
+      sendReport(reportData);
+    }
+    // include getEntryStatus if failing
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [devicesData, token]);
 
   return (
     <div className="space-y-6">

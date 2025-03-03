@@ -22,6 +22,7 @@ interface ReportsTableProps {
   onLimitChange: (limit: number) => void;
   total: number;
   limit: number;
+  onRowClick?: (row: any) => void; // Add this prop
 }
 
 const ReportsTable: React.FC<ReportsTableProps> = ({
@@ -32,6 +33,7 @@ const ReportsTable: React.FC<ReportsTableProps> = ({
   onLimitChange,
   total,
   limit,
+  onRowClick
 }) => {
   const totalPages = Math.max(1, Math.ceil(total / limit));
   const startIndex = (currentPage - 1) * limit;
@@ -74,6 +76,7 @@ const ReportsTable: React.FC<ReportsTableProps> = ({
                   className={`${
                     rowIndex % 2 === 0 ? "bg-white" : "bg-[#F4F7FCBF]"
                   }`}
+                  onClick={() => onRowClick && onRowClick(row)}
                 >
                   {columns.map((column, colIndex) => (
                     <td key={colIndex} className="p-3 text-[#0F416D]">
