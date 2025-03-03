@@ -157,7 +157,7 @@ const getBorderColorClass = (scanDetail?: ScanDetailStatus): string => {
                 <Label htmlFor={`remarks-${deviceId}`}>Remarks</Label>
                 <div
                   id={`remarks-${deviceId}`}
-                  className="border border-gray-300 p-2 rounded-md text-muted-foreground bg-gray-100"
+                  className="p-2 rounded-md shadow-sm text-muted-foreground bg-gray-100"
                   style={{ minHeight: "4rem", whiteSpace: "pre-wrap" }}
                 >
                   {scanDetail?.remarks || undefined}

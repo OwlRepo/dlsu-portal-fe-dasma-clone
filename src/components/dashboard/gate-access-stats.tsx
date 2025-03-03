@@ -1,4 +1,5 @@
 "use client";
+import { ShieldAlert, ShieldCheck, ShieldQuestion } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
 interface GateAccessStatProps {
@@ -8,34 +9,83 @@ interface GateAccessStatProps {
 }
 
 interface AccessProps {
-    data: {
-    allowed: number;
-    allowedWithRemarks: number;
-    notAllowed: number;
-  } | null | undefined;
+  data:
+    | {
+        allowed: number;
+        allowedWithRemarks: number;
+        notAllowed: number;
+      }
+    | null
+    | undefined;
 }
+
+const getStatusStyles = (color: string) => {
+  switch (color) {
+    case "success":
+      return {
+        icon: ShieldCheck,
+        bgColor: "bg-emerald-500",
+        iconBg: "bg-emerald-50",
+        iconColor: "text-emerald-500",
+      };
+    case "warning":
+      return {
+        icon: ShieldQuestion,
+        bgColor: "bg-yellow-400",
+        iconBg: "bg-yellow-50",
+        iconColor: "text-yellow-400",
+      };
+    case "error":
+      return {
+        icon: ShieldAlert,
+        bgColor: "bg-red-500",
+        iconBg: "bg-red-50",
+        iconColor: "text-red-500",
+      };
+  }
+};
 
 const GateAccessStat: React.FC<GateAccessStatProps> = ({
   label,
   percentage,
   color,
-}) => (
-  <div>
-    <div className="mb-1 flex items-center justify-between text-sm">
-      <div className="flex items-center gap-2">
-        <div className={`h-2 w-2 rounded-full ${color}`} />
-        <span>{label}</span>
+}) => {
+  // Get the correct styles based on color
+  const statusStyle = getStatusStyles(
+    color === "bg-[#00C853]"
+      ? "success"
+      : color === "bg-[#FFB300]"
+      ? "warning"
+      : color === "bg-[#F44336]"
+      ? "error"
+      : ""
+  );
+
+  // Get the Icon component
+  const IconComponent = statusStyle?.icon || ShieldCheck;
+
+  return (
+    <div>
+      <div className="mb-2 flex items-center justify-between text-sm">
+        <div className="flex items-center gap-2">
+          <div
+            className={`h-10 w-10 rounded-sm shadow-md flex items-center justify-center ${statusStyle?.iconBg}`}
+          >
+            <IconComponent className={`h-6 w-6 ${statusStyle?.iconColor}`} />
+          </div>
+          <span>{label}</span>
+        </div>
+        <span>{percentage}%</span>
       </div>
-      <span>{percentage}%</span>
+      <div className="h-2 rounded-full bg-gray-100">
+        <div
+          className={`h-2 rounded-full ${color}`}
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
     </div>
-    <div className="h-2 rounded-full bg-gray-100">
-      <div
-        className={`h-2 rounded-full ${color}`}
-        style={{ width: `${percentage}%` }}
-      />
-    </div>
-  </div>
-);
+  );
+};
 
 export function GateAccessStats({ data }: AccessProps) {
   const [isHydrated, setIsHydrated] = useState(false);
@@ -43,7 +93,7 @@ export function GateAccessStats({ data }: AccessProps) {
 
   // Handle hydration
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       setIsHydrated(true);
     }
   }, []);

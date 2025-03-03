@@ -62,8 +62,9 @@ const LoginForm = ({ role }: LoginProps) => {
         {" "}
         {/* Use justify-between to push footer down */}
         <div className="my-auto">
-          <h1 className="text-2xl font-bold text-[#00bc65]">
-            Sign-in to your account
+          <h1 className="text-xl font-bold text-[#00bc65] mb-2">
+            Sign-in to your {role === "admin" ? "administrator" : "employee"}{" "}
+            account
           </h1>
           <p className="text-sm text-gray-500">
             Ready to dive in? Just sign in to continue where you left off.
@@ -113,7 +114,7 @@ const LoginForm = ({ role }: LoginProps) => {
                 "Sign in"
               )}
             </button>
-            <div className="flex justify-end">
+            <div className="flex justify-center">
               <Link href={pathname === "/login" ? "/login/employee" : "/login"}>
                 <p className="text-[#00bc65] text-sm">
                   Login as {pathname === "/login" ? "employee" : "admin"}?
