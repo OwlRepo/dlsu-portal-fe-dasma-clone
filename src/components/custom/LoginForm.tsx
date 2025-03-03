@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Logo } from "../logo";
 import { useAuth } from "@/lib/auth-context";
 import { Input } from "../ui/input";
@@ -19,6 +19,7 @@ const LoginForm = ({ role }: LoginProps) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [userType, setUserType] = useState<string>("");
 
   const { login } = useAuth();
   const { toast } = useToast();
@@ -54,6 +55,10 @@ const LoginForm = ({ role }: LoginProps) => {
     setError("");
   };
 
+  useEffect(() => {
+    setUserType(pathname === "/login" ? "admin" : "employee");
+  }, [pathname]);
+
   const isButtonDisabled = !username || !password || !role;
 
   return (
@@ -63,8 +68,7 @@ const LoginForm = ({ role }: LoginProps) => {
         {/* Use justify-between to push footer down */}
         <div className="my-auto">
           <h1 className="text-xl font-bold text-[#00bc65] mb-2">
-            Sign-in to your {role === "admin" ? "administrator" : "employee"}{" "}
-            account
+            Sign-in to your {userType} account
           </h1>
           <p className="text-sm text-gray-500">
             Ready to dive in? Just sign in to continue where you left off.
