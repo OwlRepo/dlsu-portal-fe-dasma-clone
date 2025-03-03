@@ -22,7 +22,7 @@ interface ReportsTableProps {
   onLimitChange: (limit: number) => void;
   total: number;
   limit: number;
-  onRowClick?: (row: any) => void; // Add this prop
+  onRowClick?: (row: ReportsHeader) => void; // Add this prop
 }
 
 const ReportsTable: React.FC<ReportsTableProps> = ({

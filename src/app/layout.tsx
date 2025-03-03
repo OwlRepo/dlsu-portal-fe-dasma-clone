@@ -33,7 +33,7 @@ export default function RootLayout({
                 <AppBar /> {/* Use the AppBar component here */}
                 <main className="flex-1 overflow-auto">{children}</main>
               </div>
-              <IdleScreensaver />
+              {/* <IdleScreensaver /> */}
             </div>
             <Toaster />
           </SidebarProvider>

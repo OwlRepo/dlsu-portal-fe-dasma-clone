@@ -308,7 +308,6 @@ export default function TurnstileDashboard() {
       sendReport(reportData);
     }
     // include getEntryStatus if failing
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [devicesData, token]);
 
   return (
