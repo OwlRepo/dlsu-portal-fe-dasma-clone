@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { FolderClosed, SlidersHorizontal, Upload, X } from 'lucide-react';
-import Image from 'next/image';
+// import Image from 'next/image';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useDropzone } from 'react-dropzone';
@@ -142,7 +142,7 @@ export function ScreenSaverUpload() {
               }`}
             >
               <input {...getInputProps()} />
-              {image || defaultScreensaverUrl ? (
+              {/* {image || defaultScreensaverUrl ? (
                 <Image
                   src={image || defaultScreensaverUrl || '/placeholder.svg'}
                   alt="Screensaver"
@@ -157,7 +157,13 @@ export function ScreenSaverUpload() {
                     Drag or Drop to upload image
                   </p>
                 </>
-              )}
+              )} */}
+              <>
+                  <Upload className="mb-5 h-[4.5rem] w-8 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">
+                    Drag or Drop to upload image
+                  </p>
+                </>
             </div>
             <div className="relative">
               <input
@@ -217,13 +223,13 @@ export function ScreenSaverUpload() {
         ) : (
           <div className="space-y-4">
             <div className="relative aspect-auto overflow-hidden">
-              <Image
+              {/* <Image
                 src={image || '/placeholder.svg'}
                 alt="Screen saver preview"
                 width={300}
                 height={300}
                 className="h-auto object-cover rounded-lg mx-auto"
-              />
+              /> */}
             </div>
             <Button
               variant="outline"

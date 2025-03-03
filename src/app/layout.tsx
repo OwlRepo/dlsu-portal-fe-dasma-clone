@@ -7,7 +7,7 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppBar } from '@/components/app-bar';
 
 import { Toaster } from '@/components/ui/toaster';
-import { IdleScreensaver } from '@/components/IdleScreensaver';
+// import { IdleScreensaver } from '@/components/IdleScreensaver';
 
 const inter = Inter({ subsets: ['latin'] });
 
