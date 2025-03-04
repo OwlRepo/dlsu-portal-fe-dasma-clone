@@ -397,7 +397,7 @@ export function Dashboard() {
           }
 
           {/* Gate Access Stats */}
-          <div className="col-span-6 rounded-lg p-6">
+          <div className="col-span-6 rounded-lg px-4">
             <h2 className="mb-4 text-lg font-medium">Gate Access Stats</h2>
             <GateAccessStats data={stats?.gateAccessStats} />
           </div>
