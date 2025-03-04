@@ -1,29 +1,29 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useIdleTimer } from '../hooks/useIdleTimer';
-// import Image from 'next/image';
-import Cookies from 'js-cookie';
+import { useState, useEffect } from "react";
+import { useIdleTimer } from "../hooks/useIdleTimer";
+import Image from "next/image";
+import Cookies from "js-cookie";
 // import axios from '@/lib/axios-interceptor';
-import { usePathname } from 'next/navigation';
-import axios from 'axios';
+import { usePathname } from "next/navigation";
+import axios from "axios";
 
 export function IdleScreensaver() {
   const pathname = usePathname();
-  const user = Cookies.get('user');
+  const user = Cookies.get("user");
   const token = user ? JSON.parse(user).token : null;
 
   const [showScreensaver, setShowScreensaver] = useState(false);
-  const [screensaverUrl, setScreensaverUrl] = useState('');
-  const [interval, setInterval] = useState<string>('');
+  const [screensaverUrl, setScreensaverUrl] = useState("");
+  const [interval, setInterval] = useState<string>("");
 
   const handleActivity = () => {
     setShowScreensaver(false);
   };
 
   useEffect(() => {
-    const interval = localStorage.getItem('screensaverInterval');
-    setInterval(interval ?? '60000');
+    const interval = localStorage.getItem("screensaverInterval");
+    setInterval(interval ?? "60000");
   }, []);
 
   const isIdle = useIdleTimer(parseInt(interval, 10));
@@ -33,7 +33,12 @@ export function IdleScreensaver() {
   }, [isIdle]);
 
   useEffect(() => {
-    if (pathname === '/login' || !token) {
+    if (
+      pathname === "/login" ||
+      pathname === "/login/employee" ||
+      pathname === "/employee-dashboard" ||
+      !token
+    ) {
       return;
     }
 
@@ -45,10 +50,10 @@ export function IdleScreensaver() {
             headers: {
               Authorization: token,
             },
-          },
+          }
         );
 
-        console.log(res)
+        console.log(res);
 
         if (res.status === 200 && res.data.data !== null) {
           setScreensaverUrl(res.data.data.url);
@@ -61,9 +66,7 @@ export function IdleScreensaver() {
     }
   }, [pathname, token]);
 
-  console.log(showScreensaver, screensaverUrl)
-
-  // if (!showScreensaver || !screensaverUrl) return null;
+  if (!showScreensaver || !screensaverUrl) return null;
 
   return (
     <div
@@ -72,13 +75,13 @@ export function IdleScreensaver() {
       onMouseMove={handleActivity}
       onKeyDown={handleActivity}
     >
-      {/* <Image
+      <Image
         src={screensaverUrl}
         alt="Screensaver"
         layout="fill"
         objectFit="cover"
         priority
-      /> */}
+      />
     </div>
   );
 }
