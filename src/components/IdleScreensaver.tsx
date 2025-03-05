@@ -57,6 +57,8 @@ export function IdleScreensaver() {
 
         if (res.status === 200 && res.data.data !== null) {
           setScreensaverUrl(res.data.data.url);
+        } else {
+          setScreensaverUrl("");
         }
       };
 
@@ -66,7 +68,7 @@ export function IdleScreensaver() {
     }
   }, [pathname, token]);
 
-  if (!showScreensaver || !screensaverUrl) return null;
+  if (!showScreensaver || !screensaverUrl || screensaverUrl === '') return null;
 
   return (
     <div
@@ -75,13 +77,15 @@ export function IdleScreensaver() {
       onMouseMove={handleActivity}
       onKeyDown={handleActivity}
     >
-      <Image
-        src={screensaverUrl}
-        alt="Screensaver"
-        layout="fill"
-        objectFit="cover"
-        priority
-      />
+      {screensaverUrl && (
+        <Image
+          src={screensaverUrl}
+          alt="Screensaver"
+          layout="fill"
+          objectFit="cover"
+          priority
+        />
+      )}
     </div>
   );
 }
