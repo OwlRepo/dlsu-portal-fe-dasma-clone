@@ -115,6 +115,7 @@ const UserManagementPageContainer = () => {
   const handleCloseCreate = () => {
     setSelectedRole(null);
     setIsCreateOpen(false);
+    refetchUserList();
   };
 
   const handleView = (user: UserHeader) => {
@@ -427,8 +428,8 @@ const UserManagementPageContainer = () => {
             </DialogDescription>
           </DialogHeader>
 
-          {selectedRole === "super-admin" && <SuperAdminForm />}
-          {selectedRole === "admin" && <AdminForm />}
+          {selectedRole === "super-admin" && <SuperAdminForm onClose={handleCloseCreate} />}
+          {selectedRole === "admin" && <AdminForm onClose={handleCloseCreate} />}
           {selectedRole === "employee" && <EmployeeForm />}
         </DialogContent>
       </Dialog>

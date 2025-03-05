@@ -53,8 +53,6 @@ export function IdleScreensaver() {
           }
         );
 
-        console.log(res);
-
         if (res.status === 200 && res.data.data !== null) {
           setScreensaverUrl(res.data.data.url);
         } else {
@@ -64,7 +62,14 @@ export function IdleScreensaver() {
 
       fetchData();
     } catch (err) {
-      console.error(err);
+      if (axios.isAxiosError(err)) {
+        // Handle Axios error
+        console.error("Axios error:", err.message);
+      } else {
+        // Handle other errors
+        console.error("Unexpected error:", err);
+      }
+      setScreensaverUrl("");
     }
   }, [pathname, token]);
 
