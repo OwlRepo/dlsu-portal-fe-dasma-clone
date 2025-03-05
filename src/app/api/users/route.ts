@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     const params = req.nextUrl.searchParams.get('params');
 
     const response = await axios.get(
-      `https://127.0.0.1:4431/api/users/${params}`,
+      `https://127.0.0.1:4438/api/users/${params}`,
       {
         headers: {
           'Content-Type': 'application/json',

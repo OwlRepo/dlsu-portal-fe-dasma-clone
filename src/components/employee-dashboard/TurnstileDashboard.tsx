@@ -29,7 +29,7 @@ export default function TurnstileDashboard() {
   );
   const [deviceQueue, setDeviceQueue] = useState<ScanProps[]>([]);
 
-  const WS_HOST = "wss://127.0.0.1:4431";
+  const WS_HOST = "wss://127.0.0.1:4438";
   const BIOSTAR2_WS_URI = `${WS_HOST}/wsapi`;
 
   // const getEntryStatus = (scan: ScanProps): string => {

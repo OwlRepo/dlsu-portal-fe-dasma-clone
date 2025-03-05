@@ -12,6 +12,20 @@ import { debounce } from "lodash";
 import CustomFilter, { FilterItem } from "../custom/CustomFilter";
 import { useToast } from "@/hooks/use-toast";
 import CustomExport from "../custom/CustomExport";
+import { Button } from "../ui/button";
+import { Plus } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
+import CustomDropdownButton from "../custom/CustomDropdown";
+import SuperAdminForm from "./SuperAdminForm";
+import AdminForm from "./AdminForm";
+import EmployeeForm from "./EmployeeForm";
 // import { ViewProfileDialog } from './view-profile-dialog';
 
 interface User {
@@ -35,6 +49,12 @@ export interface UserHeader {
   DATE_ADDED: string;
 }
 
+const roleOptions = [
+  { id: "super-admin", label: "Super Admin" },
+  { id: "admin", label: "Admin" },
+  { id: "employee", label: "Employee" },
+];
+
 const UserManagementPageContainer = () => {
   const { toast } = useToast();
 
@@ -49,6 +69,8 @@ const UserManagementPageContainer = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [activeFilters, setActiveFilters] = useState<FilterItem[]>([]);
   const [exportLoading, setExportLoading] = useState<boolean>(false);
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const usersHeaders: {
     header: string;
@@ -88,6 +110,11 @@ const UserManagementPageContainer = () => {
   const handleCloseEdit = () => {
     setSelectedUser(null);
     setIsEditDetailsOpen(false);
+  };
+
+  const handleCloseCreate = () => {
+    setSelectedRole(null);
+    setIsCreateOpen(false);
   };
 
   const handleView = (user: UserHeader) => {
@@ -154,7 +181,7 @@ const UserManagementPageContainer = () => {
           title: "Success",
           description: "User list has been fetched successfully",
           duration: 3000,
-        })
+        });
       }
     } catch (error) {
       console.error(error);
@@ -163,7 +190,7 @@ const UserManagementPageContainer = () => {
         description: "User list could not be fetched",
         variant: "destructive",
         duration: 3000,
-      })
+      });
     } finally {
       setIsLoading(false);
     }
@@ -303,6 +330,11 @@ const UserManagementPageContainer = () => {
     debouncedSearch(value);
   };
 
+  const handleRoleSelect = (role: string) => {
+    setSelectedRole(role);
+    setIsCreateOpen(true);
+  };
+
   const refetchUserList = () => {
     fetchUserList(search, limit, page, activeFilters);
   };
@@ -320,6 +352,8 @@ const UserManagementPageContainer = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  console.log(isCreateOpen);
+
   return (
     <div className="rounded-lg bg-white p-6 shadow-md">
       <div className="flex items-center justify-between mb-8">
@@ -335,6 +369,12 @@ const UserManagementPageContainer = () => {
           <CustomFilter
             onFiltersChange={handleFiltersChange}
             typeOptions={typeOptions}
+          />
+          <CustomDropdownButton
+            buttonText="Create"
+            buttonIcon={<Plus className="h-4 w-4" />}
+            options={roleOptions}
+            onSelect={handleRoleSelect}
           />
           <CustomExport
             onExport={handleExport}
@@ -370,6 +410,28 @@ const UserManagementPageContainer = () => {
         user={selectedUser}
         refetchUserList={refetchUserList}
       />
+
+      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedRole === "super-admin"
+                ? "Create Super Admin"
+                : selectedRole === "admin"
+                ? "Create Admin"
+                : "Create Employee"}
+            </DialogTitle>
+            <DialogDescription>
+              Fill in the details to create a new{" "}
+              {selectedRole?.replace("-", " ")}.
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedRole === "super-admin" && <SuperAdminForm />}
+          {selectedRole === "admin" && <AdminForm />}
+          {selectedRole === "employee" && <EmployeeForm />}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
