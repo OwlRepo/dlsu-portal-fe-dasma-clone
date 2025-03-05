@@ -68,6 +68,13 @@ export function AppSidebar() {
     return null;
   }
 
+  const filteredMenuItems = menuItems.filter(item => {
+    if (role === 'admin' && item.title === 'User Management') {
+      return false;
+    }
+    return true;
+  });
+
   return (
     <Sidebar className="border-r">
       <SidebarHeader className="p-4 mb-4">
@@ -83,7 +90,7 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {menuItems.map((item) => {
+          {filteredMenuItems.map((item) => {
             const isActive =
               pathname === item.href ||
               (item.href === '/settings' && pathname.startsWith('/settings/'));

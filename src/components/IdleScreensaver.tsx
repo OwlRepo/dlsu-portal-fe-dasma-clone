@@ -64,10 +64,10 @@ export function IdleScreensaver() {
     } catch (err) {
       if (axios.isAxiosError(err)) {
         // Handle Axios error
-        console.error("Axios error:", err.message);
+        console.log("Axios error:", err.message);
       } else {
         // Handle other errors
-        console.error("Unexpected error:", err);
+        console.log("Unexpected error:", err);
       }
       setScreensaverUrl("");
     }

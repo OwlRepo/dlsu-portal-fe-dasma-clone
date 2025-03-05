@@ -62,10 +62,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       );
 
       if (response) {
-        const userData = { username, role, user: response.data.user,token: response.data.access_token };
+        const userData = { username, user: response.data.user,token: response.data.access_token };
         Cookies.set('user', JSON.stringify(userData));
-        Cookies.set('role', role);
+        Cookies.set('role', userData.user.role);
+        
         setUser(userData);
+
         if (role === 'employee') {
           router.push('/employee-dashboard');
         } else {
