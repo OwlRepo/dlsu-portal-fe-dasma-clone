@@ -73,6 +73,16 @@ export default function AdminForm({ onClose }: formProps) {
   return (
     <form className="space-y-4 pt-4" onSubmit={handleSubmit}>
       <div className="space-y-2">
+        <Label htmlFor="username">Username</Label>
+        <Input
+          id="username"
+          placeholder="Enter username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+      </div>
+
+      <div className="space-y-2">
         <Label htmlFor="first-name">First Name</Label>
         <Input
           id="first-name"
@@ -89,16 +99,6 @@ export default function AdminForm({ onClose }: formProps) {
           placeholder="Enter last name"
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="username">Username</Label>
-        <Input
-          id="username"
-          placeholder="Enter username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
         />
       </div>
 

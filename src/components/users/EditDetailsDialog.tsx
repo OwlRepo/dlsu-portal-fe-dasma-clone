@@ -112,7 +112,7 @@ const EditDetailsDialog: React.FC<EditDetailsDialogProps> = ({
   }, [user]);
 
   useEffect(() => {
-    if (role === "employee") {
+    if (user && role === "employee") {
       const fetchEmployeeById = async () => {
         try {
           const userData = Cookies.get("user");
@@ -143,7 +143,7 @@ const EditDetailsDialog: React.FC<EditDetailsDialogProps> = ({
 
       fetchEmployeeById();
     }
-  }, [role]);
+  }, [role, user]);
 
   useEffect(() => {
     const fetchSessionId = async () => {
@@ -200,6 +200,8 @@ const EditDetailsDialog: React.FC<EditDetailsDialogProps> = ({
       fetchDevices();
     }
   }, [sessionId]);
+
+  console.log("selectedDevices", selectedDevices);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

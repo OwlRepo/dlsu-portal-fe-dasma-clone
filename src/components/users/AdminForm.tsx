@@ -8,11 +8,11 @@ import Cookies from "js-cookie";
 import { useToast } from "@/hooks/use-toast";
 
 interface formProps {
-	onClose: () => void;
+  onClose: () => void;
 }
 
-export default function AdminForm({onClose}: formProps) {
-	const { toast } = useToast();
+export default function AdminForm({ onClose }: formProps) {
+  const { toast } = useToast();
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -34,34 +34,34 @@ export default function AdminForm({onClose}: formProps) {
         {
           first_name: firstName,
           last_name: lastName,
-					role: 'admin',
+          role: "admin",
           username,
           email,
           password,
         },
-				{
-					headers: {
-						Authorization: `${token}`,
-						'Content-Type': 'application/json',
-					},
-				},
+        {
+          headers: {
+            Authorization: `${token}`,
+            "Content-Type": "application/json",
+          },
+        }
       );
 
       if (response.status === 201) {
         // Handle successful creation
-				toast({
-					title: 'Success',
-					description: 'Admin created successfully',
-					duration: 3000,
-				});
-				onClose();
+        toast({
+          title: "Success",
+          description: "Admin created successfully",
+          duration: 3000,
+        });
+        onClose();
       } else {
         // Handle unexpected response
-				toast({
-					title: 'Error',
-					description: 'An unexpected error occurred',
-					duration: 3000,
-				});
+        toast({
+          title: "Error",
+          description: "An unexpected error occurred",
+          duration: 3000,
+        });
       }
     } catch (error) {
       // Handle error
@@ -73,6 +73,16 @@ export default function AdminForm({onClose}: formProps) {
 
   return (
     <form className="space-y-4 pt-4" onSubmit={handleSubmit}>
+      <div className="space-y-2">
+        <Label htmlFor="username">Username</Label>
+        <Input
+          id="username"
+          placeholder="Enter username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+      </div>
+
       <div className="space-y-2">
         <Label htmlFor="first-name">First Name</Label>
         <Input
@@ -90,16 +100,6 @@ export default function AdminForm({onClose}: formProps) {
           placeholder="Enter last name"
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="username">Username</Label>
-        <Input
-          id="username"
-          placeholder="Enter username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
         />
       </div>
 

@@ -55,7 +55,7 @@ export default function EmployeeForm({ onClose }: formProps) {
           username,
           email,
           password,
-          device_id: devices,
+          device_id: selectedDevices,
         },
         {
           headers: {
@@ -84,11 +84,11 @@ export default function EmployeeForm({ onClose }: formProps) {
     } catch (error) {
       // Handle error
       console.error("Error creating employee:", error);
-			toast({
-				title: "Error",
-				description: "An unexpected error occurred",
-				duration: 3000,
-			});
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        duration: 3000,
+      });
     } finally {
       setFormLoading(false);
     }
@@ -153,6 +153,16 @@ export default function EmployeeForm({ onClose }: formProps) {
   return (
     <form className="space-y-4 pt-4" onSubmit={handleSubmit}>
       <div className="space-y-2">
+        <Label htmlFor="username">Username</Label>
+        <Input
+          id="username"
+          placeholder="Enter username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+      </div>
+
+      <div className="space-y-2">
         <Label htmlFor="first-name">First Name</Label>
         <Input
           id="first-name"
@@ -169,16 +179,6 @@ export default function EmployeeForm({ onClose }: formProps) {
           placeholder="Enter last name"
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="username">Username</Label>
-        <Input
-          id="username"
-          placeholder="Enter username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
         />
       </div>
 

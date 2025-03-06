@@ -239,7 +239,7 @@
 
 import type React from "react";
 import { useState, useRef, useEffect, type KeyboardEvent } from "react";
-import { ChevronDown, X, Search, Check } from "lucide-react";
+import { ChevronDown, Search, Check } from "lucide-react";
 
 export type Option = {
   value: string;
@@ -281,6 +281,10 @@ export function CustomMultiSelect({
   // State for selected values (for uncontrolled component)
   const [selectedValues, setSelectedValues] = useState<string[]>(defaultValue);
 
+    // Normalize values to always use IDs for comparison
+    const normalizedValues = (values: (string | { id: string; label: string })[]) =>
+        values.map((val) => (typeof val === "string" ? val : val.id));
+
   // Handle controlled component
   const values = value !== undefined ? value : selectedValues;
 
@@ -295,8 +299,8 @@ export function CustomMultiSelect({
 
   // Handle selection of an option
   const handleSelect = (optionValue: string) => {
-    const newValues = values.includes(optionValue)
-      ? values.filter((val) => val !== optionValue)
+    const newValues = normalizedValues(values).includes(optionValue)
+      ? values.filter((val) => normalizedValues([val])[0] !== optionValue)
       : [...values, optionValue];
 
     // Update internal state for uncontrolled component
@@ -312,7 +316,7 @@ export function CustomMultiSelect({
   const handleRemove = (optionValue: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
 
-    const newValues = values.filter((val) => val !== optionValue);
+    const newValues = values.filter((val) => normalizedValues([val])[0] !== optionValue);
 
     // Update internal state for uncontrolled component
     if (value === undefined) {
@@ -336,8 +340,8 @@ export function CustomMultiSelect({
         break;
       case "Backspace":
         if (!searchTerm && values.length > 0) {
-          handleRemove(values[values.length - 1]);
-        }
+            handleRemove(normalizedValues(values)[values.length - 1]);
+          }
         break;
     }
   };
@@ -382,7 +386,8 @@ export function CustomMultiSelect({
           {values.length > 0 ? (
             <div className="flex flex-wrap gap-1">
               {values.map((val, index) => {
-                const option = options.find((opt) => opt.value === val);
+                                const optionId = normalizedValues([val])[0];
+                                const option = options.find((opt) => opt.value === optionId);
                 return (
                   <span
                     key={index}
@@ -392,7 +397,7 @@ export function CustomMultiSelect({
                     "
                   >
                     {option?.label}
-                    <button
+                    {/* <button
                       type="button"
                       onClick={(e) => handleRemove(val, e)}
                       disabled={disabled}
@@ -400,7 +405,7 @@ export function CustomMultiSelect({
                       aria-label={`Remove ${option?.label}`}
                     >
                       <X size={14} />
-                    </button>
+                    </button> */}
                   </span>
                 );
               })}
@@ -456,7 +461,7 @@ export function CustomMultiSelect({
                     }}
                   >
                     <div className="w-5 h-5 mr-2 flex items-center justify-center">
-                      {values.includes(option.value) && <Check size={16} className="text-primary" />}
+                    {normalizedValues(values).includes(option.value) && <Check size={16} className="text-primary" />}
                     </div>
                     {option.label}
                   </div>
