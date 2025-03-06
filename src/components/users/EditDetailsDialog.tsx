@@ -143,6 +143,8 @@ const EditDetailsDialog: React.FC<EditDetailsDialogProps> = ({
 
       fetchEmployeeById();
     }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [role, user]);
 
   useEffect(() => {

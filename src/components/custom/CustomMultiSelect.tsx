@@ -244,7 +244,7 @@ import { ChevronDown, Search, Check } from "lucide-react";
 export type Option = {
   value: string;
   label: string;
-  [key: string]: any;
+  [key: string]: string | number | boolean | undefined;
 };
 
 export interface CustomMultiSelectProps {
