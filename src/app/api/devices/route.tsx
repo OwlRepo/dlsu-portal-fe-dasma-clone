@@ -2,33 +2,31 @@ import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 import https from 'https';
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
     const agent = new https.Agent({
       rejectUnauthorized: false,
     });
 
-    const body = await req.json();
+    console.log(req);
 
-    console.log('Request received:', { body });
+    const params = req.nextUrl.searchParams.get('params');
 
-    const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_BIOSTAR_API}/api/login`,
-      body,
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BIOSTAR_API}/api/devices?monitoring_permission=${params}`,
       {
         headers: {
           'Content-Type': 'application/json',
+          'bs-session-id': req.headers.get('bs-session-id') || '',
         },
         httpsAgent: agent,
       },
     );
-    console.log('Response from backend:', response.data);
 
-    const bsSessionId = response.headers['bs-session-id'];
+    console.log('Response from backend:', response.data);
 
     return NextResponse.json({
       data: response.data,
-      bsSessionId: bsSessionId, // Include the custom header in the response
     });
   } catch (error) {
     console.error('Error from backend:', error);

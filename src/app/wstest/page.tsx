@@ -7,7 +7,7 @@ const Page = () => {
 
     // const BIOSTAR_URI = 'https://127.0.0.1:4431'; // BioStar 2 IP and HTTPS port
 				
-    const WS_HOST ='wss://127.0.0.1:4438' // same here as in the above line
+    const WS_HOST ='wss://127.0.0.1:4439' // same here as in the above line
   // const API_HOST = '/api/proxy';
   const BIOSTAR2_WS_URI = `${WS_HOST}/wsapi`;
   // const PROXY_WS_URI = 'wss://localhost:3000/wsapi';

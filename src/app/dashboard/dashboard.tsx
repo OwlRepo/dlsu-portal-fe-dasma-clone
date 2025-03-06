@@ -40,7 +40,7 @@ export function Dashboard() {
   // const [stats, setStats] = useState<GateStats | null>(null);
   // const [socket, setSocket] = useState<Socket | null>(null);
 
-  const WS_HOST = "wss://127.0.0.1:4438";
+  const WS_HOST = "wss://127.0.0.1:8888";
   const BIOSTAR2_WS_URI = `${WS_HOST}/wsapi`;
   // const SOCKET_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
   // const SOCKET_URL = `http://localhost:9580/`;

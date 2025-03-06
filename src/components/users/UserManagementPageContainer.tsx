@@ -353,8 +353,6 @@ const UserManagementPageContainer = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  console.log(isCreateOpen);
-
   return (
     <div className="rounded-lg bg-white p-6 shadow-md">
       <div className="flex items-center justify-between mb-8">
@@ -430,7 +428,7 @@ const UserManagementPageContainer = () => {
 
           {selectedRole === "super-admin" && <SuperAdminForm onClose={handleCloseCreate} />}
           {selectedRole === "admin" && <AdminForm onClose={handleCloseCreate} />}
-          {selectedRole === "employee" && <EmployeeForm />}
+          {selectedRole === "employee" && <EmployeeForm onClose={handleCloseCreate} />}
         </DialogContent>
       </Dialog>
     </div>
