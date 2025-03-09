@@ -63,9 +63,7 @@ export function Dashboard() {
           },
         );
 
-        console.log(response);
-
-        if (response.data.bsSessionId) {
+        if (response) {
           // setBsSessionId(response.data.bsSessionId);
           const ws = new WebSocket(BIOSTAR2_WS_URI);
 
