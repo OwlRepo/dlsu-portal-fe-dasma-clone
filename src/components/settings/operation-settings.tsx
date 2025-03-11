@@ -21,7 +21,8 @@ import {
 import { ScreenSaverUpload } from "./screen-saver-upload";
 import { TimePicker } from "./time-picker";
 import { useToast } from "@/hooks/use-toast";
-import axios from "axios";
+// import axios from "axios";
+import axios from '@/lib/axios-interceptor';
 import Cookies from "js-cookie";
 import { Input } from "../ui/input";
 

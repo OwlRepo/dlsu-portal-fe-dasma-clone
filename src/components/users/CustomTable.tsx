@@ -59,7 +59,6 @@ function CustomTable<T extends Record<string, unknown>>({
   limit,
   isLoading = false,
 }: PaginatedTableProps<T>) {
-
   const totalPages = Math.max(1, Math.ceil(total / limit));
   const startIndex = (currentPage - 1) * limit;
   const endIndex = Math.min(startIndex + data.length, total);
@@ -140,6 +139,14 @@ function CustomTable<T extends Record<string, unknown>>({
                         >
                           {(row[column.accessor] as string).toUpperCase()}
                         </Badge>
+                      ) : column.accessor === "DATE_ADDED" ? (
+                        new Date(
+                          row[column.accessor] as string
+                        ).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })
                       ) : column.cell ? (
                         column.cell(row)
                       ) : (

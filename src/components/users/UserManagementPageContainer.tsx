@@ -1,7 +1,8 @@
 'use client';
 import React, { useEffect, useMemo, useState } from 'react';
 // import { Download } from "lucide-react";
-import axios from 'axios';
+// import axios from 'axios';
+import axios from '@/lib/axios-interceptor';
 import Cookies from 'js-cookie';
 import { Input } from '../ui/input';
 // import { Button } from "../ui/button";
@@ -77,7 +78,7 @@ const UserManagementPageContainer = () => {
     accessor: keyof UserHeader | '';
     cell?: (row: UserHeader) => React.ReactNode;
   }[] = [
-    { header: 'Employee ID', accessor: 'EMPLOYEE_ID' },
+    { header: 'User ID', accessor: 'EMPLOYEE_ID' },
     { header: 'Username', accessor: 'USERNAME' },
     { header: 'First Name', accessor: 'FIRST_NAME' },
     { header: 'Last Name', accessor: 'LAST_NAME' },
