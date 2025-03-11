@@ -107,8 +107,9 @@ const getBorderColorClass = (scanDetail?: ScanDetailStatus): string => {
             key={deviceId}
             className={`bg-white rounded-lg ${borderClass}`}
             style={{
-              minWidth: "650px",
+              minWidth: "500px",
               maxWidth: "650px",
+              width: "100%",
               minHeight: "320px",
             }}
           >
@@ -125,9 +126,9 @@ const getBorderColorClass = (scanDetail?: ScanDetailStatus): string => {
                 <Image
                   src={scanDetail?.userImage || "/default-user-icon.png"}
                   alt={scanDetail?.user.name || "default-user"}
-                  width={114}
-                  height={114}
-                  className="w-32 h-32 rounded-full"
+                  width={100}
+                  height={100}
+                  className="w-24 h-24 rounded-full"
                 />
                 {scanDetail ? (
                   <div className="flex flex-col w-full gap-2">

@@ -66,7 +66,7 @@ export default function EntriesLog({ queue }: LogEntry) {
               <p className="text-sm">Recent entries will appear here</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-3">   
               {[...updatedScanQueue].reverse().map((entry, index) => (
                 <div
                   key={index}
@@ -77,8 +77,8 @@ export default function EntriesLog({ queue }: LogEntry) {
                     <Image
                       src={entry.userImage || "/default-user-icon.png"}
                       alt={entry.user.name}
-                      width={50}
-                      height={50}
+                      width={40}
+                      height={40}
                       className="rounded-full object-cover"
                     />
                     <div className="flex-grow">
