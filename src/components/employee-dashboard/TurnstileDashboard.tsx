@@ -29,22 +29,23 @@ export default function TurnstileDashboard() {
   );
   const [deviceQueue, setDeviceQueue] = useState<ScanProps[]>([]);
 
-  const WS_HOST = "wss://127.0.0.1:8888";
-  const BIOSTAR2_WS_URI = `${WS_HOST}/wsapi`;
+  // const WS_HOST = 'wss://192.168.0.22:8888';
+  // const BIOSTAR2_WS_URI = `${WS_HOST}/wsapi`;
+  const BIOSTAR2_WS_URI = `${process.env.NEXT_PUBLIC_WS_HOST}/wsapi`;
 
   // const getEntryStatus = (scan: ScanProps): string => {
   //   const isDisabled = scan.disabled === "true";
   //   const isExpired = checkExpiry(scan.expiryDate);
   //   const hasRemarks = scan.remarks !== "No remarks";
-  
+
   //   if (isDisabled || isExpired) {
   //     return "RED;cannot enter with or without remarks";
   //   }
-  
+
   //   if (hasRemarks) {
   //     return "YELLOW;can enter with remarks";
   //   }
-  
+
   //   return "GREEN;can enter without remarks";
   // };
 
@@ -255,21 +256,21 @@ export default function TurnstileDashboard() {
     return () => clearTimeout(timer);
   }, [devicesData]);
 
-    const getEntryStatus = (scan: ScanProps): string => {
-      const isDisabled = scan.disabled === "true";
-      const isExpired = checkExpiry(scan.expiryDate);
-      const hasRemarks = scan.remarks !== "No remarks";
-  
-      if (isDisabled || isExpired) {
-        return "RED;cannot enter with or without remarks";
-      }
-  
-      if (hasRemarks) {
-        return "YELLOW;can enter with remarks";
-      }
-  
-      return "GREEN;can enter without remarks";
-    };
+  const getEntryStatus = (scan: ScanProps): string => {
+    const isDisabled = scan.disabled === "true";
+    const isExpired = checkExpiry(scan.expiryDate);
+    const hasRemarks = scan.remarks !== "No remarks";
+
+    if (isDisabled || isExpired) {
+      return "RED;cannot enter with or without remarks";
+    }
+
+    if (hasRemarks) {
+      return "YELLOW;can enter with remarks";
+    }
+
+    return "GREEN;can enter without remarks";
+  };
 
   useEffect(() => {
     const sendReport = async (reportData: ReportData) => {

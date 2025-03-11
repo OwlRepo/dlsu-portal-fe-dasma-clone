@@ -58,7 +58,7 @@ export default function EmployeeForm({ onClose }: formProps) {
         }
       );
 
-      if (response.status === 201) {
+      if (response.data.success) {
         // Handle successful creation
         toast({
           title: "Success",
@@ -70,7 +70,8 @@ export default function EmployeeForm({ onClose }: formProps) {
         // Handle unexpected response
         toast({
           title: "Error",
-          description: "An unexpected error occurred",
+          description: `An unexpected error occurred. ${response.data.message}`,
+          variant: 'destructive',
           duration: 3000,
         });
       }

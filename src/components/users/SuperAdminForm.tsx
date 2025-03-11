@@ -46,7 +46,7 @@ export default function AdminForm({ onClose }: formProps) {
         }
       );
 
-      if (response.status === 201) {
+      if (response.data.success) {
         // Handle successful creation
         toast({
           title: "Success",
@@ -59,6 +59,7 @@ export default function AdminForm({ onClose }: formProps) {
         toast({
           title: "Error",
           description: "An unexpected error occurred",
+          variant: 'destructive',
           duration: 3000,
         });
       }
