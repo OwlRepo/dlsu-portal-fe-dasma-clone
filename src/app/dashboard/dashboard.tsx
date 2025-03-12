@@ -1,23 +1,23 @@
-'use client';
+"use client";
 
-import { LogOut, LogIn, University } from 'lucide-react';
-import { StatisticsCard } from '@/components/dashboard/statistics-card';
-import { GateAccessStats } from '@/components/dashboard/gate-access-stats';
-import { LiveDataTable } from '@/components/dashboard/live-data-table';
-import { useCallback, useEffect, useState } from 'react';
+import { LogOut, LogIn, University } from "lucide-react";
+import { StatisticsCard } from "@/components/dashboard/statistics-card";
+import { GateAccessStats } from "@/components/dashboard/gate-access-stats";
+import { LiveDataTable } from "@/components/dashboard/live-data-table";
+import { useCallback, useEffect, useState } from "react";
 // import axios from "axios";
-import axios from '@/lib/axios-interceptor';
+import axios from "@/lib/axios-interceptor";
 import {
   CustomField,
   DeviceProps,
   // ReportData,
   ScanProps,
   UserProps,
-} from '@/lib/types';
-import debounce from 'lodash/debounce';
+} from "@/lib/types";
+import debounce from "lodash/debounce";
 // import { checkExpiry } from "@/lib/checkExpiry";
 // import useUserToken from "@/hooks/useUserToken";
-import { useReportsSocket } from '@/hooks/useReportSocket';
+import { useReportsSocket } from "@/hooks/useReportSocket";
 import {
   Dialog,
   DialogContent,
@@ -25,8 +25,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 export function Dashboard() {
   // const { token } = useUserToken();
@@ -50,18 +50,18 @@ export function Dashboard() {
     const fetchSessionId = async () => {
       try {
         const response = await axios.post(
-          '/api/login',
+          "/api/login",
           {
             User: {
-              login_id: 'admin',
-              password: 'ELIDtech1234',
+              login_id: "admin",
+              password: "ELIDtech1234",
             },
           },
           {
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
-          },
+          }
         );
 
         if (response) {
@@ -69,7 +69,7 @@ export function Dashboard() {
           const ws = new WebSocket(BIOSTAR2_WS_URI);
 
           ws.onopen = () => {
-            console.log('WebSocket connection established.');
+            console.log("WebSocket connection established.");
             // Send the session ID to the WebSocket server
             ws.send(`bs-session-id=${response.data.bsSessionId}`);
 
@@ -94,7 +94,7 @@ export function Dashboard() {
                     user_id,
                     device_id,
                     tna_key,
-                    datetime,
+                    datetime
                   );
                 }
               }
@@ -102,11 +102,11 @@ export function Dashboard() {
           };
 
           ws.onerror = (error) => {
-            console.error('WebSocket error:', error);
+            console.error("WebSocket error:", error);
           };
 
           ws.onclose = () => {
-            console.log('WebSocket connection closed.');
+            console.log("WebSocket connection closed.");
           };
 
           // Cleanup on component unmount
@@ -117,14 +117,14 @@ export function Dashboard() {
           };
         } else {
           console.error(
-            'Session ID is missing. Cannot establish WebSocket connection.',
+            "Session ID is missing. Cannot establish WebSocket connection."
           );
           return;
         }
 
         // console.log('Login response:', response.data);
       } catch (error) {
-        console.error('Error logging in:', error);
+        console.error("Error logging in:", error);
       }
     };
 
@@ -141,14 +141,14 @@ export function Dashboard() {
         user: UserProps,
         device: DeviceProps,
         tna_key: string,
-        datetime: string,
+        datetime: string
       ) => {
         fetchUserData(bsSessionId, user, device, tna_key, datetime);
       },
       300, // 300ms delay
-      { leading: true, trailing: false }, // Only process the first call in the wait period
+      { leading: true, trailing: false } // Only process the first call in the wait period
     ),
-    [],
+    []
   );
 
   const fetchUserData = async (
@@ -156,32 +156,33 @@ export function Dashboard() {
     user: UserProps,
     device: DeviceProps,
     tna_key: string,
-    datetime: string,
+    datetime: string
   ) => {
     try {
-      const response = await axios.get('api/users', {
+      const response = await axios.get("api/users", {
         headers: {
-          'bs-session-id': bsSessionId,
+          "bs-session-id": bsSessionId,
         },
         params: {
           params: user.user_id,
         },
       });
 
-      console.log('WebSocket Event Received:', datetime); // Add this to track events
+      console.log("WebSocket Event Received:", datetime); // Add this to track events
 
       const userImage = response.data.data.User.photo
         ? response.data.data.User.photo
         : undefined;
 
-      const remarksField = response.data.data.User.user_custom_fields.find(
-        (field: CustomField) => field.custom_field.name === 'Remarks',
+      const userCustomFields = response.data.data.User.user_custom_fields || [];
+
+      const remarksField = userCustomFields.find(
+        (field: CustomField) => field.custom_field.name === "Remarks"
       );
 
-      const livedNameField = response.data.data.User.user_custom_fields.find(
-        (field: CustomField) => field.custom_field.name === 'Lived Name',
+      const livedNameField = userCustomFields.find(
+        (field: CustomField) => field.custom_field.name === "Lived Name"
       );
-
       const userData: UserProps = {
         user_id: response.data.data.User.user_id,
         name: response.data.data.User.name,
@@ -205,7 +206,7 @@ export function Dashboard() {
         user: userData,
         device: deviceData,
         datetime,
-        remarks: remarks ?? 'No remarks',
+        remarks: remarks ?? "No remarks",
         livedName,
         userImage,
         disabled,
@@ -237,27 +238,27 @@ export function Dashboard() {
       // Update stats queue without limit
       // setDeviceQueue((prevQueue) => [...prevQueue, newDeviceData]);
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      console.error("Error fetching user data:", error);
     }
   };
 
   const fetchEventData = async (bsSessionId: string) => {
     try {
       const response = await axios.post(
-        '/api/events',
+        "/api/events",
         {
           Query: {
             limit: 51,
             conditions: [
               {
-                column: 'datetime',
+                column: "datetime",
                 operator: 3,
                 values: [new Date().toISOString()],
               },
             ],
             orders: [
               {
-                column: 'datetime',
+                column: "datetime",
                 descending: false,
               },
             ],
@@ -265,15 +266,15 @@ export function Dashboard() {
         },
         {
           headers: {
-            'Content-Type': 'application/json',
-            'bs-session-id': bsSessionId,
+            "Content-Type": "application/json",
+            "bs-session-id": bsSessionId,
           },
-        },
+        }
       );
 
-      console.log('Fetched event data:', response.data);
+      console.log("Fetched event data:", response.data);
     } catch (error) {
-      console.error('Error fetching event data:', error);
+      console.error("Error fetching event data:", error);
     }
   };
 

@@ -149,13 +149,16 @@ export default function TurnstileDashboard() {
         ? response.data.data.User.photo
         : undefined;
 
-      const remarksField = response.data.data.User.user_custom_fields.find(
-        (field: CustomField) => field.custom_field.name === "Remarks"
-      );
-
-      const livedNameField = response.data.data.User.user_custom_fields.find(
-        (field: CustomField) => field.custom_field.name === "Lived Name"
-      );
+        const userCustomFields = response.data.data.User.user_custom_fields || [];
+        
+        const remarksField = userCustomFields.find(
+          (field: CustomField) => field.custom_field.name === "Remarks"
+        );
+    
+        const livedNameField = userCustomFields.find(
+          (field: CustomField) => field.custom_field.name === "Lived Name"
+        );
+    
 
       const userData: UserProps = {
         user_id: response.data.data.User.user_id,

@@ -59,6 +59,7 @@ export function AccountForm() {
   const user = Cookies.get("user");
   const userInfo = user ? JSON.parse(user).user : null;
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const onSubmit = async (data: AccountFormValues) => {
     // TODO: Implement save functionality
@@ -140,6 +141,7 @@ export function AccountForm() {
 
   useEffect(() => {
     const fetchUserDetails = async () => {
+      if (!userId || !token || isInitialized) return;
       try {
         const res = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/${role}/${
@@ -160,6 +162,7 @@ export function AccountForm() {
           form.setValue("username", user.username);
           form.setValue("first_name", user.first_name || "N/A");
           form.setValue("last_name", user.last_name || "N/A");
+          setIsInitialized(true);
         }
       } catch (error) {
         console.error(error);
@@ -169,7 +172,7 @@ export function AccountForm() {
       fetchUserDetails();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userInfo, token, role]);
+  }, [userInfo, token, role, isInitialized]);
 
   return (
     <div className="space-y-6">
