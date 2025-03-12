@@ -19,12 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import useUserToken from "@/hooks/useUserToken";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "../ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 
 const accountFormSchema = z.object({
   employeeId: z.string(),
@@ -142,6 +137,7 @@ export function AccountForm() {
   useEffect(() => {
     const fetchUserDetails = async () => {
       if (!userId || !token || isInitialized) return;
+
       try {
         const res = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/${role}/${
@@ -168,9 +164,8 @@ export function AccountForm() {
         console.error(error);
       }
     };
-    if (userId && token) {
-      fetchUserDetails();
-    }
+
+    fetchUserDetails();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userInfo, token, role, isInitialized]);
 
