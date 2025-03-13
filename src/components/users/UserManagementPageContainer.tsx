@@ -19,7 +19,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  // DialogFooter,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '../ui/dialog';
@@ -27,6 +27,7 @@ import CustomDropdownButton from '../custom/CustomDropdown';
 import SuperAdminForm from './SuperAdminForm';
 import AdminForm from './AdminForm';
 import EmployeeForm from './EmployeeForm';
+import { Button } from '../ui/button';
 // import { ViewProfileDialog } from './view-profile-dialog';
 
 interface User {
@@ -37,6 +38,7 @@ interface User {
   last_name: string;
   created_at: string;
   email?: string;
+  is_active?: boolean;
 }
 
 export interface UserHeader {
@@ -47,6 +49,7 @@ export interface UserHeader {
   LAST_NAME: string;
   EMAIL?: string;
   ROLE: string;
+  STATUS: string;
   DATE_ADDED: string;
 }
 
@@ -72,6 +75,8 @@ const UserManagementPageContainer = () => {
   const [exportLoading, setExportLoading] = useState<boolean>(false);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isDeactivateOpen, setIsDeactivateOpen] = useState(false);
+  const [isReactivateOpen, setIsReactivateOpen] = useState(false);
 
   const usersHeaders: {
     header: string;
@@ -83,6 +88,7 @@ const UserManagementPageContainer = () => {
     { header: 'First Name', accessor: 'FIRST_NAME' },
     { header: 'Last Name', accessor: 'LAST_NAME' },
     { header: 'Role', accessor: 'ROLE' },
+    { header: 'Status', accessor: 'STATUS' },
     { header: 'Date Added', accessor: 'DATE_ADDED' },
   ];
 
@@ -92,6 +98,7 @@ const UserManagementPageContainer = () => {
     FIRST_NAME: row.first_name ? row.first_name : 'N/A',
     LAST_NAME: row.last_name ? row.last_name : 'N/A',
     ROLE: row.userType ? row.userType : 'N/A',
+    STATUS: row.is_active !== undefined ? (row.is_active ? 'Active' : 'Inactive') : 'N/A',
     DATE_ADDED: row.created_at ? row.created_at : 'N/A',
     EMAIL: row.email ? row.email : 'N/A',
   }));
@@ -128,6 +135,80 @@ const UserManagementPageContainer = () => {
     setSelectedUser(user);
     setIsEditDetailsOpen(true);
   };
+
+  const handleDeactivate = async (user: UserHeader) => {
+    try {
+      const userData = Cookies.get('user');
+      const token = userData ? JSON.parse(userData).token : null;
+
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/users/bulk-deactivate`,
+        { userIds: [user.EMPLOYEE_ID],
+          userType: user.ROLE,
+         },
+        {
+          headers: {
+            Authorization: `${token}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      if (res.data) {
+        toast({
+          title: 'Success',
+          description: 'User has been deactivated successfully',
+          duration: 3000,
+        });
+        refetchUserList();
+      }
+    } catch (error) {
+      console.error('Error deactivating user:', error);
+      toast({
+        title: 'Error',
+        description: 'User could not be deactivated',
+        variant: 'destructive',
+        duration: 3000,
+      });
+    }
+  };
+
+  const handleReactivate = async (user: UserHeader) => {
+    try {
+      const userData = Cookies.get('user');
+      const token = userData ? JSON.parse(userData).token : null;
+
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/users/bulk-reactivate`,
+        { userIds: [user.EMPLOYEE_ID],
+          userType: user.ROLE,
+         },
+        {
+          headers: {
+            Authorization: `${token}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      if (res.data) {
+        toast({
+          title: 'Success',
+          description: 'User has been reactivated successfully',
+          duration: 3000,
+        });
+        refetchUserList();
+      }
+    } catch (error) {
+      console.error('Error reactivating user:', error);
+      toast({
+        title: 'Error',
+        description: 'User could not be reactivated',
+        variant: 'destructive',
+        duration: 3000,
+      });
+    }
+  }
 
   const fetchUserList = async (
     searchTerm: string,
@@ -389,6 +470,14 @@ const UserManagementPageContainer = () => {
         data={data}
         onView={(user) => handleView(user)}
         onEdit={(user) => handleEdit(user)}
+        onDeactivate={(user) => {
+          setIsDeactivateOpen(true)
+          setSelectedUser(user)
+        }}
+        onActivate={(user) => {
+          setIsReactivateOpen(true)
+          setSelectedUser(user)
+        }}
         onPageChange={handlePageChange}
         onLimitChange={handleLimitChange}
         currentPage={page}
@@ -410,6 +499,60 @@ const UserManagementPageContainer = () => {
         user={selectedUser}
         refetchUserList={refetchUserList}
       />
+
+      <Dialog open={isDeactivateOpen} onOpenChange={setIsDeactivateOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Deactivate User</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to deactivate this user?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className='mt-2'>
+            <Button
+              variant="outline"
+              onClick={() => setIsDeactivateOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                handleDeactivate(selectedUser as UserHeader);
+                setIsDeactivateOpen(false);
+              }}
+            >
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isReactivateOpen} onOpenChange={setIsReactivateOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Activate User</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to activate this user?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className='mt-2'>
+            <Button
+              variant="outline"
+              onClick={() => setIsReactivateOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                handleReactivate(selectedUser as UserHeader);
+                setIsReactivateOpen(false);
+              }}
+            >
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent className="sm:max-w-[500px]">

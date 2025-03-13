@@ -13,6 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import {
   ChevronLeft,
   ChevronRight,
+  CircleCheckBig,
+  CircleX,
   PenSquare,
   // Trash2,
   User,
@@ -26,6 +28,7 @@ import {
   TableRow,
 } from "../ui/table";
 import { CustomDropdown } from "./CustomDropdown";
+import Cookies from "js-cookie";
 
 interface PaginatedTableProps<T> {
   data: T[];
@@ -37,7 +40,8 @@ interface PaginatedTableProps<T> {
   initialItemsPerPage?: number;
   onView?: (user: T) => void;
   onEdit?: (user: T) => void;
-  onDelete?: (user: T) => void;
+  onDeactivate?: (user: T) => void;
+  onActivate?: (user: T) => void;
   currentPage: number;
   onPageChange: (page: number) => void;
   onLimitChange: (limit: number) => void;
@@ -52,6 +56,8 @@ function CustomTable<T extends Record<string, unknown>>({
   onView,
   onEdit,
   // onDelete,
+  onDeactivate,
+  onActivate,
   currentPage,
   onPageChange,
   onLimitChange,
@@ -62,6 +68,8 @@ function CustomTable<T extends Record<string, unknown>>({
   const totalPages = Math.max(1, Math.ceil(total / limit));
   const startIndex = (currentPage - 1) * limit;
   const endIndex = Math.min(startIndex + data.length, total);
+
+  const userInfo = JSON.parse(Cookies.get("user") as string);
 
   const roleColors: Record<string, string> = {
     admin: "bg-green-100 text-green-600",
@@ -170,19 +178,54 @@ function CustomTable<T extends Record<string, unknown>>({
                           disabled: false,
                         },
                         // {
-                        //   icon: <Trash2 className="h-4 w-4 text-gray-500" />,
-                        //   label: "Delete User",
-                        //   onClick: () => onDelete && onDelete(row),
-                        //   disabled: userInfo && (
-                        //     // Don't allow deletion if it's the current user and not a super-admin
-                        //     (row as any).EMPLOYEE_ID === (
-                        //       userInfo.role === 'super-admin'
-                        //         ? userInfo.user.super_admin_id
-                        //         : userInfo.user.admin_id
-                        //     ) ||
-                        //     (row as any).ROLE === 'super-admin'
-                        //   )
+                        //   icon: <CirclePower className="h-4 w-4 text-gray-500" />,
+                        //   label: "Deactivate User",
+                        //   onClick: () => onDeactivate && onDeactivate(row),
+                        //   disabled: (
+                        //     // Condition 1: Is this the current user trying to delete themselves?
+                        //     ((row as any).EMPLOYEE_ID === (
+                        //       userInfo.user.role === 'super-admin'
+                        //         && userInfo.user.super_admin_id
+                        //     )) 
+                        //     ||
+                        //     // Condition 2: Is the current user NOT a super-admin?
+                        //     (userInfo.user.role !== 'super-admin')
+                        //   ),
                         // },
+                        ...(((row as any).STATUS === true || (row as any).STATUS === "Active") ? [
+                          {
+                            icon: <CircleX className="h-4 w-4 text-gray-500" />,
+                            label: "Deactivate User",
+                            onClick: () => onDeactivate && onDeactivate(row),
+                            disabled: (
+                              // Condition 1: Is this the current user trying to delete themselves?
+                              ((row as any).EMPLOYEE_ID === (
+                                userInfo.user.role === 'super-admin'
+                                  && userInfo.user.super_admin_id
+                              )) 
+                              ||
+                              // Condition 2: Is the current user NOT a super-admin?
+                              (userInfo.user.role !== 'super-admin')
+                            ),
+                          }
+                        ] : [
+                          // Show activate option instead when STATUS is inactive (false or "Inactive")
+                          {
+                            icon: <CircleCheckBig className="h-4 w-4" />,
+                            label: "Activate User",
+                            onClick: () => onActivate && onActivate(row),
+                            disabled: (
+                              // Condition 1: Is this the current user trying to delete themselves?
+                              ((row as any).EMPLOYEE_ID === (
+                                userInfo.user.role === 'super-admin'
+                                  && userInfo.user.super_admin_id
+                              )) 
+                              ||
+                              // Condition 2: Is the current user NOT a super-admin?
+                              (userInfo.user.role !== 'super-admin')
+                            ),
+                          }
+                        ]),
                       ]}
                     />
                   </TableCell>

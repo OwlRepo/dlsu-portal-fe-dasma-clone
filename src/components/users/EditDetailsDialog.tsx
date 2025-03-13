@@ -203,8 +203,6 @@ const EditDetailsDialog: React.FC<EditDetailsDialogProps> = ({
     }
   }, [sessionId]);
 
-  console.log("selectedDevices", selectedDevices);
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[450px]">
