@@ -56,7 +56,7 @@ const LoginForm = ({ role }: LoginProps) => {
   };
 
   useEffect(() => {
-    setUserType(pathname === "/login" ? "admin" : "employee");
+    setUserType(pathname === "/login" ? "admin" : "operator");
   }, [pathname]);
 
   const isButtonDisabled = !username || !password || !role;
@@ -121,7 +121,7 @@ const LoginForm = ({ role }: LoginProps) => {
             <div className="flex justify-center">
               <Link href={pathname === "/login" ? "/login/employee" : "/login"}>
                 <p className="text-[#00bc65] text-sm">
-                  Login as {pathname === "/login" ? "employee" : "admin"}?
+                  Login as {pathname === "/login" ? "operator" : "admin"}?
                 </p>
               </Link>
             </div>

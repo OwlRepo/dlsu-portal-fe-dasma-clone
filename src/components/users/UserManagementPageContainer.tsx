@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import React, { useEffect, useMemo, useState } from 'react';
 // import { Download } from "lucide-react";
 // import axios from 'axios';
@@ -56,7 +56,7 @@ export interface UserHeader {
 const roleOptions = [
   { id: 'super-admin', label: 'Super Admin' },
   { id: 'admin', label: 'Admin' },
-  { id: 'employee', label: 'Employee' },
+  { id: 'employee', label: 'Operator' },
 ];
 
 const UserManagementPageContainer = () => {
@@ -138,8 +138,17 @@ const UserManagementPageContainer = () => {
 
   const handleDeactivate = async (user: UserHeader) => {
     try {
-      const userData = Cookies.get('user');
-      const token = userData ? JSON.parse(userData).token : null;
+      let token = null;
+      if (typeof window !== 'undefined') {
+        const user = Cookies.get('user');
+        if (user) {
+          try {
+            token = JSON.parse(user).token;
+          } catch (e) {
+            console.error('Error parsing user cookie:', e);
+          }
+        }
+      }
 
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/users/bulk-deactivate`,
@@ -175,8 +184,17 @@ const UserManagementPageContainer = () => {
 
   const handleReactivate = async (user: UserHeader) => {
     try {
-      const userData = Cookies.get('user');
-      const token = userData ? JSON.parse(userData).token : null;
+      let token = null;
+      if (typeof window !== 'undefined') {
+        const user = Cookies.get('user');
+        if (user) {
+          try {
+            token = JSON.parse(user).token;
+          } catch (e) {
+            console.error('Error parsing user cookie:', e);
+          }
+        }
+      }
 
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/users/bulk-reactivate`,
@@ -218,8 +236,17 @@ const UserManagementPageContainer = () => {
   ) => {
     try {
       setIsLoading(true);
-      const user = Cookies.get('user');
-      const token = user ? JSON.parse(user).token : null;
+      let token = null;
+      if (typeof window !== 'undefined') {
+        const user = Cookies.get('user');
+        if (user) {
+          try {
+            token = JSON.parse(user).token;
+          } catch (e) {
+            console.error('Error parsing user cookie:', e);
+          }
+        }
+      }
 
       // Use new values if provided, otherwise use state values
       const currentLimit = newLimit ?? limit;
@@ -286,8 +313,17 @@ const UserManagementPageContainer = () => {
   }) => {
     setExportLoading(true);
     try {
-      const user = Cookies.get('user');
-      const token = user ? JSON.parse(user).token : null;
+      let token = null;
+      if (typeof window !== 'undefined') {
+        const user = Cookies.get('user');
+        if (user) {
+          try {
+            token = JSON.parse(user).token;
+          } catch (e) {
+            console.error('Error parsing user cookie:', e);
+          }
+        }
+      }
 
       // Check if required fields are provided
       if (!settings.dateFrom || !settings.dateTo) {
@@ -430,8 +466,8 @@ const UserManagementPageContainer = () => {
   }, [debouncedSearch]);
 
   useEffect(() => {
-    fetchUserList(search);
-
+    // Only fetch data on the client side
+      fetchUserList(search);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -562,7 +598,7 @@ const UserManagementPageContainer = () => {
                 ? 'Create Super Admin'
                 : selectedRole === 'admin'
                 ? 'Create Admin'
-                : 'Create Employee'}
+                : 'Create Operator'}
             </DialogTitle>
             <DialogDescription>
               Fill in the details to create a new{' '}

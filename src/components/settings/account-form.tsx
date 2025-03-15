@@ -190,7 +190,7 @@ export function AccountForm() {
               disabled
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Employee ID</FormLabel>
+                  <FormLabel>User ID</FormLabel>
                   <FormControl>
                     <Input {...field} readOnly />
                   </FormControl>

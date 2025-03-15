@@ -138,15 +138,17 @@ function CustomTable<T extends Record<string, unknown>>({
                   {columns.map((column, colIndex) => (
                     <TableCell key={colIndex} className="p-3 text-[#0F416D]">
                       {column.accessor === "ROLE" ? (
-                        <Badge
-                          className={`${
-                            roleColors[row[column.accessor] as string]
-                          } rounded-lg font-normal hover:${
-                            roleColors[row[column.accessor] as string]
-                          }`}
-                        >
-                          {(row[column.accessor] as string).toUpperCase()}
-                        </Badge>
+                         <Badge
+                         className={`${
+                           roleColors[row[column.accessor] as string]
+                         } rounded-lg font-normal hover:${
+                           roleColors[row[column.accessor] as string]
+                         }`}
+                       >
+                         {row[column.accessor] === "employee" 
+                           ? "OPERATOR" 
+                           : (row[column.accessor] as string).toUpperCase()}
+                       </Badge>
                       ) : column.accessor === "DATE_ADDED" ? (
                         new Date(
                           row[column.accessor] as string
@@ -192,6 +194,8 @@ function CustomTable<T extends Record<string, unknown>>({
                         //     (userInfo.user.role !== 'super-admin')
                         //   ),
                         // },
+
+                        /* eslint-disable @typescript-eslint/no-explicit-any */
                         ...(((row as any).STATUS === true || (row as any).STATUS === "Active") ? [
                           {
                             icon: <CircleX className="h-4 w-4 text-gray-500" />,
@@ -199,6 +203,7 @@ function CustomTable<T extends Record<string, unknown>>({
                             onClick: () => onDeactivate && onDeactivate(row),
                             disabled: (
                               // Condition 1: Is this the current user trying to delete themselves?
+                              /* eslint-disable @typescript-eslint/no-explicit-any */
                               ((row as any).EMPLOYEE_ID === (
                                 userInfo.user.role === 'super-admin'
                                   && userInfo.user.super_admin_id
@@ -216,6 +221,7 @@ function CustomTable<T extends Record<string, unknown>>({
                             onClick: () => onActivate && onActivate(row),
                             disabled: (
                               // Condition 1: Is this the current user trying to delete themselves?
+                              /* eslint-disable @typescript-eslint/no-explicit-any */
                               ((row as any).EMPLOYEE_ID === (
                                 userInfo.user.role === 'super-admin'
                                   && userInfo.user.super_admin_id
