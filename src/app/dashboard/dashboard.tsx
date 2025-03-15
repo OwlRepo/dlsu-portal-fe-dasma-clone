@@ -158,6 +158,10 @@ export function Dashboard() {
     tna_key: string,
     datetime: string
   ) => {
+    if (!tna_key) {
+      return;
+    }
+    
     try {
       const response = await axios.get("api/users", {
         headers: {

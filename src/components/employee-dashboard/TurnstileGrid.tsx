@@ -2,10 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 // import { getStudentEntries, type StudentEntry } from "../../lib/dummyData";
 import Image from "next/image";
 import { Label } from "../ui/label";
-import {
-  ScanDetailStatus,
-  TurnstileGridProps,
-} from "@/lib/types";
+import { ScanDetailStatus, TurnstileGridProps } from "@/lib/types";
 import { useGetEmployeeDetails } from "@/hooks/useGetEmployeeDetails";
 import useUserToken from "@/hooks/useUserToken";
 
@@ -18,7 +15,32 @@ export default function TurnstileGrid({
     username: username || "",
     token: token || "",
   });
-  const actualTurnstileCount = turnstileCount || 4;
+
+  // Calculate optimal max-width based on number of cards
+  const getOptimalWidth = (count: number): string => {
+    switch (count) {
+      case 1:
+        return "900px"; // Single card can be wider
+      case 2:
+        return "650px"; // Two cards side by side
+      default:
+        return "650px"; // For more than 4, make them smaller
+    }
+  };
+
+  // Adjust grid columns based on device count
+  const getGridClass = (count: number): string => {
+    switch (count) {
+      case 1:
+        return "grid-cols-1"; // Single column
+      case 2:
+        return "grid-cols-1 md:grid-cols-2"; // One column on mobile, two on larger screens
+
+      default:
+        return "grid-cols-1 md:grid-cols-2 lg:grid-cols-2"; // Three columns for many cards
+    }
+  };
+  // const actualTurnstileCount = turnstileCount || 4;
 
   // const fixedOrder = data?.device_id
   //   ? [...data.device_id]
@@ -27,23 +49,32 @@ export default function TurnstileGrid({
   //       (_, index) => `device_${index + 1}`
   //     );
 
-  const baseOrder = Array.from(
-    { length: actualTurnstileCount },
-    (_, index) => `device_${index + 1}`
-  );
-  
-  // If we have device_id data, merge it into the base array
-  const fixedOrder = data?.device_id
-    ? baseOrder.map((placeholder, index) => 
-        // Use real device ID if available, otherwise keep placeholder
-        data.device_id[index] || placeholder
-      )
-    : baseOrder;
+  // const baseOrder = Array.from(
+  //   { length: actualTurnstileCount },
+  //   (_, index) => `device_${index + 1}`
+  // );
+
+  // // If we have device_id data, merge it into the base array
+  // const fixedOrder = data?.device_id
+  //   ? baseOrder.map((placeholder, index) =>
+  //       // Use real device ID if available, otherwise keep placeholder
+  //       data.device_id[index] || placeholder
+  //     )
+  //   : baseOrder;
+
+  // Get actual devices to display
+  const deviceIds =
+    data?.device_id && data.device_id.length > 0
+      ? data.device_id.filter((id) => id) // Filter out any null/undefined values
+      : Array.from(
+          { length: turnstileCount || 4 },
+          (_, index) => `device_${index + 1}`
+        );
 
   // Sort the scanDetails array based on the fixed order
   const sortedScanDetails = scanDetails.sort((a, b) => {
-    const indexA = fixedOrder.indexOf(a.device.id);
-    const indexB = fixedOrder.indexOf(b.device.id);
+    const indexA = deviceIds.indexOf(a.device.id);
+    const indexB = deviceIds.indexOf(b.device.id);
     return indexA - indexB;
   });
 
@@ -81,24 +112,31 @@ export default function TurnstileGrid({
     return false;
   };
 
-const getBorderColorClass = (scanDetail?: ScanDetailStatus): string => {
-    if (!scanDetail) return 'border-2';
-    
+  const getBorderColorClass = (scanDetail?: ScanDetailStatus): string => {
+    if (!scanDetail) return "border-2";
+
     const isExpired = checkExpiry(scanDetail.expiryDate);
     const isDisabled = scanDetail.disabled === "true";
-    const hasRemarks = scanDetail.remarks !== "No remarks" && scanDetail.remarks !== null;
-    
+    const hasRemarks =
+      scanDetail.remarks !== "No remarks" && scanDetail.remarks !== null;
+
     // Hardcoded border classes
-    if (isExpired || isDisabled) return 'border-4 border-red-500';
-    if (!isExpired && scanDetail.disabled === "false" && hasRemarks) return 'border-4 border-yellow-500';
-    if (scanDetail.remarks === "No remarks" || scanDetail.remarks === null) return 'border-4 border-green-500';
-    
-    return 'border-2';
-};
+    if (isExpired || isDisabled) return "border-4 border-red-500";
+    if (!isExpired && scanDetail.disabled === "false" && hasRemarks)
+      return "border-4 border-yellow-500";
+    if (scanDetail.remarks === "No remarks" || scanDetail.remarks === null)
+      return "border-4 border-green-500";
+
+    return "border-2";
+  };
+
+  // Get the optimal width for the current number of devices
+  const optimalWidth = getOptimalWidth(deviceIds.length);
+  const gridClass = getGridClass(deviceIds.length);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
-      {fixedOrder.map((deviceId, index) => {
+    <div className={`grid ${gridClass} gap-8 w-full h-full`}>
+      {deviceIds.map((deviceId, index) => {
         const scanDetail = scanDetailsMap.get(deviceId);
         const borderClass = getBorderColorClass(scanDetail);
 
@@ -107,10 +145,13 @@ const getBorderColorClass = (scanDetail?: ScanDetailStatus): string => {
             key={deviceId}
             className={`bg-white rounded-lg ${borderClass}`}
             style={{
-              minWidth: "500px",
-              maxWidth: "650px",
+              minWidth: deviceIds.length === 1 ? "100%" : "500px",
+              maxWidth: optimalWidth,
               width: "100%",
-              minHeight: "320px",
+              minHeight:
+                deviceIds.length === 1 || deviceIds.length === 2
+                  ? "400px"
+                  : "320px",
             }}
           >
             <CardHeader>
@@ -159,7 +200,13 @@ const getBorderColorClass = (scanDetail?: ScanDetailStatus): string => {
                 <div
                   id={`remarks-${deviceId}`}
                   className="p-2 rounded-md shadow-sm text-muted-foreground bg-gray-100"
-                  style={{ minHeight: "4rem", whiteSpace: "pre-wrap" }}
+                  style={{
+                    minHeight:
+                      deviceIds.length === 1 || deviceIds.length === 2
+                        ? "8rem"
+                        : "4rem",
+                    whiteSpace: "pre-wrap",
+                  }}
                 >
                   {scanDetail?.remarks || undefined}
                 </div>

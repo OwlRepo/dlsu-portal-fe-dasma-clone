@@ -85,7 +85,7 @@ export default function TurnstileDashboard() {
             const eventData = JSON.parse(event.data);
             if (eventData.Event) {
               const { user_id, device_id, datetime, tna_key } = eventData.Event;
-              if (user_id && device_id && datetime) {
+              if (user_id && device_id && datetime && tna_key) {
                 fetchUserData(
                   response.data.bsSessionId,
                   user_id,
@@ -132,9 +132,16 @@ export default function TurnstileDashboard() {
     bsSessionId: string,
     user: UserProps,
     device: DeviceProps,
+    datetime: string,
     tna_key: string,
-    datetime: string
   ) => {
+
+    console.log(datetime);
+
+    if (!tna_key) {
+      return;
+    }
+
     try {
       const response = await axios.get("api/users", {
         headers: {
@@ -168,7 +175,7 @@ export default function TurnstileDashboard() {
 
       const deviceData: DeviceProps = {
         id: device.id,
-        name: `Device ${device.id}`,
+        name: `${device.name} - ${device.id}`,
       };
 
       const remarks = remarksField ? (remarksField.item as string) : undefined;
@@ -184,7 +191,7 @@ export default function TurnstileDashboard() {
         [device.id]: {
           user: userData,
           device: deviceData,
-          datetime,
+          datetime: datetime,
           remarks: remarks ?? "No remarks",
           livedName,
           userImage,
@@ -198,7 +205,7 @@ export default function TurnstileDashboard() {
         const newDeviceData = {
           user: userData,
           device: deviceData,
-          datetime,
+          datetime:datetime,
           remarks: remarks ?? "No remarks",
           livedName,
           userImage,
@@ -298,6 +305,8 @@ export default function TurnstileDashboard() {
     // Get the latest scan from devicesData
     const latestScan = Object.values(devicesData)[0];
 
+    console.log("Latest scan:", latestScan);  
+
     if (latestScan) {
       const reportData: ReportData = {
         datetime: latestScan.datetime,
@@ -322,7 +331,7 @@ export default function TurnstileDashboard() {
             <CardTitle>Access Overview</CardTitle>
             <CardDescription>Real-Time Entry</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-row justify-center flex-wrap gap-4">
+          <CardContent className="flex flex-row flex-wrap gap-4">
             <TurnstileGrid
               scanDetails={Object.values(devicesData)}
               setScanDetail={(newScanDetail) => {
