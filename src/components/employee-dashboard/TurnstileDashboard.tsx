@@ -324,7 +324,11 @@ export default function TurnstileDashboard() {
             },
           }
         );
-        // console.log("Report sent successfully:", response.data);
+       
+        if (response.data) {
+          console.log("Report sent successfully:", response.data);
+        }
+        
       } catch (error) {
         console.error("Error sending report:", error);
       }
