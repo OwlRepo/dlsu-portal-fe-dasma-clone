@@ -33,21 +33,44 @@ export default function TurnstileDashboard() {
   // const BIOSTAR2_WS_URI = `${WS_HOST}/wsapi`;
   const BIOSTAR2_WS_URI = `${process.env.NEXT_PUBLIC_WS_HOST}/wsapi`;
 
-  // const getEntryStatus = (scan: ScanProps): string => {
-  //   const isDisabled = scan.disabled === "true";
-  //   const isExpired = checkExpiry(scan.expiryDate);
-  //   const hasRemarks = scan.remarks !== "No remarks";
+// this is for simulating scan
+// const scanSimulation = () => {
 
-  //   if (isDisabled || isExpired) {
-  //     return "RED;cannot enter with or without remarks";
-  //   }
+//   const futureDate = new Date();
+//   futureDate.setHours(futureDate.getHours() + 1);
 
-  //   if (hasRemarks) {
-  //     return "YELLOW;can enter with remarks";
-  //   }
+//   const scanDetail: ScanProps = {  // Add explicit type here
+//     user: {
+//       user_id: "1",
+//       name: "John Doe",
+//       photo_exist: false,
+//     },
+//     device: {
+//       // id: "538204298",
+//       // id: '538203430',
+//       id: "546164222",
+//       name: "Turnstile 1",
+//     },
+//     datetime: new Date().toISOString(),
+//     remarks: "No remarks",
+//     livedName: "John",
+//     userImage: "/default-user-icon.png",
+//     disabled: "false",  // Change to string type "false" instead of boolean false
+//     expiryDate: futureDate.toISOString(),
+//     tnaKey: "1",
+//   };
 
-  //   return "GREEN;can enter without remarks";
-  // };
+//   setDevicesData((prevData) => ({
+//     ...prevData,
+//     [scanDetail.device.id]: scanDetail,
+//   }));
+
+//   setDeviceQueue((prevQueue) => {
+//     const newQueue = [...prevQueue, scanDetail];
+//     // Remove first item if queue length exceeds 25
+//     return newQueue.length > 25 ? newQueue.slice(1) : newQueue;
+//   });
+// };
 
   useEffect(() => {
     const fetchSessionId = async () => {
@@ -325,6 +348,7 @@ export default function TurnstileDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* <button onClick={scanSimulation} className="btn btn-primary">Simulate Scan</button> */}
       <div className="flex flex-col lg:flex-row gap-6">
         <Card className="min-w-[75%] max-w-[75%]">
           <CardHeader>

@@ -2,12 +2,35 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
 import { ScanDetailStatus, ScanProps } from "@/lib/types";
+import { useGetEmployeeDetails } from "@/hooks/useGetEmployeeDetails";
+import useUserToken from "@/hooks/useUserToken";
 
 interface LogEntry {
   queue: ScanProps[];
 }
 
 export default function EntriesLog({ queue }: LogEntry) {
+    const { username, token } = useUserToken();
+    const { data } = useGetEmployeeDetails({
+      username: username || "",
+      token: token || "",
+    });
+
+
+  //// Extract unique device IDs directly from the queue
+  // const uniqueDeviceIds = Array.from(
+  //   new Set(queue.map(entry => entry.device.id))
+  // );
+  
+  // Filter by assigned devices if needed
+  const assignedDeviceIds = data?.device_id?.filter(id => id) || [];
+  
+  // Only show entries for assigned devices if there are any assigned
+  const filteredQueue = assignedDeviceIds.length > 0
+    ? queue.filter(entry => assignedDeviceIds.includes(entry.device.id))
+    : queue;
+
+
   const getImageType = (base64: string) => {
     if (base64.startsWith("iVBORw0KGgo")) {
       return "image/png";
@@ -19,15 +42,21 @@ export default function EntriesLog({ queue }: LogEntry) {
     return "image/png"; // Default to PNG if undetectable
   };
 
-  const updatedScanQueue = queue.map((queue) => {
-    if (queue.userImage) {
-      const imageType = getImageType(queue.userImage);
-      const base64Data = `data:${imageType};base64,${queue.userImage}`;
-      return { ...queue, userImage: base64Data };
-    }
-    return queue;
-  });
+  // const updatedScanQueue = queue.map((queue) => {
+  //   if (queue.userImage) {
+  //     const imageType = getImageType(queue.userImage);
+  //     const base64Data = `data:${imageType};base64,${queue.userImage}`;
+  //     return { ...queue, userImage: base64Data };
+  //   }
 
+  const updatedScanQueue = filteredQueue.map((entry) => {
+    if (entry.userImage) {
+      const imageType = getImageType(entry.userImage);
+      const base64Data = `data:${imageType};base64,${entry.userImage}`;
+      return { ...entry, userImage: base64Data };
+    }
+    return entry;
+  });
 
   const checkExpiry = (expiryDate: string | undefined) => {
     if (expiryDate) {
