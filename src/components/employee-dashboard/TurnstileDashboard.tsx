@@ -14,6 +14,7 @@ import axios from "axios";
 import {
   CustomField,
   DeviceProps,
+  EventProps,
   ReportData,
   // ReportData,
   ScanProps,
@@ -47,8 +48,8 @@ export default function TurnstileDashboard() {
 //     },
 //     device: {
 //       // id: "538204298",
-//       // id: '538203430',
-//       id: "546164222",
+//       id: '538203430',
+//       // id: "546164222",
 //       name: "Turnstile 1",
 //     },
 //     datetime: new Date().toISOString(),
@@ -57,7 +58,7 @@ export default function TurnstileDashboard() {
 //     userImage: "/default-user-icon.png",
 //     disabled: "false",  // Change to string type "false" instead of boolean false
 //     expiryDate: futureDate.toISOString(),
-//     tnaKey: "1",
+//     // tnaKey: "1",
 //   };
 
 //   setDevicesData((prevData) => ({
@@ -107,14 +108,15 @@ export default function TurnstileDashboard() {
           ws.onmessage = (event) => {
             const eventData = JSON.parse(event.data);
             if (eventData.Event) {
-              const { user_id, device_id, datetime, tna_key } = eventData.Event;
+              const { user_id, device_id, datetime, tna_key, event_type_id } = eventData.Event;
               if (user_id && device_id && datetime && tna_key) {
                 fetchUserData(
                   response.data.bsSessionId,
                   user_id,
                   device_id,
                   datetime,
-                  tna_key
+                  tna_key,
+                  event_type_id
                 );
               }
             }
@@ -157,13 +159,16 @@ export default function TurnstileDashboard() {
     device: DeviceProps,
     datetime: string,
     tna_key: string,
+    event_type_id: EventProps
   ) => {
 
-    console.log(datetime);
-
-    if (!tna_key) {
+    if (event_type_id.name.includes("UPDATE")) {
       return;
     }
+
+    // if (!tna_key) {
+    //   return;
+    // }
 
     try {
       const response = await axios.get("api/users", {
@@ -319,7 +324,7 @@ export default function TurnstileDashboard() {
             },
           }
         );
-        console.log("Report sent successfully:", response.data);
+        // console.log("Report sent successfully:", response.data);
       } catch (error) {
         console.error("Error sending report:", error);
       }
@@ -328,12 +333,12 @@ export default function TurnstileDashboard() {
     // Get the latest scan from devicesData
     const latestScan = Object.values(devicesData)[0];
 
-    console.log("Latest scan:", latestScan);  
+    // console.log("Latest scan:", latestScan);  
 
     if (latestScan) {
       const reportData: ReportData = {
         datetime: latestScan.datetime,
-        type: latestScan.tnaKey!,
+        type: latestScan.tnaKey || "",
         user_id: latestScan.user.user_id,
         name: latestScan.user.name,
         remarks: latestScan.remarks || "No remarks",

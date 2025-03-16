@@ -9,6 +9,12 @@ export interface DeviceProps {
   name: string;
 }
 
+export interface EventProps {
+  name: string;
+  code: string;
+  description: string;
+}
+
 export interface ScanProps {
   user: UserProps;
   device: DeviceProps;
