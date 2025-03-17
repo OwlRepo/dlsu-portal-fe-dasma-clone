@@ -146,7 +146,7 @@ const ReportsPageContainer = () => {
   };
 
   const handleExport = async (settings: {
-    includePhoto: boolean;
+    includePhoto?: boolean;
     dateFrom: string;
     dateTo: string;
   }) => {
@@ -157,7 +157,7 @@ const ReportsPageContainer = () => {
 
       // Build URL with query parameters
       const params = new URLSearchParams();
-      params.append("includePhoto", settings.includePhoto.toString());
+      {settings.includePhoto && params.append("includePhoto", settings.includePhoto.toString());}
       params.append("startDate", settings.dateFrom);
       params.append("endDate", settings.dateTo);
 

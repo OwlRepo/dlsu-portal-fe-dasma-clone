@@ -17,7 +17,7 @@ import {
 } from "../ui/select";
 
 interface ExportSettings {
-  includePhoto: boolean;
+  includePhoto?: boolean;
   dateFrom: string;
   dateTo: string;
   types?: string[] | null;
@@ -33,15 +33,22 @@ interface CustomExportProps {
 export default function CustomExport({
   onExport,
   loading,
-  typeOptions = ["admin", "super-admin", "employee"],
+  typeOptions = [],
   showIncludePhoto = false,
 }: CustomExportProps) {
   const [isExportOpen, setIsExportOpen] = useState(false);
-  const [exportSettings, setExportSettings] = useState<ExportSettings>({
-    includePhoto: false,
-    dateFrom: "",
-    dateTo: "",
-    types: [],
+  const [exportSettings, setExportSettings] = useState<ExportSettings>(() => {
+    // Initialize export settings based on showIncludePhoto prop
+    const baseSettings = {
+      dateFrom: "",
+      dateTo: "",
+      types: null,
+    };
+    
+    // Only include includePhoto if showIncludePhoto is true
+    return showIncludePhoto 
+      ? { ...baseSettings, includePhoto: false } 
+      : baseSettings as ExportSettings;
   });
 
     // Create a single ref for the entire export component
@@ -65,32 +72,41 @@ export default function CustomExport({
 
   // Clear all export settings
   const clearExportSettings = () => {
-    setExportSettings({
-      includePhoto: false,
+    const baseSettings = {
       dateFrom: "",
       dateTo: "",
       types: null,
-    });
+    };
+    
+    // Only include includePhoto if showIncludePhoto is true
+    setExportSettings(showIncludePhoto 
+      ? { ...baseSettings, includePhoto: false } 
+      : baseSettings as ExportSettings);
   };
 
   // Initiate export
   const initiateExport = () => {
     onExport(exportSettings);
     setIsExportOpen(false); // Close the export settings after initiating export
-    setExportSettings({
-      includePhoto: false,
+    
+    const baseSettings = {
       dateFrom: "",
       dateTo: "",
       types: null,
-    });
+    };
+    
+    // Only include includePhoto if showIncludePhoto is true
+    setExportSettings(showIncludePhoto 
+      ? { ...baseSettings, includePhoto: false } 
+      : baseSettings as ExportSettings);
   };
 
   // Check if any export setting is applied
-  const isSettingApplied =
-    exportSettings.includePhoto ||
-    exportSettings.dateFrom ||
-    exportSettings.dateTo ||
-    (exportSettings.types && exportSettings.types.length > 0);
+  const isSettingApplied = 
+  (showIncludePhoto && exportSettings.includePhoto) ||
+  exportSettings.dateFrom ||
+  exportSettings.dateTo ||
+  (exportSettings.types && exportSettings.types.length > 0);
 
   // Handle clicks outside
   useEffect(() => {
@@ -178,7 +194,7 @@ export default function CustomExport({
             )}
 
             {/* Type Selection */}
-            {typeOptions && (
+            {typeOptions.length !== 0 && (
               <div className="space-y-2">
                 <Label htmlFor="type-select">Type</Label>
                 <Select
