@@ -40,6 +40,8 @@ export default function TurnstileDashboard() {
 //   const futureDate = new Date();
 //   futureDate.setHours(futureDate.getHours() + 1);
 
+//   const expiredDate = new Date(2010, 11, 31);
+
 //   const scanDetail: ScanProps = {  // Add explicit type here
 //     user: {
 //       user_id: "1",
@@ -57,8 +59,9 @@ export default function TurnstileDashboard() {
 //     livedName: "John",
 //     userImage: "/default-user-icon.png",
 //     disabled: "false",  // Change to string type "false" instead of boolean false
-//     expiryDate: futureDate.toISOString(),
-//     // tnaKey: "1",
+//     // expiryDate: futureDate.toISOString(),
+//     expiryDate: expiredDate.toISOString(), 
+//     tnaKey: "2",
 //   };
 
 //   setDevicesData((prevData) => ({
@@ -71,6 +74,71 @@ export default function TurnstileDashboard() {
 //     // Remove first item if queue length exceeds 25
 //     return newQueue.length > 25 ? newQueue.slice(1) : newQueue;
 //   });
+// };
+
+// const scanSimulation = async () => {
+//   try {
+//     // First, get a session ID by logging in
+//     const loginResponse = await axios.post(
+//       "/api/login",
+//       {
+//         User: {
+//           login_id: "admin",
+//           password: "ELIDtech1234",
+//         },
+//       },
+//       {
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//       }
+//     );
+
+//     const bsSessionId = loginResponse.data.bsSessionId;
+    
+//     if (!bsSessionId) {
+//       console.error("Could not get session ID for simulation");
+//       return;
+//     }
+    
+//     // Create fake user and device data
+//     const user = {
+//       user_id: "10008", // This should match a real user ID in your system for testing
+//       name: "",
+//       photo_exist: false
+//     };
+    
+//     const device = {
+//       id: "538203430", // Choose one of your actual device IDs
+//       name: "Turnstile 1"
+//     };
+    
+//     // Current time
+//     const datetime = new Date().toISOString();
+    
+//     // tna_key of 1 for entry (IN)
+//     const tna_key = undefined;
+    
+//     // Event type
+//     const event_type_id = {
+//       code: "102",
+//       name: "IDENTIFY_SUCCESS"
+//     };
+    
+//     // Call the same function that processes real scans
+//     await fetchUserData(
+//       bsSessionId,
+//       user,
+//       device,
+//       datetime,
+//       tna_key,
+//       event_type_id
+//     );
+    
+//     console.log("Scan simulation completed using fetchUserData");
+//   } catch (error) {
+//     console.error("Error in scan simulation:", error);
+//   }
 // };
 
   useEffect(() => {
@@ -162,13 +230,17 @@ export default function TurnstileDashboard() {
     event_type_id: EventProps
   ) => {
 
+    console.log(tna_key);
+
+    // Skip UPDATE events
     if (event_type_id.name.includes("UPDATE")) {
       return;
     }
 
-    // if (!tna_key) {
-    //   return;
-    // }
+    // Skip tna_key of 2 (OUT events)
+    if (tna_key === "2") {
+      return;
+    }
 
     try {
       const response = await axios.get("api/users", {
@@ -354,6 +426,8 @@ export default function TurnstileDashboard() {
     }
     // include getEntryStatus if failing
   }, [devicesData, token]);
+
+  console.log(devicesData)
 
   return (
     <div className="space-y-6">

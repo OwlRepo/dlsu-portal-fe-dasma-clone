@@ -307,7 +307,7 @@ const UserManagementPageContainer = () => {
   };
 
   const handleExport = async (settings: {
-    types?: string[];
+    types?: string[] | null;
     dateFrom: string;
     dateTo: string;
   }) => {

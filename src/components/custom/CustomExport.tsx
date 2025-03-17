@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -8,13 +8,19 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Download, LoaderCircle } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 interface ExportSettings {
   includePhoto: boolean;
   dateFrom: string;
   dateTo: string;
-  types?: string[];
+  types?: string[] | null;
 }
 
 interface CustomExportProps {
@@ -38,6 +44,9 @@ export default function CustomExport({
     types: [],
   });
 
+    // Create a single ref for the entire export component
+    const exportComponentRef = useRef<HTMLDivElement>(null);
+
   // Toggle export container
   const toggleExportContainer = () => {
     setIsExportOpen(!isExportOpen);
@@ -60,7 +69,7 @@ export default function CustomExport({
       includePhoto: false,
       dateFrom: "",
       dateTo: "",
-      types: [],
+      types: null,
     });
   };
 
@@ -72,7 +81,7 @@ export default function CustomExport({
       includePhoto: false,
       dateFrom: "",
       dateTo: "",
-      types: [],
+      types: null,
     });
   };
 
@@ -83,8 +92,37 @@ export default function CustomExport({
     exportSettings.dateTo ||
     (exportSettings.types && exportSettings.types.length > 0);
 
+  // Handle clicks outside
+  useEffect(() => {
+    // Only add the listener when the export container is open
+    if (!isExportOpen) return;
+
+    function handleClick(event: MouseEvent) {
+      // Check if click is outside our component
+      if (
+        exportComponentRef.current &&
+        !exportComponentRef.current.contains(event.target as Node) &&
+        // Special handling for Radix UI dropdowns
+        !(event.target as Element).closest(
+          "[data-radix-popper-content-wrapper]"
+        )
+      ) {
+        setIsExportOpen(false);
+      }
+    }
+
+    // Use mousedown to capture the event before other handlers
+    document.addEventListener("mousedown", handleClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+    };
+  }, [isExportOpen]);
+
+  console.log("Export Settings", exportSettings);
+
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="w-full max-w-4xl mx-auto" ref={exportComponentRef}>
       <Button
         onClick={toggleExportContainer}
         className="flex items-center gap-2"
@@ -107,7 +145,9 @@ export default function CustomExport({
       </Button>
 
       {isExportOpen && (
-        <Card className="absolute right-12 mt-2 p-4 max-h-[80vh] overflow-y-auto z-50 shadow-lg w-[300px]">
+        <Card
+          className="absolute right-12 mt-2 p-4 max-h-[80vh] overflow-y-auto z-50 shadow-lg w-[300px]"
+        >
           <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-medium">Export Settings</h3>
@@ -138,30 +178,30 @@ export default function CustomExport({
             )}
 
             {/* Type Selection */}
-{typeOptions && (
-  <div className="space-y-2">
-    <Label htmlFor="type-select">Type</Label>
-    <Select
-      value={exportSettings.types?.[0] || ""}
-      onValueChange={(value) => {
-        updateExportSettings("types", [value]);
-      }}
-    >
-      <SelectTrigger id="type-select" className="w-full">
-        <SelectValue placeholder="Select user type" />
-      </SelectTrigger>
-      <SelectContent>
-        {typeOptions.map((type) => (
-          <SelectItem key={type} value={type}>
-            {type === "super-admin"
-              ? "Super Admin"
-              : type.charAt(0).toUpperCase() + type.slice(1)}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  </div>
-)}
+            {typeOptions && (
+              <div className="space-y-2">
+                <Label htmlFor="type-select">Type</Label>
+                <Select
+                  value={exportSettings.types?.[0] || ""}
+                  onValueChange={(value) => {
+                    updateExportSettings("types", [value]);
+                  }}
+                >
+                  <SelectTrigger id="type-select" className="w-full">
+                    <SelectValue placeholder="Select user type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {typeOptions.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type === "super-admin"
+                          ? "Super Admin"
+                          : type.charAt(0).toUpperCase() + type.slice(1)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {/* Date Range Picker */}
             <div className="space-y-2">

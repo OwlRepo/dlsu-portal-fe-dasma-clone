@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -42,17 +42,42 @@ export default function CustomFilter({
   const [selectedFilterType, setSelectedFilterType] =
     useState<FilterType | null>(null);
 
+  // // Add refs for the filter container and button
+  // const filterContainerRef = useRef<HTMLDivElement>(null);
+  // const filterButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Create a single ref that covers both the button and the filter content
+  const filterComponentRef = useRef<HTMLDivElement>(null);
+
   // Toggle filter container
   const toggleFilterContainer = () => {
     setIsFilterOpen(!isFilterOpen);
   };
 
-  // Add a new filter
+  // generate uuid
+  const generateUUID = (): string => {
+    // Use crypto.randomUUID() if available
+    if (
+      typeof crypto !== "undefined" &&
+      typeof crypto.randomUUID === "function"
+    ) {
+      return crypto.randomUUID();
+    }
+
+    // Fallback implementation for environments without crypto.randomUUID
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+      /[xy]/g,
+      function (c) {
+        const r = (Math.random() * 16) | 0;
+        const v = c === "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      }
+    );
+  };
+
+  //  add Filter function
   const addFilter = (type: FilterType) => {
-    const newFilters = [
-      ...filters,
-      { id: crypto.randomUUID(), type, value: {} },
-    ];
+    const newFilters = [...filters, { id: generateUUID(), type, value: {} }];
     setFilters(newFilters);
     setSelectedFilterType(null);
     onFiltersChange?.(newFilters);
@@ -90,8 +115,36 @@ export default function CustomFilter({
     return filters.some((filter) => filter.type === type);
   };
 
+  // Handle clicks outside
+  // Simplified click outside handler
+  useEffect(() => {
+    // Only add the listener when the filter is open
+    if (!isFilterOpen) return;
+
+    function handleClick(event: MouseEvent) {
+      // Check if click is outside our component
+      if (
+        filterComponentRef.current &&
+        !filterComponentRef.current.contains(event.target as Node) &&
+        // Special handling for Radix UI dropdowns
+        !(event.target as Element).closest(
+          "[data-radix-popper-content-wrapper]"
+        )
+      ) {
+        setIsFilterOpen(false);
+      }
+    }
+
+    // Use mousedown to capture the event before other handlers
+    document.addEventListener("mousedown", handleClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+    };
+  }, [isFilterOpen]);
+
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="w-full max-w-4xl mx-auto" ref={filterComponentRef}>
       <Button
         variant="outline"
         onClick={toggleFilterContainer}

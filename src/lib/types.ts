@@ -12,7 +12,7 @@ export interface DeviceProps {
 export interface EventProps {
   name: string;
   code: string;
-  description: string;
+  description?: string;
 }
 
 export interface ScanProps {
