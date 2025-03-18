@@ -75,9 +75,9 @@ export default function EntriesLog({ queue }: LogEntry) {
     const hasRemarks = scanDetail.remarks !== "No remarks" && scanDetail.remarks !== null;
     
     // Hardcoded border classes
-    if (isExpired || isDisabled) return 'border-4 border-red-500';
-    if (!isExpired && scanDetail.disabled === "false" && hasRemarks) return 'border-4 border-yellow-500';
-    if (scanDetail.remarks === "No remarks" || scanDetail.remarks === null) return 'border-4 border-green-500';
+    if (isExpired || isDisabled) return 'border-8 border-red-500';
+    if (!isExpired && scanDetail.disabled === "false" && hasRemarks) return 'border-8 border-yellow-500';
+    if (scanDetail.remarks === "No remarks" || scanDetail.remarks === null) return 'border-8 border-green-500';
     
     return 'border-2';
 };

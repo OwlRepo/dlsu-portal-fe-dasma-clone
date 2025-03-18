@@ -177,7 +177,7 @@ export default function TurnstileDashboard() {
             const eventData = JSON.parse(event.data);
             if (eventData.Event) {
               const { user_id, device_id, datetime, tna_key, event_type_id } = eventData.Event;
-              if (user_id && device_id && datetime && tna_key) {
+              if (user_id && device_id && datetime) {
                 fetchUserData(
                   response.data.bsSessionId,
                   user_id,
@@ -315,7 +315,7 @@ export default function TurnstileDashboard() {
         };
         const newQueue = [...prevQueue, newDeviceData];
         // Remove first item if queue length exceeds 10
-        return newQueue.length > 25 ? newQueue.slice(1) : newQueue;
+        return newQueue.length > 50 ? newQueue.slice(1) : newQueue;
       });
     } catch (error) {
       console.error("Error fetching user data:", error);
