@@ -10,6 +10,7 @@ import axios from "@/lib/axios-interceptor";
 import {
   CustomField,
   DeviceProps,
+  EventProps,
   // ReportData,
   ScanProps,
   UserProps,
@@ -81,7 +82,7 @@ export function Dashboard() {
           ws.onmessage = (event) => {
             const eventData = JSON.parse(event.data);
             if (eventData.Event) {
-              const { user_id, device_id, datetime, tna_key } = eventData.Event;
+              const { user_id, device_id, datetime, tna_key, event_type_id } = eventData.Event;
 
               // Check if we've already processed this event
               const eventKey = `${user_id}-${device_id}-${datetime}`;
@@ -94,7 +95,8 @@ export function Dashboard() {
                     user_id,
                     device_id,
                     tna_key,
-                    datetime
+                    datetime,
+                    event_type_id
                   );
                 }
               }
@@ -141,9 +143,10 @@ export function Dashboard() {
         user: UserProps,
         device: DeviceProps,
         tna_key: string,
-        datetime: string
+        datetime: string,
+        event_type_id: EventProps
       ) => {
-        fetchUserData(bsSessionId, user, device, tna_key, datetime);
+        fetchUserData(bsSessionId, user, device, tna_key, datetime, event_type_id);
       },
       300, // 300ms delay
       { leading: true, trailing: false } // Only process the first call in the wait period
@@ -156,11 +159,18 @@ export function Dashboard() {
     user: UserProps,
     device: DeviceProps,
     tna_key: string,
-    datetime: string
+    datetime: string,
+    event_type_id: EventProps
   ) => {
-    if (!tna_key) {
-      return;
-    }
+       // Skip UPDATE events
+       if (event_type_id.name.includes("UPDATE")) {
+        return;
+      }
+  
+      // Skip tna_key of 2 (OUT events)
+      if (tna_key === "2") {
+        return;
+      }
     
     try {
       const response = await axios.get("api/users", {
