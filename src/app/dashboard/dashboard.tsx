@@ -167,10 +167,10 @@ export function Dashboard() {
         return;
       }
   
-      // Skip tna_key of 2 (OUT events)
-      if (tna_key === "2") {
-        return;
-      }
+      // // Skip tna_key of 2 (OUT events)
+      // if (tna_key === "2") {
+      //   return;
+      // }
     
     try {
       const response = await axios.get("api/users", {
