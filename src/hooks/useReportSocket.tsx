@@ -18,7 +18,7 @@ export const useReportsSocket = () => {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const socketInstance = io("http://192.168.0.22:9580", {
+    const socketInstance = io("http://10.50.140.110:9580", {
       path: "/socket.io/",
       transports: ["websocket", "polling"], // Allow fallback to polling
       reconnection: true,
