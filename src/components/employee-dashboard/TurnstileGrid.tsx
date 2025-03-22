@@ -1,3 +1,4 @@
+"use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 // import { getStudentEntries, type StudentEntry } from "../../lib/dummyData";
 import Image from "next/image";
@@ -5,11 +6,16 @@ import { Label } from "../ui/label";
 import { ScanDetailStatus, TurnstileGridProps } from "@/lib/types";
 import { useGetEmployeeDetails } from "@/hooks/useGetEmployeeDetails";
 import useUserToken from "@/hooks/useUserToken";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { Device } from "../users/EmployeeForm";
 
 export default function TurnstileGrid({
   scanDetails = [],
   turnstileCount = 6,
+  sessionId,
 }: TurnstileGridProps) {
+  const [devices, setDevices] = useState<Device[]>([]);
   const { username, token } = useUserToken();
   const { data } = useGetEmployeeDetails({
     username: username || "",
@@ -134,6 +140,31 @@ export default function TurnstileGrid({
   const optimalWidth = getOptimalWidth(deviceIds.length);
   const gridClass = getGridClass(deviceIds.length);
 
+  useEffect(() => {
+    if (sessionId) {
+      const fetchDevices = async () => {
+        try {
+          const response = await axios.get("/api/devices", {
+            headers: {
+              "bs-session-id": sessionId,
+            },
+            params: {
+              params: false,
+            },
+          });
+
+          if (response) {
+            setDevices(response.data.data.DeviceCollection.rows);
+          }
+        } catch (error) {
+          console.error("Error fetching event data:", error);
+        }
+      };
+
+      fetchDevices();
+    }
+  }, [sessionId]);
+
   return (
     <div className={`grid ${gridClass} gap-8 w-full h-full`}>
       {deviceIds.map((deviceId, index) => {
@@ -157,7 +188,11 @@ export default function TurnstileGrid({
             <CardHeader>
               {/* <CardTitle>Gate {String.fromCharCode(65 + index)} - {deviceId}</CardTitle> */}
               <CardTitle>
-                Turnstile {index + 1} - {deviceId}
+                {
+                  // Find a matching device and display its name if found
+                  devices.find((device) => device.id === deviceId)?.name ||
+                    `Turnstile ${index + 1}`
+                }
               </CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
@@ -169,7 +204,7 @@ export default function TurnstileGrid({
                   alt={scanDetail?.user.name || "default-user"}
                   width={100}
                   height={100}
-                  className="w-24 h-24 rounded-full"
+                  className="w-28 h-28 rounded-full"
                 />
                 {scanDetail ? (
                   <div className="flex flex-col w-full gap-2">
@@ -183,7 +218,7 @@ export default function TurnstileGrid({
                         {scanDetail?.user.name || "N/A"}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        LN: {scanDetail?.livedName || "N/A"}
+                        Lived Name: {scanDetail?.livedName || "N/A"}
                       </p>
                     </div>
                   </div>

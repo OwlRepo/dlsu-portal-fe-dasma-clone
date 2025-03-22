@@ -105,13 +105,13 @@ export function AppBar() {
             <Image
               src="/dlsu-logo-horizontal.png"
               alt="DLSU"
-              width={165}
+              width={220}
               height={100} // Keep this for optimization
               className="auto-height"
             />
           </div>
           <div>
-            <p className="text-xl font-bold">{formattedDate}</p>
+            <p className="text-xl font-bold ml-[-3rem]">{formattedDate}</p>
           </div>
           <div className="relative">
             <button onClick={toggleDropdown} className="flex items-center">

@@ -38,6 +38,7 @@ export interface TurnstileGridProps {
   scanDetails: ScanProps[];
   setScanDetail: (scanDetail: ScanProps) => void;
   turnstileCount: number;
+  sessionId?: string;
 }
 
 export const BORDER_CLASSES = {

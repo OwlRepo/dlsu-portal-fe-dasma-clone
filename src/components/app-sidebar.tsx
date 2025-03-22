@@ -78,11 +78,11 @@ export function AppSidebar() {
   return (
     <Sidebar className="border-r">
       <SidebarHeader className="p-4 mb-4">
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex items-center justify-center gap-2 mb-2">
           <Image
             src="/dlsu-logo-horizontal.png"
             alt="DLSU"
-            width={165}
+            width={195}
             height={100} // Keep this for optimization
             className="auto-height"
           />

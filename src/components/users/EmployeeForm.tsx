@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { CustomMultiSelect } from "../custom/CustomMultiSelect";
 
-interface Device {
+export interface Device {
   id: string;
   name: string;
 }

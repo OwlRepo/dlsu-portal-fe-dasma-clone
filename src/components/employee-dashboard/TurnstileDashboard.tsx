@@ -29,6 +29,7 @@ export default function TurnstileDashboard() {
     {}
   );
   const [deviceQueue, setDeviceQueue] = useState<ScanProps[]>([]);
+  const [sessionId, setSessionId] = useState<string | null>(null);
 
   // const WS_HOST = 'wss://192.168.0.22:8888';
   // const BIOSTAR2_WS_URI = `${WS_HOST}/wsapi`;
@@ -117,7 +118,8 @@ export default function TurnstileDashboard() {
 //     const datetime = new Date().toISOString();
     
 //     // tna_key of 1 for entry (IN)
-//     const tna_key = undefined;
+//     // const tna_key = undefined;
+//     const tna_key = "1";
     
 //     // Event type
 //     const event_type_id = {
@@ -161,6 +163,7 @@ export default function TurnstileDashboard() {
 
         if (response) {
           const ws = new WebSocket(BIOSTAR2_WS_URI);
+          setSessionId(response.data.bsSessionId);
 
           ws.onopen = () => {
             console.log('WebSocket connection established.');
@@ -427,8 +430,6 @@ export default function TurnstileDashboard() {
     // include getEntryStatus if failing
   }, [devicesData, token]);
 
-  console.log(devicesData)
-
   return (
     <div className="space-y-6">
       {/* <button onClick={scanSimulation} className="btn btn-primary">Simulate Scan</button> */}
@@ -448,6 +449,7 @@ export default function TurnstileDashboard() {
                 }));
               }}
               turnstileCount={4}
+              sessionId={sessionId || ""}
             />
           </CardContent>
         </Card>

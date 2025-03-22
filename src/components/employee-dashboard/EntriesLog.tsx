@@ -4,32 +4,42 @@ import Image from "next/image";
 import { ScanDetailStatus, ScanProps } from "@/lib/types";
 import { useGetEmployeeDetails } from "@/hooks/useGetEmployeeDetails";
 import useUserToken from "@/hooks/useUserToken";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
+import { Button } from "../ui/button";
+import { useState } from "react";
 
 interface LogEntry {
   queue: ScanProps[];
 }
 
 export default function EntriesLog({ queue }: LogEntry) {
-    const { username, token } = useUserToken();
-    const { data } = useGetEmployeeDetails({
-      username: username || "",
-      token: token || "",
-    });
-
+  const { username, token } = useUserToken();
+  const { data } = useGetEmployeeDetails({
+    username: username || "",
+    token: token || "",
+  });
+  const [selectedEntry, setSelectedEntry] = useState<ScanProps | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   //// Extract unique device IDs directly from the queue
   // const uniqueDeviceIds = Array.from(
   //   new Set(queue.map(entry => entry.device.id))
   // );
-  
-  // Filter by assigned devices if needed
-  const assignedDeviceIds = data?.device_id?.filter(id => id) || [];
-  
-  // Only show entries for assigned devices if there are any assigned
-  const filteredQueue = assignedDeviceIds.length > 0
-    ? queue.filter(entry => assignedDeviceIds.includes(entry.device.id))
-    : queue;
 
+  // Filter by assigned devices if needed
+  const assignedDeviceIds = data?.device_id?.filter((id) => id) || [];
+
+  // Only show entries for assigned devices if there are any assigned
+  const filteredQueue =
+    assignedDeviceIds.length > 0
+      ? queue.filter((entry) => assignedDeviceIds.includes(entry.device.id))
+      : queue;
 
   const getImageType = (base64: string) => {
     if (base64.startsWith("iVBORw0KGgo")) {
@@ -65,22 +75,30 @@ export default function EntriesLog({ queue }: LogEntry) {
       return today > expiry;
     }
     return false;
-  }
+  };
 
   const getBorderColorClass = (scanDetail?: ScanDetailStatus): string => {
-    if (!scanDetail) return 'border-2';
-    
+    if (!scanDetail) return "border-2";
+
     const isExpired = checkExpiry(scanDetail.expiryDate);
     const isDisabled = scanDetail.disabled === "true";
-    const hasRemarks = scanDetail.remarks !== "No remarks" && scanDetail.remarks !== null;
-    
+    const hasRemarks =
+      scanDetail.remarks !== "No remarks" && scanDetail.remarks !== null;
+
     // Hardcoded border classes
-    if (isExpired || isDisabled) return 'border-8 border-red-500';
-    if (!isExpired && scanDetail.disabled === "false" && hasRemarks) return 'border-8 border-yellow-500';
-    if (scanDetail.remarks === "No remarks" || scanDetail.remarks === null) return 'border-8 border-green-500';
-    
-    return 'border-2';
-};
+    if (isExpired || isDisabled) return "border-8 border-red-500";
+    if (!isExpired && scanDetail.disabled === "false" && hasRemarks)
+      return "border-8 border-yellow-500";
+    if (scanDetail.remarks === "No remarks" || scanDetail.remarks === null)
+      return "border-8 border-green-500";
+
+    return "border-2";
+  };
+
+  const handleEntryClick = (entry: ScanProps) => {
+    setSelectedEntry(entry);
+    setDialogOpen(true);
+  };
 
   return (
     <div className="flex-grow">
@@ -95,12 +113,15 @@ export default function EntriesLog({ queue }: LogEntry) {
               <p className="text-sm">Recent entries will appear here</p>
             </div>
           ) : (
-            <div className="space-y-3">   
+            <div className="space-y-3">
               {[...updatedScanQueue].reverse().map((entry, index) => (
                 <div
                   key={index}
-                  className={`bg-white rounded-lg p-4 ${getBorderColorClass(entry
-                  )}`}
+                  className={`bg-white rounded-lg p-4 ${getBorderColorClass(
+                    entry
+                  )} 
+                  cursor-pointer transition-all hover:shadow-md`}
+                  onClick={() => handleEntryClick(entry)}
                 >
                   <div className="flex items-center gap-4">
                     <Image
@@ -140,6 +161,82 @@ export default function EntriesLog({ queue }: LogEntry) {
           )}
         </ScrollArea>
       </div>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent
+          className={`sm:max-w-md ${
+            selectedEntry ? getBorderColorClass(selectedEntry) : ""
+          }`}
+        >
+          <DialogHeader>
+            <DialogTitle>Entry Details</DialogTitle>
+          </DialogHeader>
+
+          {selectedEntry && (
+            <div className="space-y-3">
+              {/* User info with image */}
+              <div className="flex items-center gap-3 mb-2">
+                <Image
+                  src={selectedEntry.userImage || "/default-user-icon.png"}
+                  alt={selectedEntry.user.name}
+                  width={90}
+                  height={90}
+                  className="rounded-full object-cover"
+                />
+                <div>
+                  <h3 className="font-medium text-gray-900">
+                    {selectedEntry.user.name}
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    ID: {selectedEntry.user.user_id}
+                  </p>
+                </div>
+              </div>
+
+              {/* Details section */}
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <p className="text-sm text-gray-600">
+                  <span className="font-medium">Turnstile:</span>{" "}
+                  {selectedEntry.device.id}
+                </p>
+
+                {selectedEntry.livedName && (
+                  <p className="text-sm text-gray-600 mt-1">
+                    <span className="font-medium">Lived Name:</span>{" "}
+                    {selectedEntry.livedName}
+                  </p>
+                )}
+
+                <p className="text-sm text-gray-600 mt-1">
+                  <span className="font-medium">Status:</span>{" "}
+                  {selectedEntry.disabled === "true" ? "Disabled" : "Active"}
+                </p>
+
+                {selectedEntry.expiryDate && (
+                  <p className="text-sm text-gray-600 mt-1">
+                    <span className="font-medium">Expiry Date:</span>{" "}
+                    {new Date(selectedEntry.expiryDate).toLocaleDateString()}
+                  </p>
+                )}
+              </div>
+
+              {/* Remarks section */}
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <p className="text-sm font-medium text-gray-700">Remarks</p>
+                <p className="text-sm text-gray-600 mt-1">
+                  {selectedEntry.remarks || "No remarks"}
+                </p>
+              </div>
+
+              <DialogClose asChild>
+                <Button className="w-full mt-2" variant="outline">
+                  Close
+                </Button>
+              </DialogClose>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
