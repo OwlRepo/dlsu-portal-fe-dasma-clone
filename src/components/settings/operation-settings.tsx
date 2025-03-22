@@ -68,7 +68,7 @@ export function OperationSettings() {
       setSyncing(false);
       toast({
         title: "Error",
-        description: `An error occurred while synchronizing the database.`,
+        description: `An error occurred while synchronizing the database. ${error}`,
         variant: "destructive",
       });
     }
