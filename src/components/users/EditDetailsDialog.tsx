@@ -14,7 +14,7 @@ import { UserHeader } from "./UserManagementPageContainer";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 import { CustomMultiSelect } from "../custom/CustomMultiSelect";
 
 interface EditDetailsDialogProps {
@@ -44,9 +44,11 @@ const EditDetailsDialog: React.FC<EditDetailsDialogProps> = ({
   const [firstName, setFirstName] = useState(user?.FIRST_NAME || "");
   const [lastName, setLastName] = useState(user?.LAST_NAME || "");
   const [email, setEmail] = useState(user?.EMAIL || "");
+  const [password, setPassword] = useState("");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [devices, setDevices] = useState<Device[]>([]);
   const [selectedDevices, setSelectedDevices] = useState<string[]>([]);
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -62,6 +64,7 @@ const EditDetailsDialog: React.FC<EditDetailsDialogProps> = ({
             first_name: firstName,
             last_name: lastName,
             email,
+            password,
             // include device if role is employee
             ...(role === "employee" && { device_id: selectedDevices }),
           },
@@ -80,6 +83,7 @@ const EditDetailsDialog: React.FC<EditDetailsDialogProps> = ({
             duration: 3000,
           });
           refetchUserList();
+          setPassword("");
           onClose();
         } else {
           toast({
@@ -111,6 +115,11 @@ const EditDetailsDialog: React.FC<EditDetailsDialogProps> = ({
     }
   }, [user]);
 
+  const handleClose = () => {
+    onClose();
+    setPassword("");
+  };
+
   useEffect(() => {
     if (user && role === "employee") {
       const fetchEmployeeById = async () => {
@@ -132,9 +141,13 @@ const EditDetailsDialog: React.FC<EditDetailsDialogProps> = ({
             const deviceIds = response.data.data.device_id;
             const selectedDevices = deviceIds.map((deviceId: string) => {
               const device = devices.find((d) => d.id === deviceId);
-              return device ? { id: device.id, label: device.name } : { id: deviceId, label: deviceId };
+              return device
+                ? { id: device.id, label: device.name }
+                : { id: deviceId, label: deviceId };
             });
-            setSelectedDevices(selectedDevices.map((device: Device) => device.id));
+            setSelectedDevices(
+              selectedDevices.map((device: Device) => device.id)
+            );
           }
         } catch (error) {
           console.error("Error fetching employee data:", error);
@@ -204,7 +217,7 @@ const EditDetailsDialog: React.FC<EditDetailsDialogProps> = ({
   }, [sessionId]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[450px]">
         <DialogHeader>
           <DialogTitle>Edit User Details</DialogTitle>
@@ -250,6 +263,30 @@ const EditDetailsDialog: React.FC<EditDetailsDialogProps> = ({
                 className="mt-1"
               />
             </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">
+                Password
+              </p>
+              <div className="relative mt-1">
+                <Input
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  type={showPassword ? "text" : "password"}
+                  className="pr-10" // Add padding to the right for the icon
+                />
+                <button
+                  type="button" // Ensure it doesn't submit the form
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-500"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
+            </div>
             {role === "employee" && (
               <div className="space-y-2">
                 <p className="text-sm font-medium text-muted-foreground">
@@ -275,7 +312,7 @@ const EditDetailsDialog: React.FC<EditDetailsDialogProps> = ({
             )}
             <DialogFooter>
               <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={onClose}>
+                <Button variant="outline" onClick={handleClose}>
                   Cancel
                 </Button>
                 <Button type="submit">Save</Button>

@@ -287,11 +287,11 @@ const UserManagementPageContainer = () => {
       if (res.data) {
         setUserList(res.data.items);
         setTotal(res.data.total);
-        toast({
-          title: 'Success',
-          description: 'User list has been fetched successfully',
-          duration: 3000,
-        });
+        // toast({
+        //   title: 'Success',
+        //   description: 'User list has been fetched successfully',
+        //   duration: 3000,
+        // });
       }
     } catch (error) {
       console.error(error);
