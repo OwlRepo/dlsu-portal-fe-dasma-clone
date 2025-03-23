@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "docker-fresh-build": "docker compose down -v && docker compose up --build -d",
+    "docker-build": "docker compose up --build -d"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
