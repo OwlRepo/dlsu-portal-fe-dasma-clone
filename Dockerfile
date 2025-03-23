@@ -6,13 +6,14 @@ WORKDIR /app
 # Install dependencies
 FROM base AS deps
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm install
 
 # Build the application
 FROM deps AS build
 COPY . .
 # Build with access to dev dependencies
-RUN npm ci
+# RUN npm ci
+RUN npm install
 RUN npm run build
 
 # Production image

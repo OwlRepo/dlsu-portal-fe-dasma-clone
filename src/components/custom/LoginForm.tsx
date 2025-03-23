@@ -69,11 +69,11 @@ const LoginPage = () => {
 
         <div className="mt-6 w-full">
           <Tabs defaultValue="admin" value={role} onValueChange={setRole} className="w-full">
-            <TabsList className="grid grid-cols-2 w-full">
-              <TabsTrigger value="admin" className="data-[state=active]:bg-[#00bc65] data-[state=active]:text-white">
+            <TabsList className="grid grid-cols-2 w-full bg-[#00bc65]">
+              <TabsTrigger value="admin" className="data-[state=active]:bg-white data-[state=active]:text-[#00bc65] text-white">
                 Administrator
               </TabsTrigger>
-              <TabsTrigger value="employee" className="data-[state=active]:bg-[#00bc65] data-[state=active]:text-white">
+              <TabsTrigger value="employee" className="data-[state=active]:bg-white data-[state=active]:text-[#00bc65] text-white">
                 Operator
               </TabsTrigger>
             </TabsList>
