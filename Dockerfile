@@ -18,7 +18,8 @@ RUN npm run build
 # Production image
 FROM base AS final
 WORKDIR /app
-ENV NODE_ENV production
+# ENV NODE_ENV production
+ENV NODE_ENV=production
 USER node
 
 COPY package*.json ./
