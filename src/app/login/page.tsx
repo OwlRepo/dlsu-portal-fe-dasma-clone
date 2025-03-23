@@ -5,7 +5,7 @@ import React from 'react';
 const Page = () => {
   return (
     <div>
-      <LoginForm role="super-admin" />
+      <LoginForm />
     </div>
   );
 };

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   createContext,
@@ -6,10 +6,10 @@ import {
   useState,
   ReactNode,
   useEffect,
-} from 'react';
-import Cookies from 'js-cookie';
-import { useRouter } from 'next/navigation';
-import axios from 'axios';
+} from "react";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 type User = {
   username: string;
   // password: string;
@@ -22,7 +22,7 @@ type AuthContextType = {
   login: (
     username: string,
     email: string,
-    role: string,
+    role: string
   ) => Promise<string | null>;
   logout: () => void;
 };
@@ -32,7 +32,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const role = Cookies.get('role');
+  // const role = Cookies.get("role");
 
   const router = useRouter();
 
@@ -43,7 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Load user data from cookies on initial render
   useEffect(() => {
-    const userFromCookie = Cookies.get('user');
+    const userFromCookie = Cookies.get("user");
     if (userFromCookie) {
       const parsedUser = JSON.parse(userFromCookie);
       setUser(parsedUser);
@@ -54,24 +54,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (username: string, password: string, role: string) => {
     try {
       const response = await api.post(
-        `/auth/${role === 'employee' ? 'employee' : 'login'}`,
+        `/auth/${role === "employee" ? "employee" : "login"}`,
         {
           username,
           password,
-        },
+        }
       );
 
       if (response) {
-        const userData = { username, user: response.data.user,token: response.data.access_token };
-        Cookies.set('user', JSON.stringify(userData));
-        Cookies.set('role', userData.user.role);
-        
+        const userData = {
+          username,
+          user: response.data.user,
+          token: response.data.access_token,
+        };
+        Cookies.set("user", JSON.stringify(userData));
+        Cookies.set("role", userData.user.role);
+
         setUser(userData);
 
-        if (role === 'employee') {
-          router.push('/employee-dashboard');
+        if (role === "employee") {
+          router.push("/employee-dashboard");
         } else {
-          router.push('/dashboard');
+          router.push("/dashboard");
         }
         setIsLoggedIn(true);
       }
@@ -79,26 +83,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return response.data; // Return the response data (e.g., user info, tokens)
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        throw new Error(error.response?.data.message || 'Login failed');
+        throw new Error(error.response?.data.message || "Login failed");
       } else {
-        throw new Error('Network error');
+        throw new Error("Network error");
       }
     }
   };
 
   const logout = () => {
-    Cookies.remove('user');
+    Cookies.remove("user");
     // Remove user data from cookie
-    if (role === 'employee') {
-      router.push('/login/employee');
-      Cookies.remove('role');
-    } else {
-      setUser(null);
-      setIsLoggedIn(false);
-      router.push('/login');
-      Cookies.remove('role');
-    }
-   
+
+    setUser(null);
+    setIsLoggedIn(false);
+    router.push("/login");
+    Cookies.remove("role");
   };
 
   return (
@@ -111,7 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

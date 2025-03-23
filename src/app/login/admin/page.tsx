@@ -4,7 +4,7 @@ import React from 'react';
 const AdminLoginPage = () => {
   return (
     <div>
-      <LoginForm role="admin" />
+      <LoginForm/>
     </div>
   );
 };
