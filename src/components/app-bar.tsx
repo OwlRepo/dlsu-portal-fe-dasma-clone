@@ -5,14 +5,14 @@ import { usePathname } from "next/navigation"; // Import usePathname
 import { useAuth } from "@/lib/auth-context";
 import { LogOut } from "lucide-react";
 import Image from "next/image";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 
 export function AppBar() {
   const { user, logout, isLoggedIn } = useAuth();
   const pathname = usePathname(); // Get the current pathname
 
-  const userCookie = Cookies.get('user');
-  const role = Cookies.get('role');
+  const userCookie = Cookies.get("user");
+  const role = Cookies.get("role");
   const token = userCookie ? JSON.parse(userCookie).token : null;
 
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -20,7 +20,7 @@ export function AppBar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  const isLoginPage = pathname === '/login' || pathname === '/login/employee';
+  const isLoginPage = pathname === "/login" || pathname === "/login/employee";
 
   // Determine the title based on the current pathname
   const getTitle = () => {
@@ -67,19 +67,19 @@ export function AppBar() {
     }
   }, [currentDate, isLoggedIn]);
 
-    useEffect(() => {
-      // Check if we have all the required data
-      if (isLoggedIn !== undefined && role !== undefined && token !== undefined) {
-        setIsLoading(false);
-      }
-    }, [isLoggedIn, role, token]);
-    
-    // Show nothing while loading
-    if (isLoading) {
-      return null;
+  useEffect(() => {
+    // Check if we have all the required data
+    if (isLoggedIn !== undefined && role !== undefined && token !== undefined) {
+      setIsLoading(false);
     }
+  }, [isLoggedIn, role, token]);
 
-      // Hide AppBar when on login pages
+  // Show nothing while loading
+  if (isLoading) {
+    return null;
+  }
+
+  // Hide AppBar when on login pages
   if (isLoginPage) {
     return null;
   }
@@ -113,35 +113,45 @@ export function AppBar() {
           <div>
             <p className="text-xl font-bold ml-[-3rem]">{formattedDate}</p>
           </div>
-          <div className="relative">
-            <button onClick={toggleDropdown} className="flex items-center">
-              <span className="mr-2 text-[#708090]">{user?.username}</span>{" "}
-              {/* Display username */}
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="#708090"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 9l6 6 6-6"
-                />
-              </svg>
-            </button>
-            {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border rounded-xl shadow-lg p-2">
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 w-full text-left p-2 text-sm text-red-500 hover:bg-white"
+          <div className="flex gap-4 items-center">
+            <div className="relative">
+              <button onClick={toggleDropdown} className="flex items-center">
+                <span className="mr-2 text-[#708090]">{user?.username}</span>{" "}
+                {/* Display username */}
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="#708090"
                 >
-                  <LogOut />
-                  Logout
-                </button>
-              </div>
-            )}
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 9l6 6 6-6"
+                  />
+                </svg>
+              </button>
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border rounded-xl shadow-lg p-2">
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 w-full text-left p-2 text-sm text-red-500 hover:bg-white"
+                  >
+                    <LogOut />
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <Image
+              src="/verifyi.png"
+              alt="verifyi-logo"
+              width={130}
+              height={130}
+              className="auto-height"
+            />
           </div>
         </div>
       ) : (
