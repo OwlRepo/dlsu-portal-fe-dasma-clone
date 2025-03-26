@@ -46,7 +46,7 @@ export default function AdminForm({ onClose }: formProps) {
         }
       );
 
-      if (response.data.success) {
+      if (response.data && response.status === 201) {
         // Handle successful creation
         toast({
           title: "Success",
@@ -59,12 +59,42 @@ export default function AdminForm({ onClose }: formProps) {
         toast({
           title: "Error",
           description: "An unexpected error occurred",
-          variant: 'destructive',
+          variant: "destructive",
           duration: 3000,
         });
       }
     } catch (error) {
-      // Handle error
+      // Handle error with proper error typing
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 404) {
+          // Handle bad request (validation errors, etc)
+          const errorMessage =
+            error.response.data?.message || "Invalid information provided";
+          toast({
+            title: "Error",
+            description: errorMessage,
+            variant: "destructive",
+            duration: 3000,
+          });
+          console.error("Error creating super admin:", errorMessage);
+        } else {
+          // Handle other types of errors
+          toast({
+            title: "Error",
+            description: error.message || "An unexpected error occurred",
+            variant: "destructive",
+            duration: 3000,
+          });
+        }
+      } else {
+        // Handle non-axios errors
+        toast({
+          title: "Error",
+          description: "An unexpected error occurred",
+          variant: "destructive",
+          duration: 3000,
+        });
+      }
       console.error("Error creating admin:", error);
     } finally {
       setLoading(false);
