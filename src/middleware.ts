@@ -42,6 +42,7 @@ export function middleware(request: NextRequest) {
     "/settings",
     "/settings/operation",
     "/employee-dashboard",
+    "/about",
   ];
 
   console.log(user);
@@ -83,5 +84,6 @@ export const config = {
     "/employee-dashboard",
     "/login",
     "/login/employee",
+    "/about",
   ],
 };

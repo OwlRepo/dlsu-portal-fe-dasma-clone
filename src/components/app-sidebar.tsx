@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, Settings, BarChart2 } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, BarChart2, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth-context';
 import {
@@ -40,6 +40,11 @@ const menuItems = [
     icon: Settings,
     href: '/settings',
   },
+  {
+    title: 'About',
+    icon: Info,
+    href: '/about',
+  }
 ];
 
 export function AppSidebar() {
