@@ -1,26 +1,26 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { FolderClosed, SlidersHorizontal, Upload, X } from 'lucide-react';
-import Image from 'next/image';
-import axios from 'axios';
-import Cookies from 'js-cookie';
-import { useDropzone } from 'react-dropzone';
+} from "@/components/ui/select";
+import { FolderClosed, SlidersHorizontal, Upload, X } from "lucide-react";
+// import Image from "next/image";
+import axios from "axios";
+import Cookies from "js-cookie";
+import { useDropzone } from "react-dropzone";
 
 export function ScreenSaverUpload() {
   const [image, setImage] = useState<string | null>(null);
@@ -30,22 +30,29 @@ export function ScreenSaverUpload() {
   >(null);
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      'image/*': [],
+      "image/*": [],
     },
     multiple: false,
     onDrop: (acceptedFiles) => {
       handleImageUpload(acceptedFiles);
     },
   });
-  const [interval, setInterval] = useState<string>('60000');
+  const [interval, setInterval] = useState<string>("60000");
 
-  const user = Cookies.get('user');
+  const user = Cookies.get("user");
   const token = user ? JSON.parse(user).token : null;
+
+  const transformImageUrl = (url: string) => {
+    // if (typeof window === "undefined") {
+    return url.replace("localhost", "10.50.140.110"); // Use your actual IP
+    // }
+    // return url;
+  };
 
   const handleImageUpload = async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
     try {
       const response = await axios.post(
@@ -53,10 +60,10 @@ export function ScreenSaverUpload() {
         formData,
         {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            "Content-Type": "multipart/form-data",
             Authorization: `${token}`,
           },
-        },
+        }
       );
 
       const data = await response.data;
@@ -68,13 +75,13 @@ export function ScreenSaverUpload() {
 
   const handleIntervalChange = () => {
     if (interval) {
-      localStorage.setItem('screensaverInterval', interval.toString());
+      localStorage.setItem("screensaverInterval", interval.toString());
     }
     setShowConfigure(false);
   };
 
   useEffect(() => {
-    const interval = localStorage.getItem('screensaverInterval');
+    const interval = localStorage.getItem("screensaverInterval");
     if (interval) {
       setInterval(interval);
     }
@@ -89,14 +96,15 @@ export function ScreenSaverUpload() {
             headers: {
               Authorization: token,
             },
-          },
+          }
         );
 
         if (res.status === 200 && res.data?.data?.url) {
-          setDefaultScreensaverUrl(res.data.data.url);
+          // setDefaultScreensaverUrl(res.data.data.url);
+          setDefaultScreensaverUrl(transformImageUrl(res.data.data.url));
         }
       } catch (err) {
-        console.error('Failed to fetch screensaver:', err);
+        console.error("Failed to fetch screensaver:", err);
         setDefaultScreensaverUrl(null);
       }
     };
@@ -111,20 +119,22 @@ export function ScreenSaverUpload() {
       <CardHeader>
         <div
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
           }}
         >
-          <CardTitle>{showConfigure ? 'Configure' : 'Screen Saver'}</CardTitle>
-          {showConfigure && <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => setShowConfigure(false)}
-          >
-            <X className="h-4 w-4" />
-          </Button>}
+          <CardTitle>{showConfigure ? "Configure" : "Screen Saver"}</CardTitle>
+          {showConfigure && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setShowConfigure(false)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
         </div>
 
         <CardDescription>
@@ -137,17 +147,22 @@ export function ScreenSaverUpload() {
             <div
               {...getRootProps()}
               className={`flex flex-col items-center justify-center rounded-lg border border-dashed cursor-pointer ${
-                image || defaultScreensaverUrl ? 'py-2' : 'p-8'
+                image || defaultScreensaverUrl ? "py-2" : "p-8"
               }`}
             >
               <input {...getInputProps()} />
               {image || defaultScreensaverUrl ? (
-                <Image
-                  src={image || defaultScreensaverUrl || '/placeholder.svg'}
+                // <Image
+                //   src={image || defaultScreensaverUrl || '/placeholder.svg'}
+                //   alt="Screensaver"
+                //   width={400}
+                //   height={400}
+                //   className="h-auto object-cover rounded-lg"
+                // />
+                <img
+                  src={image || defaultScreensaverUrl || "/placeholder.svg"}
                   alt="Screensaver"
-                  width={400}
-                  height={400}
-                  className="h-auto object-cover rounded-lg"
+                  className="w-[400px] max-w-full h-auto object-cover rounded-lg"
                 />
               ) : (
                 <>
@@ -222,12 +237,17 @@ export function ScreenSaverUpload() {
         ) : (
           <div className="space-y-4">
             <div className="relative aspect-auto overflow-hidden">
-              <Image
+              {/* <Image
                 src={image || '/placeholder.svg'}
                 alt="Screen saver preview"
                 width={300}
                 height={300}
                 className="h-auto object-cover rounded-lg mx-auto"
+              /> */}
+              <img
+                src={image || "/placeholder.svg"}
+                alt="Screen saver preview"
+                className="w-[300px] max-w-full h-auto object-cover rounded-lg mx-auto"
               />
             </div>
             <Button

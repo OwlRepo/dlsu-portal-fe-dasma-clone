@@ -3,8 +3,24 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   /* config options here */
   images: {
-    domains: ['dlsu-portal-be-production.up.railway.app', 'localhost'],
+    domains: ['dlsu-portal-be-production.up.railway.app', 'localhost', '10.50.140.110', 'host.docker.internal' ],
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '9580',
+        pathname: '/persistent_uploads/**',
+      },
+      // Add additional patterns for production if needed
+      {
+        protocol: 'http',
+        hostname: '10.50.140.110',
+        port: '9580', 
+        pathname: '/persistent_uploads/**',
+      }
+    ],
   },
+
   output: 'standalone',
 };
 
