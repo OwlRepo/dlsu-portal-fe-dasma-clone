@@ -240,6 +240,10 @@ export default function TurnstileDashboard() {
       return;
     }
 
+      if (event_type_id.name === "APB_VIOLATION_HARD") {
+        return;
+      }
+
     // Skip tna_key of 2 (OUT events)
     if (tna_key === "2") {
       return;
