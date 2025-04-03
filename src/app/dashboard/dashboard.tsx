@@ -167,8 +167,11 @@ export function Dashboard() {
         return;
       }
 
-      
       if (event_type_id.name === "APB_VIOLATION_HARD") {
+        return;
+      }
+
+      if (event_type_id.name.includes("APB")) {
         return;
       }
   

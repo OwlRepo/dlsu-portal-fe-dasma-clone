@@ -35,113 +35,113 @@ export default function TurnstileDashboard() {
   // const BIOSTAR2_WS_URI = `${WS_HOST}/wsapi`;
   const BIOSTAR2_WS_URI = `${process.env.NEXT_PUBLIC_WS_HOST}/wsapi`;
 
-// this is for simulating scan
-// const scanSimulation = () => {
+  // this is for simulating scan
+  // const scanSimulation = () => {
 
-//   const futureDate = new Date();
-//   futureDate.setHours(futureDate.getHours() + 1);
+  //   const futureDate = new Date();
+  //   futureDate.setHours(futureDate.getHours() + 1);
 
-//   const expiredDate = new Date(2010, 11, 31);
+  //   const expiredDate = new Date(2010, 11, 31);
 
-//   const scanDetail: ScanProps = {  // Add explicit type here
-//     user: {
-//       user_id: "1",
-//       name: "John Doe",
-//       photo_exist: false,
-//     },
-//     device: {
-//       // id: "538204298",
-//       id: '538203430',
-//       // id: "546164222",
-//       name: "Turnstile 1",
-//     },
-//     datetime: new Date().toISOString(),
-//     remarks: "No remarks",
-//     livedName: "John",
-//     userImage: "/default-user-icon.png",
-//     disabled: "false",  // Change to string type "false" instead of boolean false
-//     // expiryDate: futureDate.toISOString(),
-//     expiryDate: expiredDate.toISOString(), 
-//     tnaKey: "2",
-//   };
+  //   const scanDetail: ScanProps = {  // Add explicit type here
+  //     user: {
+  //       user_id: "1",
+  //       name: "John Doe",
+  //       photo_exist: false,
+  //     },
+  //     device: {
+  //       // id: "538204298",
+  //       id: '538203430',
+  //       // id: "546164222",
+  //       name: "Turnstile 1",
+  //     },
+  //     datetime: new Date().toISOString(),
+  //     remarks: "No remarks",
+  //     livedName: "John",
+  //     userImage: "/default-user-icon.png",
+  //     disabled: "false",  // Change to string type "false" instead of boolean false
+  //     // expiryDate: futureDate.toISOString(),
+  //     expiryDate: expiredDate.toISOString(),
+  //     tnaKey: "2",
+  //   };
 
-//   setDevicesData((prevData) => ({
-//     ...prevData,
-//     [scanDetail.device.id]: scanDetail,
-//   }));
+  //   setDevicesData((prevData) => ({
+  //     ...prevData,
+  //     [scanDetail.device.id]: scanDetail,
+  //   }));
 
-//   setDeviceQueue((prevQueue) => {
-//     const newQueue = [...prevQueue, scanDetail];
-//     // Remove first item if queue length exceeds 25
-//     return newQueue.length > 25 ? newQueue.slice(1) : newQueue;
-//   });
-// };
+  //   setDeviceQueue((prevQueue) => {
+  //     const newQueue = [...prevQueue, scanDetail];
+  //     // Remove first item if queue length exceeds 25
+  //     return newQueue.length > 25 ? newQueue.slice(1) : newQueue;
+  //   });
+  // };
 
-// const scanSimulation = async () => {
-//   try {
-//     // First, get a session ID by logging in
-//     const loginResponse = await axios.post(
-//       "/api/login",
-//       {
-//         User: {
-//           login_id: "admin",
-//           password: "ELIDtech1234",
-//         },
-//       },
-//       {
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//       }
-//     );
+  // const scanSimulation = async () => {
+  //   try {
+  //     // First, get a session ID by logging in
+  //     const loginResponse = await axios.post(
+  //       "/api/login",
+  //       {
+  //         User: {
+  //           login_id: "admin",
+  //           password: "ELIDtech1234",
+  //         },
+  //       },
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
 
-//     const bsSessionId = loginResponse.data.bsSessionId;
-    
-//     if (!bsSessionId) {
-//       console.error("Could not get session ID for simulation");
-//       return;
-//     }
-    
-//     // Create fake user and device data
-//     const user = {
-//       user_id: "10008", // This should match a real user ID in your system for testing
-//       name: "",
-//       photo_exist: false
-//     };
-    
-//     const device = {
-//       id: "538203430", // Choose one of your actual device IDs
-//       name: "Turnstile 1"
-//     };
-    
-//     // Current time
-//     const datetime = new Date().toISOString();
-    
-//     // tna_key of 1 for entry (IN)
-//     // const tna_key = undefined;
-//     const tna_key = "1";
-    
-//     // Event type
-//     const event_type_id = {
-//       code: "102",
-//       name: "IDENTIFY_SUCCESS"
-//     };
-    
-//     // Call the same function that processes real scans
-//     await fetchUserData(
-//       bsSessionId,
-//       user,
-//       device,
-//       datetime,
-//       tna_key,
-//       event_type_id
-//     );
-    
-//     console.log("Scan simulation completed using fetchUserData");
-//   } catch (error) {
-//     console.error("Error in scan simulation:", error);
-//   }
-// };
+  //     const bsSessionId = loginResponse.data.bsSessionId;
+
+  //     if (!bsSessionId) {
+  //       console.error("Could not get session ID for simulation");
+  //       return;
+  //     }
+
+  //     // Create fake user and device data
+  //     const user = {
+  //       user_id: "10008", // This should match a real user ID in your system for testing
+  //       name: "",
+  //       photo_exist: false
+  //     };
+
+  //     const device = {
+  //       id: "538203430", // Choose one of your actual device IDs
+  //       name: "Turnstile 1"
+  //     };
+
+  //     // Current time
+  //     const datetime = new Date().toISOString();
+
+  //     // tna_key of 1 for entry (IN)
+  //     // const tna_key = undefined;
+  //     const tna_key = "1";
+
+  //     // Event type
+  //     const event_type_id = {
+  //       code: "102",
+  //       name: "IDENTIFY_SUCCESS"
+  //     };
+
+  //     // Call the same function that processes real scans
+  //     await fetchUserData(
+  //       bsSessionId,
+  //       user,
+  //       device,
+  //       datetime,
+  //       tna_key,
+  //       event_type_id
+  //     );
+
+  //     console.log("Scan simulation completed using fetchUserData");
+  //   } catch (error) {
+  //     console.error("Error in scan simulation:", error);
+  //   }
+  // };
 
   useEffect(() => {
     const fetchSessionId = async () => {
@@ -166,7 +166,7 @@ export default function TurnstileDashboard() {
           setSessionId(response.data.bsSessionId);
 
           ws.onopen = () => {
-            console.log('WebSocket connection established.');
+            console.log("WebSocket connection established.");
             // Send the session ID to the WebSocket server
             ws.send(`bs-session-id=${response.data.bsSessionId}`);
 
@@ -179,7 +179,8 @@ export default function TurnstileDashboard() {
           ws.onmessage = (event) => {
             const eventData = JSON.parse(event.data);
             if (eventData.Event) {
-              const { user_id, device_id, datetime, tna_key, event_type_id } = eventData.Event;
+              const { user_id, device_id, datetime, tna_key, event_type_id } =
+                eventData.Event;
               if (user_id && device_id && datetime) {
                 fetchUserData(
                   response.data.bsSessionId,
@@ -213,7 +214,6 @@ export default function TurnstileDashboard() {
           );
           return;
         }
-
       } catch (error) {
         console.error("Error logging in:", error);
       }
@@ -232,7 +232,6 @@ export default function TurnstileDashboard() {
     tna_key: string,
     event_type_id: EventProps
   ) => {
-
     console.log(tna_key);
 
     // Skip UPDATE events
@@ -240,9 +239,13 @@ export default function TurnstileDashboard() {
       return;
     }
 
-      if (event_type_id.name === "APB_VIOLATION_HARD") {
-        return;
-      }
+    if (event_type_id.name === "APB_VIOLATION_HARD") {
+      return;
+    }
+
+    if (event_type_id.name.includes("APB")) {
+      return;
+    }
 
     // Skip tna_key of 2 (OUT events)
     if (tna_key === "2") {
@@ -263,16 +266,15 @@ export default function TurnstileDashboard() {
         ? response.data.data.User.photo
         : undefined;
 
-        const userCustomFields = response.data.data.User.user_custom_fields || [];
-        
-        const remarksField = userCustomFields.find(
-          (field: CustomField) => field.custom_field.name === "Remarks"
-        );
-    
-        const livedNameField = userCustomFields.find(
-          (field: CustomField) => field.custom_field.name === "Lived Name"
-        );
-    
+      const userCustomFields = response.data.data.User.user_custom_fields || [];
+
+      const remarksField = userCustomFields.find(
+        (field: CustomField) => field.custom_field.name === "Remarks"
+      );
+
+      const livedNameField = userCustomFields.find(
+        (field: CustomField) => field.custom_field.name === "Lived Name"
+      );
 
       const userData: UserProps = {
         user_id: response.data.data.User.user_id,
@@ -312,7 +314,7 @@ export default function TurnstileDashboard() {
         const newDeviceData = {
           user: userData,
           device: deviceData,
-          datetime:datetime,
+          datetime: datetime,
           remarks: remarks ?? "No remarks",
           livedName,
           userImage,
@@ -403,11 +405,10 @@ export default function TurnstileDashboard() {
             },
           }
         );
-       
+
         if (response.data) {
           console.log("Report sent successfully:", response.data);
         }
-        
       } catch (error) {
         console.error("Error sending report:", error);
       }
@@ -416,7 +417,7 @@ export default function TurnstileDashboard() {
     // Get the latest scan from devicesData
     const latestScan = Object.values(devicesData)[0];
 
-    // console.log("Latest scan:", latestScan);  
+    // console.log("Latest scan:", latestScan);
 
     if (latestScan) {
       const reportData: ReportData = {
@@ -426,7 +427,7 @@ export default function TurnstileDashboard() {
         name: latestScan.user.name,
         remarks: latestScan.remarks || "No remarks",
         status: getEntryStatus(latestScan),
-        activity: latestScan.tnaKey === '1' ? "IN" : "OUT",
+        activity: latestScan.tnaKey === "1" ? "IN" : "OUT",
       };
 
       sendReport(reportData);
