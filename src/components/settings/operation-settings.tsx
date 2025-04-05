@@ -22,7 +22,7 @@ import { ScreenSaverUpload } from "./screen-saver-upload";
 import { TimePicker } from "./time-picker";
 import { useToast } from "@/hooks/use-toast";
 // import axios from "axios";
-import axios from '@/lib/axios-interceptor';
+import axios from "@/lib/axios-interceptor";
 import Cookies from "js-cookie";
 import { Input } from "../ui/input";
 
@@ -59,20 +59,50 @@ export function OperationSettings() {
       if (res.data) {
         toast({
           title: "Success",
-          description:
-            "The database has been successfully synchronized manually.",
+          description: `${res.data.message}`,
         });
       }
-    } catch (error) {
-      console.error(error);
+    } catch (error: unknown) {
       setSyncing(false);
+      
+      let errorMessage = "Failed to synchronize database.";
+      
+      if (axios.isAxiosError(error)) {
+        // Get the most useful error information without all the nested conditionals
+        const responseData = error.response?.data;
+        
+        if (responseData) {
+          // If we have response data, extract relevant fields
+          if (typeof responseData === 'object' && responseData !== null) {
+            // Combine all available error information
+            const errorDetails = [
+              responseData.message,
+              responseData.error,
+              responseData.details
+            ]
+              .filter(Boolean)  // Remove any undefined/null values
+              .join(' - ');     // Join with separator
+              
+            errorMessage = errorDetails || JSON.stringify(responseData);
+          } else {
+            errorMessage = String(responseData);
+          }
+        } else {
+          // If no response data, just use the error message
+          errorMessage = error.message;
+        }
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
       toast({
-        title: "Error",
-        description: `An error occurred while synchronizing the database. ${error}`,
+        title: "Synchronization Failed",
+        description: errorMessage,
         variant: "destructive",
+        duration: 5000,
       });
     }
-  };
+  }
 
   const handleButtonClick = () => {
     if (fileInputRef.current) {
@@ -252,6 +282,7 @@ export function OperationSettings() {
               </span>
             </div>
           </div>
+          
           <Button className="w-full" onClick={handleSync} disabled={syncing}>
             {syncing ? (
               <>
@@ -265,6 +296,9 @@ export function OperationSettings() {
               </>
             )}
           </Button>
+          <p className="text-sm text-gray-500">
+            Note: Only one sync can be queued at a time. Please wait it to finish before starting another one.
+            </p>
         </CardContent>
       </Card>
 
