@@ -28,6 +28,7 @@ import SuperAdminForm from './SuperAdminForm';
 import AdminForm from './AdminForm';
 import EmployeeForm from './EmployeeForm';
 import { Button } from '../ui/button';
+import { useRouter } from 'next/navigation'
 // import { ViewProfileDialog } from './view-profile-dialog';
 
 interface User {
@@ -60,6 +61,7 @@ const roleOptions = [
 ];
 
 const UserManagementPageContainer = () => {
+  const router = useRouter();
   const { toast } = useToast();
 
   const [search, setSearch] = useState<string>('');
@@ -239,13 +241,29 @@ const UserManagementPageContainer = () => {
       let token = null;
       if (typeof window !== 'undefined') {
         const user = Cookies.get('user');
-        if (user) {
+        if (user && user !== 'undefined') {
           try {
-            token = JSON.parse(user).token;
+            const parsedUser = JSON.parse(user);
+            token = parsedUser && parsedUser.token ? parsedUser.token : null;
           } catch (e) {
             console.error('Error parsing user cookie:', e);
           }
         }
+      }
+
+      if (!token) {
+        toast({
+          title: 'Authentication Error',
+          description: 'Error parsing user token',
+          variant: 'destructive',
+          duration: 5000,
+        });
+        setIsLoading(false);
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 1000);
+
+        return; // Exit early if no token
       }
 
       // Use new values if provided, otherwise use state values
