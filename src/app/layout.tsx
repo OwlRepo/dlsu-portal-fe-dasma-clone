@@ -8,6 +8,7 @@ import { AppBar } from '@/components/app-bar';
 
 import { Toaster } from '@/components/ui/toaster';
 import { IdleScreensaver } from '@/components/IdleScreensaver';
+import { ValidateToken } from '@/components/ValidateToken';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -36,6 +37,7 @@ export default function RootLayout({
                 <AppBar /> {/* Use the AppBar component here */}
                 <main className="flex-1 overflow-auto">{children}</main>
               </div>
+              <ValidateToken />
               <IdleScreensaver />
             </div>
             <Toaster />
