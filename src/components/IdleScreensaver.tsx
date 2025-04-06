@@ -93,7 +93,7 @@ export function IdleScreensaver() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, token]);
 
-  console.log(screensaverUrl);
+  // console.log(screensaverUrl);
 
   if (!showScreensaver || !screensaverUrl || screensaverUrl === "") return null;
 

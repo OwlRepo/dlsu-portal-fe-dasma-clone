@@ -62,26 +62,39 @@ export function OperationSettings() {
           description: `${res.data.message}`,
         });
       }
+      console.log(res)
     } catch (error: unknown) {
       setSyncing(false);
+      
+      // Check if this is the NEXT_REDIRECT error from authorization issues
+      if (error instanceof Error && error.message.includes("NEXT_REDIRECT")) {
+        toast({
+          title: "Authentication Error",
+          description: "Your session has expired. Please log in again.",
+          variant: "destructive",
+          duration: 5000,
+        });
+        
+
+        return;
+      }
       
       let errorMessage = "Failed to synchronize database.";
       
       if (axios.isAxiosError(error)) {
-        // Get the most useful error information without all the nested conditionals
         const responseData = error.response?.data;
         
         if (responseData) {
           // If we have response data, extract relevant fields
           if (typeof responseData === 'object' && responseData !== null) {
-            // Combine all available error information
+            
             const errorDetails = [
               responseData.message,
               responseData.error,
               responseData.details
             ]
-              .filter(Boolean)  // Remove any undefined/null values
-              .join(' - ');     // Join with separator
+              .filter(Boolean)
+              .join(' - '); 
               
             errorMessage = errorDetails || JSON.stringify(responseData);
           } else {
@@ -106,7 +119,7 @@ export function OperationSettings() {
 
   const handleButtonClick = () => {
     if (fileInputRef.current) {
-      fileInputRef.current.click(); // Trigger the file input click
+      fileInputRef.current.click(); 
     }
   };
 
