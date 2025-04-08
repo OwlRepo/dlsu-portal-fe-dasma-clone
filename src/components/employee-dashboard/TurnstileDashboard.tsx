@@ -236,7 +236,6 @@ export default function TurnstileDashboard() {
     tna_key: string,
     event_type_id: EventProps
   ) => {
-    console.log(tna_key);
 
     // Skip UPDATE events
     if (event_type_id.name.includes("UPDATE")) {
@@ -366,6 +365,8 @@ export default function TurnstileDashboard() {
     }
   };
 
+  console.log(reportQueue);
+
   const fetchEventData = async (bsSessionId: string) => {
     try {
       const response = await axios.post(
@@ -451,47 +452,63 @@ export default function TurnstileDashboard() {
     };
 
     // Get the latest scan from devicesData
-    const latestScan = Object.values(reportQueue)[0];
+    // const latestScan = Object.values(reportQueue)[0];
+
+    // console.log(latestScan);
 
     // if (latestScan) {
+    //   // Determine the type value based on conditions
+    //   let typeValue = "";
+    //   if (latestScan.eventTypeId?.includes("APB")) {
+    //     typeValue = ""; // Empty string for APB events
+    //   } else if (latestScan.tnaKey === "1") {
+    //     typeValue = "1"; // Keep "1" for IN events
+    //   } else if (latestScan.tnaKey === "2") {
+    //     typeValue = "2"; // Explicitly set "2" for any non-IN events
+    //   }
+      
     //   const reportData: ReportData = {
     //     datetime: latestScan.datetime,
-    //     type: latestScan.tnaKey || "",
+    //     type: typeValue,
     //     user_id: latestScan.user.user_id,
     //     name: latestScan.user.name,
     //     remarks: latestScan.remarks || "No remarks",
     //     status: getEntryStatus(latestScan),
     //     activity: latestScan.tnaKey === "1" ? "IN" : "OUT",
     //   };
-
+    
     //   sendReport(reportData);
     // }
-
-    if (latestScan) {
-      // Determine the type value based on conditions
+    Object.values(reportQueue).forEach(scan => {
+      // Your existing logic to create and send reports
       let typeValue = "";
-      if (latestScan.eventTypeId?.includes("APB")) {
-        typeValue = ""; // Empty string for APB events
-      } else if (latestScan.tnaKey === "1") {
-        typeValue = "1"; // Keep "1" for IN events
-      } else if (latestScan.tnaKey) {
-        typeValue = "2"; // Explicitly set "2" for any non-IN events
+      if (scan.eventTypeId?.includes("APB")) {
+        typeValue = "";
+      } else if (scan.tnaKey === "1") {
+        typeValue = "1";
+      } else if (scan.tnaKey === "2") {
+        typeValue = "2";
       }
       
       const reportData: ReportData = {
-        datetime: latestScan.datetime,
+        datetime: scan.datetime,
         type: typeValue,
-        user_id: latestScan.user.user_id,
-        name: latestScan.user.name,
-        remarks: latestScan.remarks || "No remarks",
-        status: getEntryStatus(latestScan),
-        activity: latestScan.tnaKey === "1" ? "IN" : "OUT",
+        user_id: scan.user.user_id,
+        name: scan.user.name,
+        remarks: scan.remarks || "No remarks",
+        status: getEntryStatus(scan),
+        activity: scan.tnaKey === "1" ? "IN" : "OUT",
       };
     
       sendReport(reportData);
+    });
+    
+    // Clear the queue after processing
+    if (Object.keys(reportQueue).length > 0) {
+      setReportQueue({});
     }
     // include getEntryStatus if failing
-  }, [devicesData, token]);
+  }, [reportQueue, token]);
 
   return (
     <div className="space-y-6">
