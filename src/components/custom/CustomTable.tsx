@@ -69,8 +69,9 @@ function CustomTable<T extends Record<string, unknown>>({
     const isExpired = checkExpiry(scanDetail.expiryDate);
     const isDisabled = scanDetail.disabled === "true";
     const hasRemarks = scanDetail.remarks !== "No remarks" && scanDetail.remarks !== null;
+    const isApb = scanDetail.eventTypeId && scanDetail.eventTypeId.includes("APB") || scanDetail.event && scanDetail.event.includes("APB");
     
-    if (isExpired || isDisabled) return "RED";
+    if (isExpired || isDisabled || isApb) return "RED";
     if (!isExpired && scanDetail.disabled === "false" && hasRemarks) return "YELLOW";
     if (scanDetail.remarks === "No remarks" || scanDetail.remarks === null) return "GREEN";
     

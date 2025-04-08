@@ -38,14 +38,74 @@ export function Dashboard() {
   //   {}
   // );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  // const [stats, setStats] = useState<GateStats | null>(null);
-  // const [socket, setSocket] = useState<Socket | null>(null);
 
-  // const WS_HOST = 'wss://192.168.0.22:8888';
-  // const BIOSTAR2_WS_URI = `${WS_HOST}/wsapi`;
   const BIOSTAR2_WS_URI = `${process.env.NEXT_PUBLIC_WS_HOST}/wsapi`;
-  // const SOCKET_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
-  // const SOCKET_URL = `http://localhost:9580/`;
+
+  //   const scanSimulation = async () => {
+  //   try {
+  //     // First, get a session ID by logging in
+  //     const loginResponse = await axios.post(
+  //       "/api/login",
+  //       {
+  //         User: {
+  //           login_id: "admin",
+  //           password: "ELIDtech1234",
+  //         },
+  //       },
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
+
+  //     const bsSessionId = loginResponse.data.bsSessionId;
+
+  //     if (!bsSessionId) {
+  //       console.error("Could not get session ID for simulation");
+  //       return;
+  //     }
+
+  //     // Create fake user and device data
+  //     const user = {
+  //       user_id: "10008", // This should match a real user ID in your system for testing
+  //       name: "",
+  //       photo_exist: false
+  //     };
+
+  //     const device = {
+  //       id: "538203430", // Choose one of your actual device IDs
+  //       name: "Turnstile 1"
+  //     };
+
+  //     // Current time
+  //     const datetime = new Date().toISOString();
+
+  //     // tna_key of 1 for entry (IN)
+  //     const tna_key = "";
+  //     // const tna_key = "1";
+
+  //     // Event type
+  //     const event_type_id = {
+  //       code: "24577",
+  //       name: "APB_VIOLATION_HARD",
+  //     };
+
+  //     // Call the same function that processes real scans
+  //     await fetchUserData(
+  //       bsSessionId,
+  //       user,
+  //       device,
+  //       tna_key,
+  //       datetime,
+  //       event_type_id
+  //     );
+
+  //     console.log("Scan simulation completed using fetchUserData");
+  //   } catch (error) {
+  //     console.error("Error in scan simulation:", error);
+  //   }
+  // };
 
   useEffect(() => {
     const fetchSessionId = async () => {
@@ -234,6 +294,7 @@ export function Dashboard() {
         disabled,
         expiryDate,
         tnaKey: tna_key,
+        eventTypeId: event_type_id.name,
       };
 
       // setDevicesData((prevData) => ({
@@ -299,22 +360,6 @@ export function Dashboard() {
       console.error("Error fetching event data:", error);
     }
   };
-
-  // const getEntryStatus = (scan: ScanProps): string => {
-  //   const isDisabled = scan.disabled === "true";
-  //   const isExpired = checkExpiry(scan.expiryDate);
-  //   const hasRemarks = scan.remarks !== "No remarks";
-
-  //   if (isDisabled || isExpired) {
-  //     return "RED;cannot enter with or without remarks";
-  //   }
-
-  //   if (hasRemarks) {
-  //     return "YELLOW;can enter with remarks";
-  //   }
-
-  //   return "GREEN;can enter without remarks";
-  // };
 
   const handleClear = useCallback(() => {
     setIsDialogOpen(true);
@@ -393,6 +438,8 @@ export function Dashboard() {
 
   return (
     <div className="p-6">
+       {/* <button onClick={scanSimulation} className="btn btn-primary">Simulate Scan</button> */}
+
       <div>
         <h2 className="mb-4 text-lg font-medium">Access Counts Overview</h2>
 

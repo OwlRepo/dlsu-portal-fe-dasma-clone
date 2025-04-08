@@ -19,6 +19,7 @@ interface LiveDataRow {
   NAME: string;
   ACTIVITY: string;
   userImage?: string;
+  event?: string;
 }
 
 export function LiveDataTable({ data, handleClear }: LiveData) {
@@ -29,7 +30,8 @@ export function LiveDataTable({ data, handleClear }: LiveData) {
     STATUS: row,
     ID: row.user.user_id ? row.user.user_id : "N/A",
     NAME: row.user.name ? row.user.name : "N/A",
-    ACTIVITY: row.tnaKey ? (row.tnaKey === "1" ? "IN" : "OUT") : "N/A",
+    ACTIVITY: row.eventTypeId && row.eventTypeId.includes("APB") ? "APB_VIOLATION" : (row.tnaKey ? (row.tnaKey === "1" ? "IN" : "OUT") : "N/A"),
+    event: row.eventTypeId ? row.eventTypeId : "N/A",
   }));
 
   const handleRowClick = (row: LiveDataRow) => {
@@ -59,15 +61,18 @@ export function LiveDataTable({ data, handleClear }: LiveData) {
   };
 
   const getLiveStatusColor = (scanDetail?: LiveDataRow): string => {
+
     if (!scanDetail) return "";
 
     const isExpired = checkExpiry(scanDetail.STATUS.expiryDate);
     const isDisabled = scanDetail.STATUS.disabled === "true";
+    const isApb = scanDetail.event && scanDetail.event.includes("APB") ;
+
     const hasRemarks =
       scanDetail.STATUS.remarks !== "No remarks" &&
       scanDetail.STATUS.remarks !== null;
 
-    if (isExpired || isDisabled) return "bg-red-500";
+    if (isExpired || isDisabled || isApb) return "bg-red-500";
     if (!isExpired && scanDetail.STATUS.disabled === "false" && hasRemarks)
       return "bg-yellow-500";
     if (
@@ -78,6 +83,8 @@ export function LiveDataTable({ data, handleClear }: LiveData) {
 
     return "";
   };
+
+  console.log("Live Data", liveData);
 
   return (
     <div className="rounded-lg bg-white p-6 shadow-md">
@@ -94,13 +101,6 @@ export function LiveDataTable({ data, handleClear }: LiveData) {
             </p>
           </div>
           <div className="flex gap-2">
-            {/* <Button
-              variant="outline"
-              className="flex items-center gap-2 text-green-500 border-green-500 hover:text-green-500 hover:bg-white"
-            >
-              <Filter />
-              Filter
-            </Button> */}
             <Button
               variant="destructive"
               className="flex items-center gap-2 border"
@@ -128,6 +128,7 @@ export function LiveDataTable({ data, handleClear }: LiveData) {
           {selectedData &&
             (() => {
               const processedData = updatedSelectedData(selectedData);
+
               const color = getLiveStatusColor(processedData);
 
               return (

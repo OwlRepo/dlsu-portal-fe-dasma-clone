@@ -10,7 +10,8 @@ import {
   CardTitle,
 } from "../ui/card";
 import { useEffect, useState } from "react";
-import axios from "axios";
+// import axios from "axios";
+import axios from "@/lib/axios-interceptor";
 import {
   CustomField,
   DeviceProps,
@@ -29,6 +30,9 @@ export default function TurnstileDashboard() {
     {}
   );
   const [deviceQueue, setDeviceQueue] = useState<ScanProps[]>([]);
+  const [reportQueue, setReportQueue] = useState<{ [key: string]: ScanProps }>(
+    {}
+  );
   const [sessionId, setSessionId] = useState<string | null>(null);
 
   // const WS_HOST = 'wss://192.168.0.22:8888';
@@ -106,12 +110,12 @@ export default function TurnstileDashboard() {
   //     const user = {
   //       user_id: "10008", // This should match a real user ID in your system for testing
   //       name: "",
-  //       photo_exist: false
+  //       photo_exist: false,
   //     };
 
   //     const device = {
   //       id: "538203430", // Choose one of your actual device IDs
-  //       name: "Turnstile 1"
+  //       name: "Turnstile 1",
   //     };
 
   //     // Current time
@@ -119,12 +123,12 @@ export default function TurnstileDashboard() {
 
   //     // tna_key of 1 for entry (IN)
   //     // const tna_key = undefined;
-  //     const tna_key = "1";
+  //     const tna_key = "";
 
   //     // Event type
   //     const event_type_id = {
   //       code: "102",
-  //       name: "IDENTIFY_SUCCESS"
+  //       name: "ACCESS_DENIED_APB"
   //     };
 
   //     // Call the same function that processes real scans
@@ -239,18 +243,18 @@ export default function TurnstileDashboard() {
       return;
     }
 
-    if (event_type_id.name === "APB_VIOLATION_HARD") {
-      return;
-    }
+    // if (event_type_id.name === "APB_VIOLATION_HARD") {
+    //   return;
+    // }
 
-    if (event_type_id.name.includes("APB")) {
-      return;
-    }
+    // if (event_type_id.name.includes("APB")) {
+    //   return;
+    // }
 
-    // Skip tna_key of 2 (OUT events)
-    if (tna_key === "2") {
-      return;
-    }
+    // // Skip tna_key of 2 (OUT events)
+    // if (tna_key === "2") {
+    //   return;
+    // }
 
     try {
       const response = await axios.get("api/users", {
@@ -307,6 +311,23 @@ export default function TurnstileDashboard() {
           disabled,
           expiryDate,
           tnaKey: tna_key,
+          eventTypeId: event_type_id.name,
+        },
+      }));
+
+      setReportQueue((prevData) => ({
+        ...prevData,
+        [device.id]: {
+          user: userData,
+          device: deviceData,
+          datetime: datetime,
+          remarks: remarks ?? "No remarks",
+          livedName,
+          userImage,
+          disabled,
+          expiryDate,
+          tnaKey: tna_key,
+          eventTypeId: event_type_id.name,
         },
       }));
 
@@ -322,9 +343,23 @@ export default function TurnstileDashboard() {
           expiryDate,
           tnaKey: tna_key,
         };
-        const newQueue = [...prevQueue, newDeviceData];
-        // Remove first item if queue length exceeds 10
-        return newQueue.length > 50 ? newQueue.slice(1) : newQueue;
+
+        const isApbEvent = event_type_id.name?.includes("APB");
+        const isOutEvent = tna_key === "2";
+
+        // const newQueue = [...prevQueue, newDeviceData];
+        // // Remove first item if queue length exceeds 10
+        // return newQueue.length > 50 ? newQueue.slice(1) : newQueue;
+
+        // Only add to queue if it's not an APB event and not an OUT event
+        if (!isApbEvent && !isOutEvent) {
+          const newQueue = [...prevQueue, newDeviceData];
+          // Remove first item if queue length exceeds 50
+          return newQueue.length > 50 ? newQueue.slice(1) : newQueue;
+        }
+
+        // Return the previous queue unchanged if it's an APB event or OUT event
+        return prevQueue;
       });
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -379,8 +414,9 @@ export default function TurnstileDashboard() {
     const isDisabled = scan.disabled === "true";
     const isExpired = checkExpiry(scan.expiryDate);
     const hasRemarks = scan.remarks !== "No remarks";
+    const isApb = scan.eventTypeId?.includes("APB");
 
-    if (isDisabled || isExpired) {
+    if (isDisabled || isExpired || isApb) {
       return "RED;cannot enter with or without remarks";
     }
 
@@ -415,21 +451,43 @@ export default function TurnstileDashboard() {
     };
 
     // Get the latest scan from devicesData
-    const latestScan = Object.values(devicesData)[0];
+    const latestScan = Object.values(reportQueue)[0];
 
-    // console.log("Latest scan:", latestScan);
+    // if (latestScan) {
+    //   const reportData: ReportData = {
+    //     datetime: latestScan.datetime,
+    //     type: latestScan.tnaKey || "",
+    //     user_id: latestScan.user.user_id,
+    //     name: latestScan.user.name,
+    //     remarks: latestScan.remarks || "No remarks",
+    //     status: getEntryStatus(latestScan),
+    //     activity: latestScan.tnaKey === "1" ? "IN" : "OUT",
+    //   };
+
+    //   sendReport(reportData);
+    // }
 
     if (latestScan) {
+      // Determine the type value based on conditions
+      let typeValue = "";
+      if (latestScan.eventTypeId?.includes("APB")) {
+        typeValue = ""; // Empty string for APB events
+      } else if (latestScan.tnaKey === "1") {
+        typeValue = "1"; // Keep "1" for IN events
+      } else if (latestScan.tnaKey) {
+        typeValue = "2"; // Explicitly set "2" for any non-IN events
+      }
+      
       const reportData: ReportData = {
         datetime: latestScan.datetime,
-        type: latestScan.tnaKey || "",
+        type: typeValue,
         user_id: latestScan.user.user_id,
         name: latestScan.user.name,
         remarks: latestScan.remarks || "No remarks",
         status: getEntryStatus(latestScan),
         activity: latestScan.tnaKey === "1" ? "IN" : "OUT",
       };
-
+    
       sendReport(reportData);
     }
     // include getEntryStatus if failing
@@ -437,7 +495,9 @@ export default function TurnstileDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* <button onClick={scanSimulation} className="btn btn-primary">Simulate Scan</button> */}
+      {/* <button onClick={scanSimulation} className="btn btn-primary">
+        Simulate Scan
+      </button> */}
       <div className="flex flex-col lg:flex-row gap-6">
         <Card className="min-w-[75%] max-w-[75%]">
           <CardHeader>
@@ -446,7 +506,14 @@ export default function TurnstileDashboard() {
           </CardHeader>
           <CardContent className="flex flex-row flex-wrap gap-4">
             <TurnstileGrid
-              scanDetails={Object.values(devicesData)}
+              scanDetails={Object.values(devicesData).filter((scan) => {
+                const isApbViolationHard =
+                  scan.eventTypeId === "ACCESS_DENIED_APB";
+                const isApbEvent = scan.eventTypeId?.includes("APB");
+                const isOutEvent = scan.tnaKey === "2";
+
+                return !isApbViolationHard && !isApbEvent && !isOutEvent;
+              })}
               setScanDetail={(newScanDetail) => {
                 setDevicesData((prevData) => ({
                   ...prevData,

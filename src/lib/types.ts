@@ -25,6 +25,7 @@ export interface ScanProps {
   disabled?: string
   expiryDate?: string
   tnaKey?: string
+  eventTypeId?: string;
 }
 
 export type CustomField = {
@@ -63,6 +64,8 @@ export interface ScanDetailStatus {
     id: string;
   };
   livedName?: string | null | undefined; 
+  eventTypeId?: string;
+  event?: string;
 }
 
 export interface ReportData {
