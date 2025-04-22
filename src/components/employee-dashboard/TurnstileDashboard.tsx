@@ -498,6 +498,7 @@ export default function TurnstileDashboard() {
         remarks: scan.remarks || "No remarks",
         status: getEntryStatus(scan),
         activity: scan.tnaKey === "1" ? "IN" : "OUT",
+        gate: scan.device.name,
       };
     
       sendReport(reportData);

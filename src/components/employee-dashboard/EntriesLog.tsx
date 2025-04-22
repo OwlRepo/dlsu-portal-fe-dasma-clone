@@ -212,12 +212,12 @@ export default function EntriesLog({ queue }: LogEntry) {
                   {selectedEntry.disabled === "true" ? "Disabled" : "Active"}
                 </p>
 
-                {selectedEntry.expiryDate && (
+                {/* {selectedEntry.expiryDate && (
                   <p className="text-sm text-gray-600 mt-1">
                     <span className="font-medium">Expiry Date:</span>{" "}
                     {new Date(selectedEntry.expiryDate).toLocaleDateString()}
                   </p>
-                )}
+                )} */}
               </div>
 
               {/* Remarks section */}

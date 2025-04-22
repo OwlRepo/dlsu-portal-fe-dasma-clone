@@ -76,6 +76,7 @@ export interface ReportData {
   remarks: string;
   status: string;
   activity: string;
+  gate: string;
 }
 
 export interface ReportsList {
