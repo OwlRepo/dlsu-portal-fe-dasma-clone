@@ -18,7 +18,8 @@ export const useReportsSocket = () => {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const socketInstance = io("http://10.50.140.110:9580", {
+    const socketUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:9580";
+    const socketInstance = io(socketUrl, {
       path: "/socket.io/",
       transports: ["websocket", "polling"], // Allow fallback to polling
       reconnection: true,
