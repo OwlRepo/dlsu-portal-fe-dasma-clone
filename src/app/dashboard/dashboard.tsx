@@ -1,10 +1,10 @@
 "use client";
 
-import { LogOut, LogIn, University } from "lucide-react";
+import {  LogIn, University } from "lucide-react";
 import { StatisticsCard } from "@/components/dashboard/statistics-card";
 import { GateAccessStats } from "@/components/dashboard/gate-access-stats";
 import { LiveDataTable } from "@/components/dashboard/live-data-table";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 // import axios from "axios";
 import axios from "@/lib/axios-interceptor";
 import {
@@ -40,6 +40,22 @@ export function Dashboard() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const BIOSTAR2_WS_URI = `${process.env.NEXT_PUBLIC_WS_HOST}/wsapi`;
+
+  // Utility function to check if a datetime is from today
+  const isToday = (datetime: string): boolean => {
+    const eventDate = new Date(datetime);
+    const today = new Date();
+    return (
+      eventDate.getDate() === today.getDate() &&
+      eventDate.getMonth() === today.getMonth() &&
+      eventDate.getFullYear() === today.getFullYear()
+    );
+  };
+
+  // Filter table queue to only include entries from today
+  const filteredTableQueue = useMemo(() => {
+    return tableQueue.filter(entry => isToday(entry.datetime));
+  }, [tableQueue]);
 
   //   const scanSimulation = async () => {
   //   try {
@@ -381,6 +397,33 @@ export function Dashboard() {
     };
   }, [debouncedFetchUserData]);
 
+  // Midnight detection and auto-clear
+  const lastCheckedDateRef = useRef<string>(
+    `${new Date().getFullYear()}-${new Date().getMonth()}-${new Date().getDate()}`
+  );
+  
+  useEffect(() => {
+    const checkMidnight = () => {
+      const now = new Date();
+      const currentDateString = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+      
+      // Check if the date has changed (midnight has passed)
+      if (currentDateString !== lastCheckedDateRef.current) {
+        setTableQueue([]);
+        setProcessedEvents(new Set());
+        lastCheckedDateRef.current = currentDateString;
+      }
+    };
+    
+    // Check every minute
+    const interval = setInterval(checkMidnight, 60000);
+    
+    // Also check immediately on mount in case component was mounted after midnight
+    checkMidnight();
+    
+    return () => clearInterval(interval);
+  }, []);
+
   // calculate counts from deviceQueue
   // useEffect(() => {
   //   const entry = deviceQueue.filter((item) => item.tnaKey === "1").length;
@@ -459,11 +502,11 @@ export function Dashboard() {
                 count={stats?.entry}
                 label="Entry"
               />
-              <StatisticsCard
+              {/* <StatisticsCard
                 icon={<LogOut className="h-10 w-10 text-[#ee5f62]" />}
                 count={stats?.exit}
                 label="Exit"
-              />
+              /> */}
             </div>
           }
 
@@ -475,7 +518,7 @@ export function Dashboard() {
         </div>
 
         {/* Live Data Table */}
-        <LiveDataTable data={tableQueue} handleClear={handleClear} />
+        <LiveDataTable data={filteredTableQueue} handleClear={handleClear} />
       </div>
       {/* Confirmation Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

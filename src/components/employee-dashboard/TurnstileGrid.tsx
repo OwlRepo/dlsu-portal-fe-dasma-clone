@@ -213,14 +213,6 @@ export default function TurnstileGrid({
                         ID: {scanDetail?.user.user_id || "N/A"}
                       </p>
                     </div>
-                    <div>
-                      <p className="text-2xl font-bold">
-                        {scanDetail?.user.name || "N/A"}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Lived Name: {scanDetail?.livedName || "N/A"}
-                      </p>
-                    </div>
                   </div>
                 ) : (
                   <div className="flex items-center justify-between mb-2">
