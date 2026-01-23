@@ -1,6 +1,6 @@
 "use client";
 
-import {  LogIn, University } from "lucide-react";
+import {  LogIn } from "lucide-react";
 import { StatisticsCard } from "@/components/dashboard/statistics-card";
 import { GateAccessStats } from "@/components/dashboard/gate-access-stats";
 import { LiveDataTable } from "@/components/dashboard/live-data-table";
@@ -489,12 +489,7 @@ export function Dashboard() {
         <div className="mb-6 grid grid-cols-12 gap-4">
           {/* Stats and Gate Access in same row */}
           {
-            <div className="col-span-6 grid grid-cols-3 gap-4">
-              <StatisticsCard
-                icon={<University className="h-10 w-10 text-[#00bc65]" />}
-                count={stats?.onPremise}
-                label="On Premise"
-              />
+            <div className="col-span-3 grid grid-cols-1 gap-4">
               <StatisticsCard
                 icon={
                   <LogIn className="h-10 w-10 text-[#4fd1c5] transform rotate-180" />
@@ -502,16 +497,11 @@ export function Dashboard() {
                 count={stats?.entry}
                 label="Entry"
               />
-              {/* <StatisticsCard
-                icon={<LogOut className="h-10 w-10 text-[#ee5f62]" />}
-                count={stats?.exit}
-                label="Exit"
-              /> */}
             </div>
           }
 
           {/* Gate Access Stats */}
-          <div className="col-span-6 rounded-lg px-4">
+          <div className="col-span-9 rounded-lg px-4">
             <h2 className="mb-4 text-lg font-medium">Gate Access Stats</h2>
             <GateAccessStats data={stats?.gateAccessStats} />
           </div>
