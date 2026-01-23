@@ -20,6 +20,7 @@ interface TimePickerProps {
   time?: string;
   onSave: (time: string) => void;
   onClose: () => void;
+  endpoint?: string;
 }
 
 export function TimePicker({
@@ -27,6 +28,7 @@ export function TimePicker({
   time,
   onSave,
   onClose,
+  endpoint = "/database-sync/schedule",
 }: TimePickerProps) {
   const { toast } = useToast();
   const [hour, setHour] = useState(defaultValue.split(":")[0].padStart(2, "0"));
@@ -41,7 +43,7 @@ export function TimePicker({
 
     try {
       const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/database-sync/schedule`,
+        `${process.env.NEXT_PUBLIC_API_URL}${endpoint}`,
         {
           scheduleNumber: time === "morning" ? 1 : 2,
           time: `${hour}:${minute}`,

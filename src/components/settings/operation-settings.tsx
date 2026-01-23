@@ -38,6 +38,12 @@ export function OperationSettings() {
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState<string>("");
   const [isProcessingDeletion, setIsProcessingDeletion] = useState(false);
+  const [biostarSyncing, setBiostarSyncing] = useState(false);
+  const [biostarMorning, setBiostarMorning] = useState("");
+  const [biostarEvening, setBiostarEvening] = useState("");
+  const [showBiostarTimePicker, setShowBiostarTimePicker] = useState<
+    "morning" | "evening" | null
+  >(null);
 
   const handleSync = async () => {
     const user = Cookies.get("user");
@@ -65,6 +71,93 @@ export function OperationSettings() {
       console.log(res)
     } catch (error: unknown) {
       setSyncing(false);
+      
+      // Check if this is the NEXT_REDIRECT error from authorization issues
+      if (error instanceof Error && error.message.includes("NEXT_REDIRECT")) {
+        toast({
+          title: "Authentication Error",
+          description: "Your session has expired. Please log in again.",
+          variant: "destructive",
+          duration: 5000,
+        });
+        
+
+        return;
+      }
+      
+      let errorMessage = "Failed to synchronize database.";
+      
+      if (axios.isAxiosError(error)) {
+        const responseData = error.response?.data;
+        
+        if (responseData) {
+          // If we have response data, extract relevant fields
+          if (typeof responseData === 'object' && responseData !== null) {
+            
+            const errorDetails = [
+              responseData.message,
+              responseData.error,
+              responseData.details
+            ]
+              .filter(Boolean)
+              .join(' - '); 
+              
+            errorMessage = errorDetails || JSON.stringify(responseData);
+          } else {
+            errorMessage = String(responseData);
+          }
+        } else {
+          // If no response data, just use the error message
+          errorMessage = error.message;
+        }
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      toast({
+        title: "Synchronization Failed",
+        description: errorMessage,
+        variant: "destructive",
+        duration: 5000,
+      });
+    }
+  }
+
+  const handleBiostarScheduleSave = (time: string) => {
+    if (showBiostarTimePicker === "morning") {
+      setBiostarMorning(time);
+    } else {
+      setBiostarEvening(time);
+    }
+    setShowBiostarTimePicker(null);
+  };
+
+  const handleBiostarSync = async () => {
+    const user = Cookies.get("user");
+    const token = user ? JSON.parse(user).token : null;
+
+    try {
+      setBiostarSyncing(true);
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/database-sync/biostar/sync`,
+        {},
+        {
+          headers: {
+            Authorization: `${token}`,
+            Accept: "application/json",
+          },
+        }
+      );
+      setBiostarSyncing(false);
+      if (res.data) {
+        toast({
+          title: "Success",
+          description: `${res.data.message}`,
+        });
+      }
+      console.log(res)
+    } catch (error: unknown) {
+      setBiostarSyncing(false);
       
       // Check if this is the NEXT_REDIRECT error from authorization issues
       if (error instanceof Error && error.message.includes("NEXT_REDIRECT")) {
@@ -257,6 +350,40 @@ export function OperationSettings() {
     }
   }, []);
 
+  useEffect(() => {
+    const user = Cookies.get("user");
+    const token = user ? JSON.parse(user).token : null;
+
+    try {
+      const fetchBiostarSchedule = async () => {
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/database-sync/biostar/schedules`,
+          {
+            headers: {
+              Authorization: `${token}`,
+            },
+          }
+        );
+
+        if (res.data.length !== 0) {
+          // Handle array of schedules
+          res.data.forEach(
+            (schedule: { scheduleNumber: number; time: string }) => {
+              if (schedule.scheduleNumber === 1) {
+                setBiostarMorning(schedule.time);
+              } else if (schedule.scheduleNumber === 2) {
+                setBiostarEvening(schedule.time);
+              }
+            }
+          );
+        }
+      };
+      fetchBiostarSchedule();
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+
   return (
     <div className="grid gap-6 md:grid-cols-2">
       <Card>
@@ -298,6 +425,62 @@ export function OperationSettings() {
           
           <Button className="w-full" onClick={handleSync} disabled={syncing}>
             {syncing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Syncing...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="h-5 w-5" />
+                Sync Now
+              </>
+            )}
+          </Button>
+          <p className="text-sm text-gray-500">
+            Note: Only one sync can be queued at a time. Please wait it to finish before starting another one.
+            </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Biostar Sync</CardTitle>
+          <CardDescription>
+            Configure automatic synchronization times.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between bg-gray-100 py-2 px-4 rounded-md">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center w-32 gap-4 text-gray-500">
+                <Sun />
+                {biostarMorning}
+              </div>
+            </div>
+            <Button onClick={() => setShowBiostarTimePicker("morning")}>Set</Button>
+          </div>
+          <div className="flex items-center justify-between bg-gray-100 py-2 px-4 rounded-md">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center w-32 gap-4 text-gray-500">
+                <Moon />
+                {biostarEvening}
+              </div>
+            </div>
+            <Button onClick={() => setShowBiostarTimePicker("evening")}>Set</Button>
+          </div>
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white px-2 py-2 text-muted-foreground">
+                Or
+              </span>
+            </div>
+          </div>
+          
+          <Button className="w-full" onClick={handleBiostarSync} disabled={biostarSyncing}>
+            {biostarSyncing ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Syncing...
@@ -403,6 +586,16 @@ export function OperationSettings() {
             setShowTimePicker(null);
           }}
           onClose={() => setShowTimePicker(null)}
+        />
+      )}
+
+      {showBiostarTimePicker && (
+        <TimePicker
+          defaultValue={showBiostarTimePicker === "morning" ? biostarMorning : biostarEvening}
+          time={showBiostarTimePicker}
+          onSave={handleBiostarScheduleSave}
+          onClose={() => setShowBiostarTimePicker(null)}
+          endpoint="/database-sync/biostar/schedule"
         />
       )}
     </div>
