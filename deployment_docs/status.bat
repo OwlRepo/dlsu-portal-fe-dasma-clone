@@ -19,7 +19,7 @@ echo Detailed Information
 echo ============================================
 echo.
 
-pm2 describe dlsu-portal
+pm2 describe dlsu-portal-fe-dasma
 
 echo.
 echo ============================================

@@ -13,5 +13,5 @@ echo.
 echo Press Ctrl+C to exit log viewer
 echo.
 
-pm2 logs dlsu-portal --lines 100
+pm2 logs dlsu-portal-fe-dasma --lines 100
 

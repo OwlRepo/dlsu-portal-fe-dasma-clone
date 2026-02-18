@@ -6,10 +6,10 @@ REM Stop DLSU Portal Application
 REM ============================================
 
 echo.
-echo Stopping DLSU Portal application...
+echo Stopping DLSU Portal FE Dasma application...
 echo.
 
-pm2 stop dlsu-portal
+pm2 stop dlsu-portal-fe-dasma
 
 if %errorLevel% equ 0 (
     echo.

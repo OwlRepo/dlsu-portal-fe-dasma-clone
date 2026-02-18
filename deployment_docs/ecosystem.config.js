@@ -1,9 +1,9 @@
 module.exports = {
   apps: [
     {
-      name: 'dlsu-portal',
-      script: 'npm',
-      args: 'start',
+      name: 'dlsu-portal-fe-dasma',
+      script: 'bun',
+      args: 'run start',
       cwd: process.cwd(),
       instances: 1,
       exec_mode: 'fork',
@@ -11,6 +11,10 @@ module.exports = {
       watch: false,
       max_memory_restart: '1G',
       env: {
+        NODE_ENV: 'production',
+        PORT: 3000
+      },
+      env_production: {
         NODE_ENV: 'production',
         PORT: 3000
       },
