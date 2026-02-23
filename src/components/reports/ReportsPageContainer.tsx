@@ -19,6 +19,7 @@ export interface ReportsHeader {
   ID: string;
   NAME: string;
   ACTIVITY: string;
+  DATETIME?: string;
   REMARKS?: string;
 }
 
@@ -232,11 +233,26 @@ const ReportsPageContainer = () => {
     };
   }, [debouncedSearch]);
 
+  const formatDateTime = (dateStr: string | Date | undefined) => {
+    if (!dateStr) return "N/A";
+    try {
+      const date = typeof dateStr === "string" ? new Date(dateStr) : dateStr;
+      if (isNaN(date.getTime())) return "N/A";
+      return new Intl.DateTimeFormat("en-US", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }).format(date);
+    } catch {
+      return "N/A";
+    }
+  };
+
   const data = reportsList.map((row) => ({
     STATUS: row.status ? row.status : "N/A",
     ID: row.user_id ? row.user_id : "N/A",
     NAME: row.name ? row.name : "N/A",
     ACTIVITY: row.type ? (row.type === "1" ? "IN" : "OUT") : "N/A",
+    DATETIME: formatDateTime(row.datetime),
     REMARKS: row.remarks ? row.remarks : "N/A",
   }));
 
@@ -322,8 +338,11 @@ const ReportsPageContainer = () => {
                           {selectedData.ACTIVITY}
                         </p>
                         </div>
-
-                       
+                        {selectedData.DATETIME && (
+                          <p className="text-sm text-muted-foreground">
+                            Date/Time: {selectedData.DATETIME}
+                          </p>
+                        )}
                       </div>
                       <div className="space-y-2">
                         <p className="text-sm">Remarks: </p>

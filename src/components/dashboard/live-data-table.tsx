@@ -18,8 +18,23 @@ interface LiveDataRow {
   ID: string;
   NAME: string;
   ACTIVITY: string;
+  DATETIME?: string;
   userImage?: string;
   event?: string;
+}
+
+function formatLiveDateTime(dateStr: string | undefined): string {
+  if (!dateStr) return "N/A";
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return "N/A";
+    return new Intl.DateTimeFormat("en-US", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    }).format(date);
+  } catch {
+    return "N/A";
+  }
 }
 
 export function LiveDataTable({ data, handleClear }: LiveData) {
@@ -31,6 +46,7 @@ export function LiveDataTable({ data, handleClear }: LiveData) {
     ID: row.user.user_id ? row.user.user_id : "N/A",
     NAME: row.user.name ? row.user.name : "N/A",
     ACTIVITY: row.eventTypeId && row.eventTypeId.includes("APB") ? "APB_VIOLATION" : (row.tnaKey ? (row.tnaKey === "1" ? "IN" : "OUT") : "N/A"),
+    DATETIME: formatLiveDateTime(row.datetime),
     event: row.eventTypeId ? row.eventTypeId : "N/A",
   }));
 
@@ -163,6 +179,11 @@ export function LiveDataTable({ data, handleClear }: LiveData) {
                         <p className="text-xl font-semibold">
                           {selectedData.NAME}
                         </p>
+                        {selectedData.DATETIME && (
+                          <p className="text-sm text-muted-foreground">
+                            Date/Time: {selectedData.DATETIME}
+                          </p>
+                        )}
                       </div>
                       <div className="space-y-2">
                         <p className="text-sm">Remarks: </p>

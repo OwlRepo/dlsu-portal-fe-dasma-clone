@@ -5,6 +5,7 @@ export const headers = [
   // { header: 'Type', accessor: 'TYPE' as const },
   // { header: 'Gate', accessor: 'GATE' as const },
   { header: 'Activity', accessor: 'ACTIVITY' as const },
+  { header: 'Date/Time', accessor: 'DATETIME' as const },
 ];
 
 export const liveDataHeaders = [
@@ -13,5 +14,6 @@ export const liveDataHeaders = [
   { header: 'Name', accessor: 'NAME' as const },
   // { header: 'Type', accessor: 'TYPE' as const },
   // { header: 'Gate', accessor: 'GATE' as const },
-  { header: 'Activity', accessor: 'ACTIVITY' as const }
+  { header: 'Activity', accessor: 'ACTIVITY' as const },
+  { header: 'Date/Time', accessor: 'DATETIME' as const }
 ];

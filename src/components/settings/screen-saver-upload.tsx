@@ -18,11 +18,13 @@ import {
 } from "@/components/ui/select";
 import { FolderClosed, SlidersHorizontal, Upload, X } from "lucide-react";
 // import Image from "next/image";
-import axios from "axios";
+import axios from "@/lib/axios-interceptor";
 import Cookies from "js-cookie";
 import { useDropzone } from "react-dropzone";
+import { useToast } from "@/hooks/use-toast";
 
 export function ScreenSaverUpload() {
+  const { toast } = useToast();
   const [image, setImage] = useState<string | null>(null);
   const [showConfigure, setShowConfigure] = useState(false);
   const [defaultScreensaverUrl, setDefaultScreensaverUrl] = useState<
@@ -49,13 +51,36 @@ export function ScreenSaverUpload() {
     // return url;
   };
 
+  const fetchScreensaverPreview = async () => {
+    try {
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/screensaver`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+      if (res.status === 200 && res.data?.data?.url) {
+        const url = transformImageUrl(res.data.data.url);
+        setDefaultScreensaverUrl(url);
+        setImage(url);
+      }
+    } catch {
+      setDefaultScreensaverUrl(null);
+      setImage(null);
+    }
+  };
+
   const handleImageUpload = async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
+    if (!file) return;
+
     const formData = new FormData();
     formData.append("file", file);
 
     try {
-      const response = await axios.post(
+      await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/screensaver/upload`,
         formData,
         {
@@ -66,10 +91,25 @@ export function ScreenSaverUpload() {
         }
       );
 
-      const data = await response.data;
-      setImage(data.url);
+      // Refresh preview from GET to ensure correct URL and display
+      await fetchScreensaverPreview();
+      toast({
+        title: "Success",
+        description: "Screensaver image uploaded successfully",
+        duration: 3000,
+      });
     } catch (error) {
       console.error(error);
+      const message =
+        axios.isAxiosError(error) && error.response?.data?.message
+          ? error.response.data.message
+          : "Unable to save or upload image.";
+      toast({
+        variant: "destructive",
+        title: "Screensaver error",
+        description: message,
+        duration: 5000,
+      });
     }
   };
 

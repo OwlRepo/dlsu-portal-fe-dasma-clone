@@ -328,10 +328,10 @@ export function Dashboard() {
       //   },
       // }));
 
-      // Update table queue with length limit
+      // Update table queue with length limit (prepend so newest appears first)
       setTableQueue((prevQueue) => {
-        const newQueue = [...prevQueue, newDeviceData];
-        return newQueue.length > 25 ? newQueue.slice(1) : newQueue;
+        const newQueue = [newDeviceData, ...prevQueue];
+        return newQueue.length > 25 ? newQueue.slice(0, 25) : newQueue;
       });
 
       // Update stats queue without limit
