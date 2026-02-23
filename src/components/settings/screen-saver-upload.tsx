@@ -45,10 +45,20 @@ export function ScreenSaverUpload() {
   const token = user ? JSON.parse(user).token : null;
 
   const transformImageUrl = (url: string) => {
-    // if (typeof window === "undefined") {
-    return url.replace("localhost", "10.50.140.110"); // Use your actual IP
-    // }
-    // return url;
+    try {
+      const imageUrl = new URL(url);
+      const apiBase = process.env.NEXT_PUBLIC_API_URL;
+      if (!apiBase) return url;
+
+      // Keep backend-provided port/path, but use the same reachable host as the API base URL.
+      const apiUrl = new URL(apiBase);
+      imageUrl.hostname = apiUrl.hostname;
+      imageUrl.protocol = apiUrl.protocol;
+
+      return imageUrl.toString();
+    } catch {
+      return url;
+    }
   };
 
   const fetchScreensaverPreview = async () => {
@@ -134,7 +144,7 @@ export function ScreenSaverUpload() {
           `${process.env.NEXT_PUBLIC_API_URL}/screensaver`,
           {
             headers: {
-              Authorization: token,
+              Authorization: `${token}`,
             },
           }
         );
