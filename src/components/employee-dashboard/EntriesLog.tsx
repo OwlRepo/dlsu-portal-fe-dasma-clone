@@ -141,7 +141,7 @@ export default function EntriesLog({ queue }: LogEntry) {
                         </p>
                       </div>
                       <p className="text-sm text-gray-600 mt-1">
-                        Turnstile: {entry.device.id}
+                        Device Gate: {entry.device.id}
                       </p>
                       {/* {entry.livedName && (
                         <p className="text-sm text-gray-600">
