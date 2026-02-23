@@ -118,7 +118,7 @@ export default function EntriesLog({ queue }: LogEntry) {
                 <div
                   key={index}
                   className={`bg-white rounded-lg p-4 ${getBorderColorClass(
-                    entry
+                    entry,
                   )} 
                   cursor-pointer transition-all hover:shadow-md`}
                   onClick={() => handleEntryClick(entry)}
@@ -133,9 +133,9 @@ export default function EntriesLog({ queue }: LogEntry) {
                     />
                     <div className="flex-grow">
                       <div className="flex justify-between items-start">
-                        <p className="font-medium text-gray-900">
+                        {/* <p className="font-medium text-gray-900">
                           {entry.user.name}
-                        </p>
+                        </p> */}
                         <p className="text-sm text-gray-500">
                           ID: {entry.user.user_id}
                         </p>
@@ -143,11 +143,11 @@ export default function EntriesLog({ queue }: LogEntry) {
                       <p className="text-sm text-gray-600 mt-1">
                         Turnstile: {entry.device.id}
                       </p>
-                      {entry.livedName && (
+                      {/* {entry.livedName && (
                         <p className="text-sm text-gray-600">
                           Lived Name: {entry.livedName}
                         </p>
-                      )}
+                      )} */}
                     </div>
                   </div>
                   <div className="mt-3 bg-gray-100 p-3 rounded-lg">
