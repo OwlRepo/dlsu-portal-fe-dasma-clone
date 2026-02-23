@@ -61,6 +61,11 @@ export function ScreenSaverUpload() {
     }
   };
 
+  const withCacheBust = (url: string, version?: string) => {
+    const separator = url.includes("?") ? "&" : "?";
+    return `${url}${separator}v=${encodeURIComponent(version ?? Date.now().toString())}`;
+  };
+
   const fetchScreensaverPreview = async () => {
     try {
       const res = await axios.get(
@@ -72,7 +77,12 @@ export function ScreenSaverUpload() {
         }
       );
       if (res.status === 200 && res.data?.data?.url) {
-        const url = transformImageUrl(res.data.data.url);
+        const url = withCacheBust(
+          transformImageUrl(res.data.data.url),
+          res.data?.data?.lastModified
+            ? new Date(res.data.data.lastModified).getTime().toString()
+            : undefined,
+        );
         setDefaultScreensaverUrl(url);
         setImage(url);
       }
