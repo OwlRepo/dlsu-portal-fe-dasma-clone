@@ -392,28 +392,32 @@ export function OperationSettings() {
               </>
             )}
           </Button>
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={handleBiostarSync}
-            disabled={biostarSyncing}
-            aria-label="Run Biostar photos sync only"
-          >
-            {biostarSyncing ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Syncing...
-              </>
-            ) : (
-              <>
-                <RefreshCw className="h-5 w-5 mr-2" />
-                Run Biostar Sync
-              </>
-            )}
-          </Button>
-          <p className="text-xs text-muted-foreground">
-            This will only sync the data from Biostar to the local database.
-          </p>
+
+          <div className="space-y-2 pt-2">
+            <p className="text-sm font-medium text-foreground">Biostar Sync</p>
+            <p className="text-sm text-muted-foreground">
+              This will only sync the data from Biostar to the local database.
+            </p>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={handleBiostarSync}
+              disabled={biostarSyncing}
+              aria-label="Run Biostar photos sync only"
+            >
+              {biostarSyncing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Syncing...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="h-5 w-5 mr-2" />
+                  Run Biostar Sync
+                </>
+              )}
+            </Button>
+          </div>
           <p className="text-sm text-gray-500">
             Only one sync can run at a time. Please wait for the current sync to finish before starting another.
           </p>
