@@ -74,7 +74,7 @@ export function ScreenSaverUpload() {
           headers: {
             Authorization: `${token}`,
           },
-        }
+        },
       );
       if (res.status === 200 && res.data?.data?.url) {
         const url = withCacheBust(
@@ -108,7 +108,7 @@ export function ScreenSaverUpload() {
             "Content-Type": "multipart/form-data",
             Authorization: `${token}`,
           },
-        }
+        },
       );
 
       // Refresh preview from GET to ensure correct URL and display
@@ -156,7 +156,7 @@ export function ScreenSaverUpload() {
             headers: {
               Authorization: `${token}`,
             },
-          }
+          },
         );
 
         if (res.status === 200 && res.data?.data?.url) {
@@ -175,7 +175,7 @@ export function ScreenSaverUpload() {
   }, [token]);
 
   return (
-    <Card>
+    <Card className="h-fit">
       <CardHeader>
         <div
           style={{

@@ -54,7 +54,7 @@ export function OperationSettings() {
             Authorization: `${token}`,
             Accept: "application/json",
           },
-        }
+        },
       );
       setSyncing(false);
       if (res.data) {
@@ -63,10 +63,10 @@ export function OperationSettings() {
           description: `${res.data.message}`,
         });
       }
-      console.log(res)
+      console.log(res);
     } catch (error: unknown) {
       setSyncing(false);
-      
+
       // Check if this is the NEXT_REDIRECT error from authorization issues
       if (error instanceof Error && error.message.includes("NEXT_REDIRECT")) {
         toast({
@@ -75,28 +75,26 @@ export function OperationSettings() {
           variant: "destructive",
           duration: 5000,
         });
-        
 
         return;
       }
-      
+
       let errorMessage = "Failed to synchronize database.";
-      
+
       if (axios.isAxiosError(error)) {
         const responseData = error.response?.data;
-        
+
         if (responseData) {
           // If we have response data, extract relevant fields
-          if (typeof responseData === 'object' && responseData !== null) {
-            
+          if (typeof responseData === "object" && responseData !== null) {
             const errorDetails = [
               responseData.message,
               responseData.error,
-              responseData.details
+              responseData.details,
             ]
               .filter(Boolean)
-              .join(' - '); 
-              
+              .join(" - ");
+
             errorMessage = errorDetails || JSON.stringify(responseData);
           } else {
             errorMessage = String(responseData);
@@ -108,7 +106,7 @@ export function OperationSettings() {
       } else if (error instanceof Error) {
         errorMessage = error.message;
       }
-      
+
       toast({
         title: "Synchronization Failed",
         description: errorMessage,
@@ -116,7 +114,7 @@ export function OperationSettings() {
         duration: 5000,
       });
     }
-  }
+  };
 
   const handleBiostarSync = async () => {
     const user = Cookies.get("user");
@@ -132,7 +130,7 @@ export function OperationSettings() {
             Authorization: `${token}`,
             Accept: "application/json",
           },
-        }
+        },
       );
       setBiostarSyncing(false);
       if (res.data) {
@@ -141,10 +139,10 @@ export function OperationSettings() {
           description: `${res.data.message}`,
         });
       }
-      console.log(res)
+      console.log(res);
     } catch (error: unknown) {
       setBiostarSyncing(false);
-      
+
       // Check if this is the NEXT_REDIRECT error from authorization issues
       if (error instanceof Error && error.message.includes("NEXT_REDIRECT")) {
         toast({
@@ -153,28 +151,26 @@ export function OperationSettings() {
           variant: "destructive",
           duration: 5000,
         });
-        
 
         return;
       }
-      
+
       let errorMessage = "Failed to synchronize database.";
-      
+
       if (axios.isAxiosError(error)) {
         const responseData = error.response?.data;
-        
+
         if (responseData) {
           // If we have response data, extract relevant fields
-          if (typeof responseData === 'object' && responseData !== null) {
-            
+          if (typeof responseData === "object" && responseData !== null) {
             const errorDetails = [
               responseData.message,
               responseData.error,
-              responseData.details
+              responseData.details,
             ]
               .filter(Boolean)
-              .join(' - '); 
-              
+              .join(" - ");
+
             errorMessage = errorDetails || JSON.stringify(responseData);
           } else {
             errorMessage = String(responseData);
@@ -186,7 +182,7 @@ export function OperationSettings() {
       } else if (error instanceof Error) {
         errorMessage = error.message;
       }
-      
+
       toast({
         title: "Synchronization Failed",
         description: errorMessage,
@@ -194,11 +190,11 @@ export function OperationSettings() {
         duration: 5000,
       });
     }
-  }
+  };
 
   const handleButtonClick = () => {
     if (fileInputRef.current) {
-      fileInputRef.current.click(); 
+      fileInputRef.current.click();
     }
   };
 
@@ -253,7 +249,7 @@ export function OperationSettings() {
             Authorization: `${token}`,
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
 
       if (res) {
@@ -314,7 +310,7 @@ export function OperationSettings() {
             headers: {
               Authorization: `${token}`,
             },
-          }
+          },
         );
 
         if (res.data.length !== 0) {
@@ -326,7 +322,7 @@ export function OperationSettings() {
               } else if (schedule.scheduleNumber === 2) {
                 setEvening(schedule.time);
               }
-            }
+            },
           );
         }
       };
@@ -337,12 +333,13 @@ export function OperationSettings() {
   }, []);
 
   return (
-    <div className="grid gap-6 md:grid-cols-2">
+    <div className="grid gap-6 md:grid-cols-1">
       <Card>
         <CardHeader>
           <CardTitle>Sync Schedule</CardTitle>
           <CardDescription>
-            Set when automatic sync runs (students and Biostar photos). The full sync runs main sync first, then Biostar photos.
+            Set when automatic sync runs (students and Biostar photos). The full
+            sync runs main sync first, then Biostar photos.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -353,7 +350,10 @@ export function OperationSettings() {
                 {morning}
               </div>
             </div>
-            <Button onClick={() => setShowTimePicker("morning")} aria-label="Set morning sync time">
+            <Button
+              onClick={() => setShowTimePicker("morning")}
+              aria-label="Set morning sync time"
+            >
               Set Morning Time
             </Button>
           </div>
@@ -364,7 +364,10 @@ export function OperationSettings() {
                 {evening}
               </div>
             </div>
-            <Button onClick={() => setShowTimePicker("evening")} aria-label="Set evening sync time">
+            <Button
+              onClick={() => setShowTimePicker("evening")}
+              aria-label="Set evening sync time"
+            >
               Set Evening Time
             </Button>
           </div>
@@ -379,7 +382,12 @@ export function OperationSettings() {
             </div>
           </div>
 
-          <Button className="w-full" onClick={handleSync} disabled={syncing} aria-label="Run full sync with students and Biostar photos">
+          <Button
+            className="w-full"
+            onClick={handleSync}
+            disabled={syncing}
+            aria-label="Run full sync with students and Biostar photos"
+          >
             {syncing ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -419,7 +427,8 @@ export function OperationSettings() {
             </Button>
           </div>
           <p className="text-sm text-gray-500">
-            Only one sync can run at a time. Please wait for the current sync to finish before starting another.
+            Only one sync can run at a time. Please wait for the current sync to
+            finish before starting another.
           </p>
         </CardContent>
       </Card>
