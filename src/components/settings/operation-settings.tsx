@@ -388,7 +388,7 @@ export function OperationSettings() {
             ) : (
               <>
                 <RefreshCw className="h-5 w-5 mr-2" />
-                Run Full Sync (Students + Biostar Photos)
+                Run Full Sync
               </>
             )}
           </Button>
@@ -407,7 +407,7 @@ export function OperationSettings() {
             ) : (
               <>
                 <RefreshCw className="h-5 w-5 mr-2" />
-                Run Biostar Photos Only
+                Run Biostar Sync
               </>
             )}
           </Button>
