@@ -18,6 +18,21 @@ interface LogEntry {
   queue: ScanProps[];
 }
 
+function formatEntryDateTime(dateStr: string | undefined): string {
+  if (!dateStr) return "N/A";
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return "N/A";
+    return new Intl.DateTimeFormat("en-US", {
+      dateStyle: "medium",
+      timeStyle: "short",
+      timeZone: "Asia/Manila",
+    }).format(date);
+  } catch {
+    return "N/A";
+  }
+}
+
 export default function EntriesLog({ queue }: LogEntry) {
   const { username, token } = useUserToken();
   const { data } = useGetEmployeeDetails({
@@ -123,31 +138,24 @@ export default function EntriesLog({ queue }: LogEntry) {
                   cursor-pointer transition-all hover:shadow-md`}
                   onClick={() => handleEntryClick(entry)}
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 min-w-0">
                     <Image
                       src={entry.userImage || "/default-user-icon.png"}
                       alt={entry.user.name}
                       width={40}
                       height={40}
-                      className="rounded-full object-cover"
+                      className="rounded-full object-cover shrink-0"
                     />
-                    <div className="flex-grow">
-                      <div className="flex justify-between items-start">
-                        {/* <p className="font-medium text-gray-900">
-                          {entry.user.name}
-                        </p> */}
-                        <p className="text-sm text-gray-500">
-                          ID: {entry.user.user_id}
-                        </p>
-                      </div>
-                      <p className="text-sm text-gray-600 mt-1">
+                    <div className="flex-grow min-w-0 overflow-hidden">
+                      <p className="text-xs sm:text-sm text-gray-500 break-words">
+                        ID: {entry.user.user_id}
+                      </p>
+                      <p className="text-xs sm:text-sm text-gray-600 mt-0.5 break-words">
                         Device Gate: {entry.device.id}
                       </p>
-                      {/* {entry.livedName && (
-                        <p className="text-sm text-gray-600">
-                          Lived Name: {entry.livedName}
-                        </p>
-                      )} */}
+                      <p className="text-xs sm:text-sm text-gray-600 mt-0.5 break-words leading-tight">
+                        Date/Time: {formatEntryDateTime(entry.datetime)}
+                      </p>
                     </div>
                   </div>
                   <div className="mt-3 bg-gray-100 p-3 rounded-lg">
@@ -198,6 +206,11 @@ export default function EntriesLog({ queue }: LogEntry) {
                 <p className="text-sm text-gray-600">
                   <span className="font-medium">Turnstile:</span>{" "}
                   {selectedEntry.device.id}
+                </p>
+
+                <p className="text-sm text-gray-600 mt-1">
+                  <span className="font-medium">Date/Time:</span>{" "}
+                  {formatEntryDateTime(selectedEntry.datetime)}
                 </p>
 
                 {selectedEntry.livedName && (
