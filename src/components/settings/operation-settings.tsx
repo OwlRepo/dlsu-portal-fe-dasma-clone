@@ -39,11 +39,6 @@ export function OperationSettings() {
   const [fileName, setFileName] = useState<string>("");
   const [isProcessingDeletion, setIsProcessingDeletion] = useState(false);
   const [biostarSyncing, setBiostarSyncing] = useState(false);
-  const [biostarMorning, setBiostarMorning] = useState("");
-  const [biostarEvening, setBiostarEvening] = useState("");
-  const [showBiostarTimePicker, setShowBiostarTimePicker] = useState<
-    "morning" | "evening" | null
-  >(null);
 
   const handleSync = async () => {
     const user = Cookies.get("user");
@@ -122,15 +117,6 @@ export function OperationSettings() {
       });
     }
   }
-
-  const handleBiostarScheduleSave = (time: string) => {
-    if (showBiostarTimePicker === "morning") {
-      setBiostarMorning(time);
-    } else {
-      setBiostarEvening(time);
-    }
-    setShowBiostarTimePicker(null);
-  };
 
   const handleBiostarSync = async () => {
     const user = Cookies.get("user");
@@ -350,47 +336,13 @@ export function OperationSettings() {
     }
   }, []);
 
-  useEffect(() => {
-    const user = Cookies.get("user");
-    const token = user ? JSON.parse(user).token : null;
-
-    try {
-      const fetchBiostarSchedule = async () => {
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/database-sync/biostar/schedules`,
-          {
-            headers: {
-              Authorization: `${token}`,
-            },
-          }
-        );
-
-        if (res.data.length !== 0) {
-          // Handle array of schedules
-          res.data.forEach(
-            (schedule: { scheduleNumber: number; time: string }) => {
-              if (schedule.scheduleNumber === 1) {
-                setBiostarMorning(schedule.time);
-              } else if (schedule.scheduleNumber === 2) {
-                setBiostarEvening(schedule.time);
-              }
-            }
-          );
-        }
-      };
-      fetchBiostarSchedule();
-    } catch (error) {
-      console.error(error);
-    }
-  }, []);
-
   return (
     <div className="grid gap-6 md:grid-cols-2">
       <Card>
         <CardHeader>
-          <CardTitle>Scheduled Syncing</CardTitle>
+          <CardTitle>Sync Schedule</CardTitle>
           <CardDescription>
-            Configure automatic synchronization times.
+            Set when automatic sync runs (students and Biostar photos). The full sync runs main sync first, then Biostar photos.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -401,7 +353,9 @@ export function OperationSettings() {
                 {morning}
               </div>
             </div>
-            <Button onClick={() => setShowTimePicker("morning")}>Set</Button>
+            <Button onClick={() => setShowTimePicker("morning")} aria-label="Set morning sync time">
+              Set Morning Time
+            </Button>
           </div>
           <div className="flex items-center justify-between bg-gray-100 py-2 px-4 rounded-md">
             <div className="flex items-center space-x-4">
@@ -410,7 +364,9 @@ export function OperationSettings() {
                 {evening}
               </div>
             </div>
-            <Button onClick={() => setShowTimePicker("evening")}>Set</Button>
+            <Button onClick={() => setShowTimePicker("evening")} aria-label="Set evening sync time">
+              Set Evening Time
+            </Button>
           </div>
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
@@ -418,12 +374,12 @@ export function OperationSettings() {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-white px-2 py-2 text-muted-foreground">
-                Or
+                Or run manually
               </span>
             </div>
           </div>
-          
-          <Button className="w-full" onClick={handleSync} disabled={syncing}>
+
+          <Button className="w-full" onClick={handleSync} disabled={syncing} aria-label="Run full sync with students and Biostar photos">
             {syncing ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -431,55 +387,18 @@ export function OperationSettings() {
               </>
             ) : (
               <>
-                <RefreshCw className="h-5 w-5" />
-                Sync Now
+                <RefreshCw className="h-5 w-5 mr-2" />
+                Run Full Sync (Students + Biostar Photos)
               </>
             )}
           </Button>
-          <p className="text-sm text-gray-500">
-            Note: Only one sync can be queued at a time. Please wait it to finish before starting another one.
-            </p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Biostar Sync</CardTitle>
-          <CardDescription>
-            Configure automatic synchronization times.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between bg-gray-100 py-2 px-4 rounded-md">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center w-32 gap-4 text-gray-500">
-                <Sun />
-                {biostarMorning}
-              </div>
-            </div>
-            <Button onClick={() => setShowBiostarTimePicker("morning")}>Set</Button>
-          </div>
-          <div className="flex items-center justify-between bg-gray-100 py-2 px-4 rounded-md">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center w-32 gap-4 text-gray-500">
-                <Moon />
-                {biostarEvening}
-              </div>
-            </div>
-            <Button onClick={() => setShowBiostarTimePicker("evening")}>Set</Button>
-          </div>
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 py-2 text-muted-foreground">
-                Or
-              </span>
-            </div>
-          </div>
-          
-          <Button className="w-full" onClick={handleBiostarSync} disabled={biostarSyncing}>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={handleBiostarSync}
+            disabled={biostarSyncing}
+            aria-label="Run Biostar photos sync only"
+          >
             {biostarSyncing ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -487,14 +406,17 @@ export function OperationSettings() {
               </>
             ) : (
               <>
-                <RefreshCw className="h-5 w-5" />
-                Sync Now
+                <RefreshCw className="h-5 w-5 mr-2" />
+                Run Biostar Photos Only
               </>
             )}
           </Button>
+          <p className="text-xs text-muted-foreground">
+            This will only sync the data from Biostar to the local database.
+          </p>
           <p className="text-sm text-gray-500">
-            Note: Only one sync can be queued at a time. Please wait it to finish before starting another one.
-            </p>
+            Only one sync can run at a time. Please wait for the current sync to finish before starting another.
+          </p>
         </CardContent>
       </Card>
 
@@ -586,16 +508,7 @@ export function OperationSettings() {
             setShowTimePicker(null);
           }}
           onClose={() => setShowTimePicker(null)}
-        />
-      )}
-
-      {showBiostarTimePicker && (
-        <TimePicker
-          defaultValue={showBiostarTimePicker === "morning" ? biostarMorning : biostarEvening}
-          time={showBiostarTimePicker}
-          onSave={handleBiostarScheduleSave}
-          onClose={() => setShowBiostarTimePicker(null)}
-          endpoint="/database-sync/biostar/schedule"
+          endpoint="/database-sync/schedule"
         />
       )}
     </div>

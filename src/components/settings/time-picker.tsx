@@ -58,7 +58,7 @@ export function TimePicker({
       if (res.data) {
         toast({
           title: "Success",
-          description: "The time for syncing has been successfully set.",
+          description: "Sync schedule time saved.",
         });
         onClose();
       }
