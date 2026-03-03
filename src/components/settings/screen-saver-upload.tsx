@@ -286,8 +286,8 @@ export function ScreenSaverUpload() {
               <SelectContent>
                 <SelectItem value="60000">Every 1 minute</SelectItem>
                 <SelectItem value="300000">Every 5 minutes</SelectItem>
-                <SelectItem value="6000000">Every 10 minutes</SelectItem>
-                <SelectItem value="9000000">Every 15 minutes</SelectItem>
+                <SelectItem value="600000">Every 10 minutes</SelectItem>
+                <SelectItem value="900000">Every 15 minutes</SelectItem>
               </SelectContent>
             </Select>
             <Button onClick={handleIntervalChange} className="w-full">
