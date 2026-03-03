@@ -36,7 +36,7 @@ export function AppBar() {
         .map(
           (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
         ) // Capitalize first letter
-        .join(" ") || "App Title" // Default title if pathname is empty
+        .join(" ") || "Dashboard" // Default title if pathname is empty
     );
   };
 
