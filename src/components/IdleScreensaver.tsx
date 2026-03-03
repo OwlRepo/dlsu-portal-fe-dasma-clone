@@ -8,6 +8,7 @@ import Cookies from "js-cookie";
 import { usePathname } from "next/navigation";
 import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
+import { transformScreensaverImageUrl } from "@/lib/screensaver-url";
 
 export function IdleScreensaver() {
   const { toast } = useToast();
@@ -21,15 +22,6 @@ export function IdleScreensaver() {
 
   const handleActivity = () => {
     setShowScreensaver(false);
-  };
-
-  // Transform the URL if running on the server
-  // This is a workaround for the server-side rendering issue
-  const transformImageUrl = (url: string) => {
-    // if (typeof window === "undefined") {
-    return url.replace("localhost", "10.50.140.110"); // Use your actual IP
-    // }
-    // return url;
   };
 
   useEffect(() => {
@@ -64,9 +56,8 @@ export function IdleScreensaver() {
           }
         );
 
-        if (res.status === 200 && res.data.data !== null) {
-          // setScreensaverUrl(res.data.data.url);
-          setScreensaverUrl(transformImageUrl(res.data.data.url));
+        if (res.status === 200 && res.data?.data?.url) {
+          setScreensaverUrl(transformScreensaverImageUrl(res.data.data.url));
         } else {
           setScreensaverUrl("");
         }

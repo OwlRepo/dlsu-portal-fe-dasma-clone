@@ -19,6 +19,7 @@ import {
 import { FolderClosed, SlidersHorizontal, Upload, X } from "lucide-react";
 // import Image from "next/image";
 import axios from "@/lib/axios-interceptor";
+import { transformScreensaverImageUrl } from "@/lib/screensaver-url";
 import Cookies from "js-cookie";
 import { useDropzone } from "react-dropzone";
 import { useToast } from "@/hooks/use-toast";
@@ -44,23 +45,6 @@ export function ScreenSaverUpload() {
   const user = Cookies.get("user");
   const token = user ? JSON.parse(user).token : null;
 
-  const transformImageUrl = (url: string) => {
-    try {
-      const imageUrl = new URL(url);
-      const apiBase = process.env.NEXT_PUBLIC_API_URL;
-      if (!apiBase) return url;
-
-      // Keep backend-provided port/path, but use the same reachable host as the API base URL.
-      const apiUrl = new URL(apiBase);
-      imageUrl.hostname = apiUrl.hostname;
-      imageUrl.protocol = apiUrl.protocol;
-
-      return imageUrl.toString();
-    } catch {
-      return url;
-    }
-  };
-
   const withCacheBust = (url: string, version?: string) => {
     const separator = url.includes("?") ? "&" : "?";
     return `${url}${separator}v=${encodeURIComponent(version ?? Date.now().toString())}`;
@@ -78,7 +62,7 @@ export function ScreenSaverUpload() {
       );
       if (res.status === 200 && res.data?.data?.url) {
         const url = withCacheBust(
-          transformImageUrl(res.data.data.url),
+          transformScreensaverImageUrl(res.data.data.url),
           res.data?.data?.lastModified
             ? new Date(res.data.data.lastModified).getTime().toString()
             : undefined,
@@ -161,7 +145,7 @@ export function ScreenSaverUpload() {
 
         if (res.status === 200 && res.data?.data?.url) {
           // setDefaultScreensaverUrl(res.data.data.url);
-          setDefaultScreensaverUrl(transformImageUrl(res.data.data.url));
+          setDefaultScreensaverUrl(transformScreensaverImageUrl(res.data.data.url));
         }
       } catch (err) {
         console.error("Failed to fetch screensaver:", err);
