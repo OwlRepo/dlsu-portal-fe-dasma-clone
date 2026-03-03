@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 // import CustomTable from "../custom/CustomTable";
 import { headers } from "@/lib/column-headers";
 import { Input } from "../ui/input";
@@ -7,7 +7,6 @@ import { ReportData } from "@/lib/types";
 // import axios from "axios";
 import axios from '@/lib/axios-interceptor';
 import Cookies from "js-cookie";
-import { debounce } from "lodash";
 import ReportsTable from "./ReportsTable";
 import CustomFilter, { FilterItem } from "../custom/CustomFilter";
 import { useToast } from "@/hooks/use-toast";
@@ -35,15 +34,19 @@ const ReportsPageContainer = () => {
   const [exportLoading, setExportLoading] = useState<boolean>(false);
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [selectedData, setSelectedData] = useState<ReportsHeader | null>(null);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>("");
+  const latestRequestIdRef = useRef(0);
 
   const typeOptions = ["1", "2"];
 
-  const fetchReportsList = async (
+  const fetchReportsList = useCallback(async (
     searchTerm: string = "",
     newLimit?: number,
     newPage?: number,
     filters?: FilterItem[]
   ) => {
+    const requestId = ++latestRequestIdRef.current;
+
     try {
       const user = Cookies.get("user");
       const token = user ? JSON.parse(user).token : null;
@@ -55,7 +58,7 @@ const ReportsPageContainer = () => {
 
       // Build query parameters
       const params = new URLSearchParams();
-      if (searchTerm) params.append("search", searchTerm);
+      if (searchTerm) params.append("searchTerm", searchTerm);
       if (currentLimit) params.append("limit", currentLimit.toString());
       if (currentPage) params.append("page", currentPage.toString());
 
@@ -87,6 +90,10 @@ const ReportsPageContainer = () => {
       });
 
       if (res.data) {
+        if (requestId !== latestRequestIdRef.current) {
+          return;
+        }
+
         setReportsList(res.data.items);
         setTotal(res.data.total);
         // Optional success toast
@@ -97,6 +104,10 @@ const ReportsPageContainer = () => {
         });
       }
     } catch (error) {
+      if (requestId !== latestRequestIdRef.current) {
+        return;
+      }
+
       // Handle errors here
       if (axios.isAxiosError(error)) {
         const errorMessage =
@@ -122,7 +133,7 @@ const ReportsPageContainer = () => {
         console.error(error);
       }
     }
-  };
+  }, [activeFilters, limit, page, toast]);
 
   const handleFiltersChange = (newFilters: FilterItem[]) => {
     // Only consider filters that have valid values
@@ -142,8 +153,6 @@ const ReportsPageContainer = () => {
     setActiveFilters(validFilters);
     // Reset to page 1 when filters change
     setPage(1);
-    // Apply the filters
-    fetchReportsList(search, limit, 1, validFilters);
   };
 
   const handleExport = async (settings: {
@@ -203,35 +212,23 @@ const ReportsPageContainer = () => {
     }
   };
 
-  // Create memoized debounced search function
-  const debouncedSearch = useMemo(
-    () =>
-      debounce((searchTerm: string) => {
-        setPage(1); // Reset to first page on new search
-        fetchReportsList(searchTerm);
-      }, 500),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
-
   // Add handlers for pagination
-  const handlePageChange = async (newPage: number) => {
-    await fetchReportsList(search, limit, newPage); // Call API first
-    setPage(newPage); // Update page state after successful API call
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
   };
 
-  const handleLimitChange = async (newLimit: number) => {
-    await fetchReportsList(search, newLimit, 1); // Call API first with page 1
+  const handleLimitChange = (newLimit: number) => {
     setLimit(newLimit);
     setPage(1);
   };
 
-  // Cleanup debounce on unmount
   useEffect(() => {
-    return () => {
-      debouncedSearch.cancel();
-    };
-  }, [debouncedSearch]);
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(search);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const formatDateTime = (dateStr: string | Date | undefined) => {
     if (!dateStr) return "N/A";
@@ -251,22 +248,24 @@ const ReportsPageContainer = () => {
     STATUS: row.status ? row.status : "N/A",
     ID: row.user_id ? row.user_id : "N/A",
     NAME: row.name ? row.name : "N/A",
-    ACTIVITY: row.type ? (row.type === "1" ? "IN" : "OUT") : "N/A",
+    ACTIVITY: row.activity
+      ? row.activity
+      : row.type
+      ? (row.type === "1" ? "IN" : "OUT")
+      : "N/A",
     DATETIME: formatDateTime(row.datetime),
     REMARKS: row.remarks ? row.remarks : "N/A",
   }));
 
   useEffect(() => {
-    fetchReportsList(search);
-
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search]);
+    fetchReportsList(debouncedSearchTerm, limit, page, activeFilters);
+  }, [activeFilters, debouncedSearchTerm, fetchReportsList, limit, page]);
 
   // Handle search
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearch(value);
-    debouncedSearch(value);
+    setPage(1);
   };
 
   // const refetchReportsList = () => {

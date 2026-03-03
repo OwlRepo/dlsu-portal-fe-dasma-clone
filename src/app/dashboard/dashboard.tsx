@@ -11,14 +11,14 @@ import {
   CustomField,
   DeviceProps,
   EventProps,
-  // ReportData,
+  ReportData,
   ScanProps,
   UserProps,
 } from "@/lib/types";
 import debounce from "lodash/debounce";
-// import { checkExpiry } from "@/lib/checkExpiry";
-// import useUserToken from "@/hooks/useUserToken";
+import useUserToken from "@/hooks/useUserToken";
 import { useReportsSocket } from "@/hooks/useReportSocket";
+import { mapScanToReportData } from "@/lib/report-mapper";
 import {
   Dialog,
   DialogContent,
@@ -30,13 +30,41 @@ import {
 import { Button } from "@/components/ui/button";
 
 export function Dashboard() {
-  // const { token } = useUserToken();
+  const { token } = useUserToken();
   const { stats } = useReportsSocket();
   const [tableQueue, setTableQueue] = useState<ScanProps[]>([]);
-  const [processedEvents, setProcessedEvents] = useState(new Set());
+  const processedEventsRef = useRef<Set<string>>(new Set());
+  const postedReportsRef = useRef<Set<string>>(new Set());
   // const [devicesData, setDevicesData] = useState<{ [key: string]: ScanProps }>(
   //   {}
   // );
+  const buildEventKey = useCallback(
+    (userId: string, deviceId: string, datetime: string, eventTypeName?: string) =>
+      `${userId}-${deviceId}-${datetime}-${eventTypeName ?? "UNKNOWN"}`,
+    []
+  );
+
+  const sendReport = useCallback(
+    async (reportData: ReportData) => {
+      if (!token) {
+        return;
+      }
+
+      try {
+        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/reports`, reportData, {
+          headers: {
+            accept: "*/*",
+            "Content-Type": "application/json",
+            Authorization: `${token}`,
+          },
+        });
+      } catch (error) {
+        console.error("Error sending report:", error);
+      }
+    },
+    [token]
+  );
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const BIOSTAR2_WS_URI = `${process.env.NEXT_PUBLIC_WS_HOST}/wsapi`;
@@ -160,22 +188,30 @@ export function Dashboard() {
             if (eventData.Event) {
               const { user_id, device_id, datetime, tna_key, event_type_id } = eventData.Event;
 
-              // Check if we've already processed this event
-              const eventKey = `${user_id}-${device_id}-${datetime}`;
-              if (!processedEvents.has(eventKey)) {
-                setProcessedEvents((prev) => new Set(prev).add(eventKey));
-
-                if (user_id && device_id && datetime) {
-                  debouncedFetchUserData(
-                    response.data.bsSessionId,
-                    user_id,
-                    device_id,
-                    tna_key,
-                    datetime,
-                    event_type_id
-                  );
-                }
+              if (!user_id || !device_id || !datetime) {
+                return;
               }
+
+              // Ref-backed guard prevents stale closure dedupe bugs.
+              const eventKey = buildEventKey(
+                user_id,
+                device_id,
+                datetime,
+                event_type_id?.name
+              );
+              if (processedEventsRef.current.has(eventKey)) {
+                return;
+              }
+              processedEventsRef.current.add(eventKey);
+
+              debouncedFetchUserData(
+                response.data.bsSessionId,
+                user_id,
+                device_id,
+                tna_key,
+                datetime,
+                event_type_id
+              );
             }
           };
 
@@ -336,6 +372,19 @@ export function Dashboard() {
 
       // Update stats queue without limit
       // setDeviceQueue((prevQueue) => [...prevQueue, newDeviceData]);
+
+      const reportEventKey = buildEventKey(
+        newDeviceData.user.user_id,
+        newDeviceData.device.id,
+        newDeviceData.datetime,
+        newDeviceData.eventTypeId
+      );
+
+      // Guard report inserts against websocket replay/reconnect duplicates.
+      if (!postedReportsRef.current.has(reportEventKey)) {
+        postedReportsRef.current.add(reportEventKey);
+        await sendReport(mapScanToReportData(newDeviceData));
+      }
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
@@ -410,7 +459,8 @@ export function Dashboard() {
       // Check if the date has changed (midnight has passed)
       if (currentDateString !== lastCheckedDateRef.current) {
         setTableQueue([]);
-        setProcessedEvents(new Set());
+        processedEventsRef.current.clear();
+        postedReportsRef.current.clear();
         lastCheckedDateRef.current = currentDateString;
       }
     };
@@ -436,48 +486,6 @@ export function Dashboard() {
   //     onPremise: onPremise >= 0 ? onPremise : 0, // Ensure it doesn't go negative
   //   });
   // }, [deviceQueue]);
-
-  // useEffect(() => {
-  //   const sendReport = async (reportData: ReportData) => {
-  //     try {
-  //       const response = await axios.post(
-  //         `${process.env.NEXT_PUBLIC_API_URL}/reports`,
-  //         reportData,
-  //         {
-  //           headers: {
-  //             accept: "*/*",
-  //             "Content-Type": "application/json",
-  //             Authorization: `${token}`,
-  //           },
-  //         }
-  //       );
-  //       console.log("Report sent successfully:", response.data);
-  //     } catch (error) {
-  //       console.error("Error sending report:", error);
-  //     }
-  //   };
-
-  //   // Get the latest scan from devicesData
-  //   const latestScan = Object.values(devicesData)[0];
-
-  //   console.log("latestScan", latestScan);
-
-  //   if (latestScan) {
-  //     const reportData: ReportData = {
-  //       datetime: latestScan.datetime,
-  //       // type: latestScan.tnaKey === '1' ? "IN" : "OUT",
-  //       type: latestScan.tnaKey!,
-  //       user_id: latestScan.user.user_id,
-  //       name: latestScan.user.name,
-  //       remarks: latestScan.remarks || "No remarks",
-  //       status: getEntryStatus(latestScan),
-  //       activity: latestScan.tnaKey === "1" ? "IN" : "OUT",
-  //     };
-
-  //     sendReport(reportData);
-  //   }
-  //   // include getEntryStatus if failing
-  // }, [devicesData, token]);
 
   return (
     <div className="p-6">
