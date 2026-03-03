@@ -1,10 +1,16 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, Settings, BarChart2, Info } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useAuth } from '@/lib/auth-context';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  LayoutDashboard,
+  Users,
+  Settings,
+  BarChart2,
+  Info,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth-context";
 import {
   Sidebar,
   SidebarContent,
@@ -14,37 +20,37 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   // SidebarTrigger,
-} from '@/components/ui/sidebar';
-import Image from 'next/image';
-import Cookies from 'js-cookie';
-import { useEffect, useState } from 'react';
+} from "@/components/ui/sidebar";
+import Image from "next/image";
+import Cookies from "js-cookie";
+import { useEffect, useState } from "react";
 
 const menuItems = [
   {
-    title: 'Dashboard',
+    title: "Dashboard",
     icon: LayoutDashboard,
-    href: '/dashboard',
+    href: "/dashboard",
   },
   {
-    title: 'Reports',
+    title: "Reports",
     icon: BarChart2,
-    href: '/reports',
+    href: "/reports",
   },
   {
-    title: 'User Management',
+    title: "User Management",
     icon: Users,
-    href: '/user-management',
+    href: "/user-management",
   },
   {
-    title: 'Settings',
+    title: "Settings",
     icon: Settings,
-    href: '/settings',
+    href: "/settings",
   },
   {
-    title: 'About',
+    title: "About",
     icon: Info,
-    href: '/about',
-  }
+    href: "/about",
+  },
 ];
 
 export function AppSidebar() {
@@ -52,8 +58,8 @@ export function AppSidebar() {
   const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(true);
 
-  const user = Cookies.get('user');
-  const role = Cookies.get('role');
+  const user = Cookies.get("user");
+  const role = Cookies.get("role");
   const token = user ? JSON.parse(user).token : null;
 
   useEffect(() => {
@@ -62,19 +68,19 @@ export function AppSidebar() {
       setIsLoading(false);
     }
   }, [isLoggedIn, role, token]);
-  
+
   // Show nothing while loading
   if (isLoading) {
     return null;
   }
 
   // Check permissions after loading
-  if (!isLoggedIn || role === 'employee' || !token) {
+  if (!isLoggedIn || role === "employee" || !token) {
     return null;
   }
 
-  const filteredMenuItems = menuItems.filter(item => {
-    if (role === 'admin' && item.title === 'User Management') {
+  const filteredMenuItems = menuItems.filter((item) => {
+    if (role === "admin" && item.title === "User Management") {
       return false;
     }
     return true;
@@ -83,7 +89,7 @@ export function AppSidebar() {
   return (
     <Sidebar className="border-r">
       <SidebarHeader className="p-4 mb-4">
-        <div className="flex items-center justify-center gap-2 mb-2">
+        <div className="flex items-center justify-center gap-2 mb-2 h-32">
           <Image
             src="/dlsu-logo-horizontal.png"
             alt="DLSU"
@@ -98,17 +104,17 @@ export function AppSidebar() {
           {filteredMenuItems.map((item) => {
             const isActive =
               pathname === item.href ||
-              (item.href === '/settings' && pathname.startsWith('/settings/'));
+              (item.href === "/settings" && pathname.startsWith("/settings/"));
 
             return (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton
                   asChild
                   className={cn(
-                    'h-10 justify-start px-4 w-52 mx-auto',
+                    "h-10 justify-start px-4 w-52 mx-auto",
                     isActive
-                      ? 'text-[#00bc65] bg-[#ddf3ea] font-bold  hover:text-green-600 hover:bg-[#ddf3ea]'
-                      : 'text-gray-400 hover:bg-gray-100',
+                      ? "text-[#00bc65] bg-[#ddf3ea] font-bold  hover:text-green-600 hover:bg-[#ddf3ea]"
+                      : "text-gray-400 hover:bg-gray-100",
                   )}
                 >
                   <Link href={item.href} className="flex items-center gap-3">

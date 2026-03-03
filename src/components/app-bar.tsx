@@ -34,7 +34,7 @@ export function AppBar() {
         .replace(/^\/|\/$/g, "") // Remove leading and trailing slashes
         .split("-") // Split by hyphens
         .map(
-          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
         ) // Capitalize first letter
         .join(" ") || "App Title" // Default title if pathname is empty
     );
