@@ -1,5 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
+set PM2=npx --yes pm2
 
 REM ============================================
 REM Stop DLSU Portal Application
@@ -9,18 +10,18 @@ echo.
 echo Stopping DLSU Portal FE Dasma application...
 echo.
 
-pm2 stop dlsu-portal-fe-dasma
+%PM2% stop dlsu-portal-fe-dasma
 
-if %errorLevel% equ 0 (
+if !errorLevel! equ 0 (
     echo.
     echo [SUCCESS] Application stopped successfully.
     echo.
-    pm2 list
+    %PM2% list
 ) else (
     echo.
     echo [ERROR] Failed to stop application.
     echo [INFO] The application may not be running.
-    pm2 list
+    %PM2% list
 )
 
 echo.

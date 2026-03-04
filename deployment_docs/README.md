@@ -44,6 +44,7 @@ For detailed instructions, troubleshooting, and maintenance, see **[DEPLOYMENT_G
 - Windows Server 2016 or later
 - Node.js v18+ (required)
 - Bun or npm (Bun preferred; falls back to npm if Bun not installed)
+- PM2 via npx (no global install required)
 - Administrator privileges
 - Internet connection (for initial setup)
 - Port 3000 available (or configure custom port)
