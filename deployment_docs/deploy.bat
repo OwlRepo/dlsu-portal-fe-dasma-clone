@@ -28,15 +28,15 @@ if %errorLevel% neq 0 (
 for /f "tokens=*" %%i in ('node --version 2^>nul') do set NODE_VERSION=%%i
 echo [OK] Node.js: !NODE_VERSION!
 
+set USE_BUN=0
 where bun >nul 2>&1
-if %errorLevel% neq 0 (
-    echo [ERROR] Bun is not installed.
-    echo Install Bun from: https://bun.sh/
-    pause
-    exit /b 1
+if %errorLevel% equ 0 (
+    set USE_BUN=1
+    for /f "tokens=*" %%i in ('bun --version 2^>nul') do set BUN_VERSION=%%i
+    echo [OK] Bun: !BUN_VERSION!
+) else (
+    echo [OK] Bun not found - will use npm
 )
-for /f "tokens=*" %%i in ('bun --version 2^>nul') do set BUN_VERSION=%%i
-echo [OK] Bun: !BUN_VERSION!
 
 where pm2 >nul 2>&1
 if %errorLevel% neq 0 (
@@ -64,13 +64,24 @@ if not exist "%PROJECT_ROOT%\logs" mkdir "%PROJECT_ROOT%\logs"
 echo [OK] Project files verified
 echo.
 
-echo [2/8] Installing dependencies with Bun...
-call bun install --ignore-scripts
-if %errorLevel% neq 0 (
-    echo [WARNING] bun install had issues, retrying...
+echo [2/8] Installing dependencies...
+if !USE_BUN! equ 1 (
+    echo [INFO] Using Bun...
     call bun install --ignore-scripts
-    if %errorLevel% neq 0 (
-        echo [ERROR] bun install failed.
+    if !errorLevel! neq 0 (
+        echo [WARNING] bun install had issues, retrying...
+        call bun install --ignore-scripts
+        if !errorLevel! neq 0 (
+            echo [ERROR] bun install failed.
+            pause
+            exit /b 1
+        )
+    )
+) else (
+    echo [INFO] Using npm...
+    call npm install --loglevel=error
+    if !errorLevel! neq 0 (
+        echo [ERROR] npm install failed.
         pause
         exit /b 1
     )
@@ -78,14 +89,18 @@ if %errorLevel% neq 0 (
 echo [OK] Dependencies installed
 echo.
 
-echo [3/8] Building Next.js app with Bun...
+echo [3/8] Building Next.js app...
 if "!SKIP_LINT_BUILD!"=="1" (
     echo.
     echo [WARNING] SKIP_LINT_BUILD=1 - ESLint and TypeScript checks disabled for this build
     echo [WARNING] Use only for emergency deployment. Fix lint errors before next release.
     echo.
 )
-call bun run build
+if !USE_BUN! equ 1 (
+    call bun run build
+) else (
+    call npm run build
+)
 if !errorLevel! neq 0 (
     echo [ERROR] Build failed.
     pause
