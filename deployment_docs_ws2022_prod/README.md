@@ -24,6 +24,8 @@ The existing PM2 flow in `deployment_docs/` remains for test/staging and is not 
 1. Run `deploy-service.bat`
 2. Validate with `status-service.bat`
 
+Note: `deploy-service.bat` includes automatic repair for missing `lucide-react` type declarations on Windows Server (it retries build once after repair).
+
 ## Update Deploy
 
 1. Run `update-service.bat`

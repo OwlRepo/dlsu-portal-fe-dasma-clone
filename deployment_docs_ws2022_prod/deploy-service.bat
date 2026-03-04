@@ -8,6 +8,7 @@ cd /d "%~dp0\.."
 set "PROJECT_ROOT=%cd%"
 set "APP_URL=http://localhost:3000"
 set "MAX_ATTEMPTS=30"
+set "LUCIDE_VERSION=0.468.0"
 
 echo.
 echo ========================================
@@ -39,6 +40,16 @@ if !errorLevel! neq 0 (
     exit /b 1
 )
 
+if not exist "%PROJECT_ROOT%\node_modules\lucide-react\dist\lucide-react.d.ts" (
+    echo [WARNING] lucide-react type declarations missing. Repairing package...
+    call npm install lucide-react@%LUCIDE_VERSION% --save-exact --no-fund --no-audit
+    if !errorLevel! neq 0 (
+        echo [WARNING] Targeted lucide-react repair failed. Continuing to build...
+    ) else (
+        echo [OK] lucide-react package repaired
+    )
+)
+
 echo [3/4] Building application...
 if "!SKIP_LINT_BUILD!"=="1" (
     echo [WARNING] SKIP_LINT_BUILD=1 enabled.
@@ -49,9 +60,30 @@ if !USE_BUN! equ 1 (
     call npm run build
 )
 if !errorLevel! neq 0 (
-    echo [ERROR] Build failed.
-    pause
-    exit /b 1
+    if not exist "%PROJECT_ROOT%\node_modules\lucide-react\dist\lucide-react.d.ts" (
+        echo [WARNING] Build failed with missing lucide-react typings.
+        echo [INFO] Running clean reinstall and retrying once...
+        if exist "%PROJECT_ROOT%\node_modules" rmdir /s /q "%PROJECT_ROOT%\node_modules"
+        call npm ci --include=dev --no-fund --no-audit
+        if !errorLevel! neq 0 (
+            echo [WARNING] npm ci failed, trying npm install...
+            call npm install --no-fund --no-audit
+        )
+        if !USE_BUN! equ 1 (
+            call bun run build
+        ) else (
+            call npm run build
+        )
+        if !errorLevel! neq 0 (
+            echo [ERROR] Build failed after auto-repair.
+            pause
+            exit /b 1
+        )
+    ) else (
+        echo [ERROR] Build failed.
+        pause
+        exit /b 1
+    )
 )
 
 echo [4/4] Installing and starting Windows Service...
