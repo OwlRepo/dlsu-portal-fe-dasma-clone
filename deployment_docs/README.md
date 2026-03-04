@@ -20,6 +20,10 @@ Quick reference guide for deploying the DLSU Portal application on Windows Serve
    - Run `status.bat` to check application status
    - Access application at `http://localhost:3000`
 
+## Build Options
+
+- **Skip lint during build** (emergency only): Run `deploy.bat skip-lint` or set `SKIP_LINT_BUILD=1` before running. Disables ESLint and TypeScript checks during build. Fix lint errors before the next release.
+
 ## Available Scripts
 
 | Script | Purpose |

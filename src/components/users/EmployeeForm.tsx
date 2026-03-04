@@ -106,7 +106,7 @@ export default function EmployeeForm({ onClose }: formProps) {
           }
         );
         setSessionId(response.data.bsSessionId);
-      } catch (error) {
+      } catch {
         console.error(
           "Session ID is missing. Cannot establish WebSocket connection."
         );
@@ -134,8 +134,8 @@ export default function EmployeeForm({ onClose }: formProps) {
             setDevices(response.data.data.DeviceCollection.rows);
             setLoading(false);
           }
-        } catch (error) {
-          console.error("Error fetching event data:", error);
+        } catch (err) {
+          console.error("Error fetching event data:", err);
           setLoading(false);
         }
       };

@@ -167,7 +167,9 @@ const ReportsPageContainer = () => {
 
       // Build URL with query parameters
       const params = new URLSearchParams();
-      {settings.includePhoto && params.append("includePhoto", settings.includePhoto.toString());}
+      if (settings.includePhoto) {
+        params.append("includePhoto", settings.includePhoto.toString());
+      }
       params.append("startDate", settings.dateFrom);
       params.append("endDate", settings.dateTo);
 

@@ -2,6 +2,8 @@
 setlocal enabledelayedexpansion
 title DLSU Portal FE Dasma - PM2 Deploy
 
+if "%~1"=="skip-lint" set SKIP_LINT_BUILD=1
+
 set APP_NAME=dlsu-portal-fe-dasma
 set APP_PORT=3000
 set APP_URL=http://localhost:%APP_PORT%
@@ -77,8 +79,14 @@ echo [OK] Dependencies installed
 echo.
 
 echo [3/8] Building Next.js app with Bun...
+if "!SKIP_LINT_BUILD!"=="1" (
+    echo.
+    echo [WARNING] SKIP_LINT_BUILD=1 - ESLint and TypeScript checks disabled for this build
+    echo [WARNING] Use only for emergency deployment. Fix lint errors before next release.
+    echo.
+)
 call bun run build
-if %errorLevel% neq 0 (
+if !errorLevel! neq 0 (
     echo [ERROR] Build failed.
     pause
     exit /b 1
@@ -87,14 +95,32 @@ echo [OK] Build successful
 echo.
 
 echo [4/8] Stopping existing PM2 process (if running)...
-pm2 describe %APP_NAME% >nul 2>&1
-if %errorLevel% equ 0 (
-    pm2 stop %APP_NAME% >nul 2>&1
-    timeout /t 1 /nobreak >nul
-    pm2 delete %APP_NAME% >nul 2>&1
-    echo [OK] Previous instance removed
+set PM2_STEP_OK=0
+pm2 ping >nul 2>&1
+if !errorLevel! neq 0 (
+    echo [INFO] PM2 daemon not running - no process to stop
+    set PM2_STEP_OK=1
 ) else (
-    echo [OK] No previous PM2 instance found
+    pm2 describe %APP_NAME% >nul 2>&1
+    if %errorLevel% equ 0 (
+        echo   Stopping %APP_NAME%...
+        pm2 stop %APP_NAME% 2>&1
+        timeout /t 2 /nobreak >nul
+        echo   Removing %APP_NAME% from PM2...
+        pm2 delete %APP_NAME% 2>&1
+        if !errorLevel! equ 0 (
+            echo [OK] Previous instance removed
+        ) else (
+            echo [OK] Process removed or already gone - continuing
+        )
+        set PM2_STEP_OK=1
+    ) else (
+        echo [OK] No previous PM2 instance found
+        set PM2_STEP_OK=1
+    )
+)
+if !PM2_STEP_OK! neq 1 (
+    echo [WARNING] PM2 step had issues - attempting to continue
 )
 echo.
 

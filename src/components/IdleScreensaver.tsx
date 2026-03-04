@@ -105,7 +105,7 @@ export function IdleScreensaver() {
         />
       )} */}
       {screensaverUrl && (
-        // Use a regular img tag to bypass Next.js Image restrictions
+        /* eslint-disable-next-line @next/next/no-img-element -- Dynamic API URL bypasses Next.js Image loader */
         <img
           src={screensaverUrl}
           alt="Screensaver"

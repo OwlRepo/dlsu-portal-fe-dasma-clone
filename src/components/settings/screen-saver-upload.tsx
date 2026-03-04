@@ -102,7 +102,8 @@ export function ScreenSaverUpload() {
         description: "Screensaver image uploaded successfully",
         duration: 3000,
       });
-    } catch (error) {
+    } catch (error: unknown) {
+      // eslint-disable-next-line no-console
       console.error(error);
       const message =
         axios.isAxiosError(error) && error.response?.data?.message
@@ -125,9 +126,9 @@ export function ScreenSaverUpload() {
   };
 
   useEffect(() => {
-    const interval = localStorage.getItem("screensaverInterval");
-    if (interval) {
-      setInterval(interval);
+    const storedInterval = localStorage.getItem("screensaverInterval");
+    if (storedInterval) {
+      setInterval(storedInterval);
     }
   }, []);
 
@@ -144,10 +145,12 @@ export function ScreenSaverUpload() {
         );
 
         if (res.status === 200 && res.data?.data?.url) {
-          // setDefaultScreensaverUrl(res.data.data.url);
-          setDefaultScreensaverUrl(transformScreensaverImageUrl(res.data.data.url));
+          setDefaultScreensaverUrl(
+            transformScreensaverImageUrl(res.data.data.url),
+          );
         }
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error("Failed to fetch screensaver:", err);
         setDefaultScreensaverUrl(null);
       }
@@ -203,6 +206,7 @@ export function ScreenSaverUpload() {
                 //   height={400}
                 //   className="h-auto object-cover rounded-lg"
                 // />
+                // eslint-disable-next-line @next/next/no-img-element -- Dynamic upload preview
                 <img
                   src={image || defaultScreensaverUrl || "/placeholder.svg"}
                   alt="Screensaver"
@@ -216,12 +220,6 @@ export function ScreenSaverUpload() {
                   </p>
                 </>
               )}
-              {/* <>
-                  <Upload className="mb-5 h-[4.5rem] w-8 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">
-                    Drag or Drop to upload image
-                  </p>
-                </> */}
             </div>
             <div className="relative">
               <input
@@ -288,6 +286,7 @@ export function ScreenSaverUpload() {
                 height={300}
                 className="h-auto object-cover rounded-lg mx-auto"
               /> */}
+              {/* eslint-disable-next-line @next/next/no-img-element -- Dynamic upload preview */}
               <img
                 src={image || "/placeholder.svg"}
                 alt="Screen saver preview"

@@ -149,8 +149,8 @@ const EditDetailsDialog: React.FC<EditDetailsDialogProps> = ({
               selectedDevices.map((device: Device) => device.id)
             );
           }
-        } catch (error) {
-          console.error("Error fetching employee data:", error);
+        } catch (err) {
+          console.error("Error fetching employee data:", err);
         }
       };
 
@@ -178,7 +178,7 @@ const EditDetailsDialog: React.FC<EditDetailsDialogProps> = ({
           }
         );
         setSessionId(response.data.bsSessionId);
-      } catch (error) {
+      } catch {
         console.error(
           "Session ID is missing. Cannot establish WebSocket connection."
         );
@@ -206,8 +206,8 @@ const EditDetailsDialog: React.FC<EditDetailsDialogProps> = ({
             setDevices(response.data.data.DeviceCollection.rows);
             setLoading(false);
           }
-        } catch (error) {
-          console.error("Error fetching event data:", error);
+        } catch (err) {
+          console.error("Error fetching event data:", err);
           setLoading(false);
         }
       };
