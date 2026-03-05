@@ -54,4 +54,6 @@ If you encounter issues:
 1. Check `DEPLOYMENT_GUIDE.md` → Troubleshooting section
 2. Review application logs: `logs.bat`
 3. Check PM2 status: `status.bat`
+4. Each deploy writes a timestamped log to `logs\deploy-YYYYMMDD-HHMMSS.log`; on failure the script prints its path and suggests: `pm2 status`, `pm2 logs dlsu-portal-fe-dasma --lines 100`
+5. Scripts work from both Command Prompt and PowerShell (`cmd /c deploy.bat`). On Windows Server 2022, run as Administrator.
 

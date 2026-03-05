@@ -14,6 +14,7 @@ set ECOSYSTEM=deployment_docs/ecosystem.config.js
 
 cd /d "%~dp0\.."
 set PROJECT_ROOT=%cd%
+if not exist "%PROJECT_ROOT%\logs" mkdir "%PROJECT_ROOT%\logs"
 
 echo.
 echo ========================================
@@ -21,9 +22,12 @@ echo   DLSU Portal FE Dasma - PM2 Deploy
 echo ========================================
 echo.
 
+set DEPLOY_LOG=%PROJECT_ROOT%\logs\deploy-%date:~-4,4%%date:~-10,2%%date:~-7,2%-%time:~0,2%%time:~3,2%%time:~6,2%.log
+set DEPLOY_LOG=%DEPLOY_LOG: =0%
+echo Deploy started %date% %time% >> "%DEPLOY_LOG%"
 echo [1/8] Checking prerequisites...
 where node >nul 2>&1
-if %errorLevel% neq 0 (
+if !errorLevel! neq 0 (
     echo [ERROR] Node.js is not installed.
     pause
     exit /b 1
@@ -33,7 +37,7 @@ echo [OK] Node.js: !NODE_VERSION!
 
 set USE_BUN=0
 where bun >nul 2>&1
-if %errorLevel% equ 0 (
+if !errorLevel! equ 0 (
     set USE_BUN=1
     for /f "tokens=*" %%i in ('bun --version 2^>nul') do set BUN_VERSION=%%i
     echo [OK] Bun: !BUN_VERSION!
@@ -164,8 +168,9 @@ if !errorLevel! neq 0 (
     echo [INFO] PM2 daemon not running - no process to stop
     set PM2_STEP_OK=1
 ) else (
+    echo [INFO] PM2 daemon responding
     pm2 describe %APP_NAME% >nul 2>&1
-    if %errorLevel% equ 0 (
+    if !errorLevel! equ 0 (
         echo   Stopping %APP_NAME%...
         pm2 stop %APP_NAME% 2>&1
         timeout /t 2 /nobreak >nul
@@ -185,23 +190,40 @@ if !errorLevel! neq 0 (
 if !PM2_STEP_OK! neq 1 (
     echo [WARNING] PM2 step had issues - attempting to continue
 )
+echo Step 4 done PM2_STEP_OK=!PM2_STEP_OK! >> "%DEPLOY_LOG%"
 echo.
 
 echo [5/8] Starting app with PM2...
 pm2 start "%ECOSYSTEM%" --env production
-if %errorLevel% neq 0 (
+if !errorLevel! neq 0 (
+    echo [WARNING] First start attempt failed. Retrying after short delay...
+    timeout /t 2 /nobreak >nul
+    pm2 ping >nul 2>&1
+    pm2 start "%ECOSYSTEM%" --env production
+)
+if !errorLevel! neq 0 (
     echo [ERROR] Failed to start PM2 app.
-    echo Check logs with: pm2 logs %APP_NAME%
+    echo.
+    echo Troubleshooting - run these commands:
+    echo   pm2 status
+    echo   pm2 logs %APP_NAME% --lines 100
+    echo Full deploy log: %DEPLOY_LOG%
     pause
     exit /b 1
 )
+pm2 describe %APP_NAME% >nul 2>&1
+if !errorLevel! neq 0 (
+    echo [WARNING] App not yet in PM2 list - waiting 3s and rechecking...
+    timeout /t 3 /nobreak >nul
+)
 pm2 save >nul 2>&1
 echo [OK] PM2 app started
+echo Step 5 start OK >> "%DEPLOY_LOG%"
 echo.
 
 echo [6/8] Configuring PM2 auto-start on Windows boot...
 net session >nul 2>&1
-set IS_ADMIN=%errorLevel%
+set IS_ADMIN=!errorLevel!
 if !IS_ADMIN! equ 0 (
     for /f "tokens=*" %%i in ('pm2 startup 2^>^&1') do (
         echo %%i | findstr /i "pm2" >nul
@@ -232,7 +254,7 @@ set READY=0
 set /a ATTEMPT+=1
 echo   Attempt !ATTEMPT!/!MAX_ATTEMPTS! - Checking %APP_URL%...
 powershell -NoProfile -Command "try { $r = Invoke-WebRequest -Uri '%APP_URL%' -UseBasicParsing -TimeoutSec 5; if ($r.StatusCode -ge 200 -and $r.StatusCode -lt 500) { exit 0 } else { exit 1 } } catch { exit 1 }" >nul 2>&1
-if %errorLevel% equ 0 (
+if !errorLevel! equ 0 (
     set READY=1
     goto :readiness_done
 )
@@ -244,7 +266,11 @@ if !ATTEMPT! lss !MAX_ATTEMPTS! (
 :readiness_done
 if !READY! neq 1 (
     echo [ERROR] App did not become ready at %APP_URL%
-    echo Check logs with: pm2 logs %APP_NAME%
+    echo.
+    echo Troubleshooting - run these commands:
+    echo   pm2 status
+    echo   pm2 logs %APP_NAME% --lines 100
+    echo Full deploy log: %DEPLOY_LOG%
     pause
     exit /b 1
 )
@@ -252,9 +278,12 @@ echo [OK] App is reachable
 echo.
 
 echo [8/8] Deployment complete.
+echo Deploy succeeded %date% %time% >> "%DEPLOY_LOG%"
 echo ========================================
 echo   Deployment Successful
 echo ========================================
+echo Deploy log: %DEPLOY_LOG%
+echo.
 pm2 status
 echo.
 echo Opening app in browser: %APP_URL%
