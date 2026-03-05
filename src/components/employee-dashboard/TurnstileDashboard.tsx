@@ -88,8 +88,8 @@ export default function TurnstileDashboard() {
   //       "/api/login",
   //       {
   //         User: {
-  //           login_id: "admin",
-  //           password: "ELIDtech1234",
+  //           login_id: process.env.NEXT_PUBLIC_BIOSTAR_LOGIN_ID,
+  //           password: process.env.NEXT_PUBLIC_BIOSTAR_PASSWORD,
   //         },
   //       },
   //       {
@@ -154,8 +154,8 @@ export default function TurnstileDashboard() {
           "/api/login",
           {
             User: {
-              login_id: "admin",
-              password: "ELIDtech1234",
+              login_id: process.env.NEXT_PUBLIC_BIOSTAR_LOGIN_ID,
+              password: process.env.NEXT_PUBLIC_BIOSTAR_PASSWORD,
             },
           },
           {

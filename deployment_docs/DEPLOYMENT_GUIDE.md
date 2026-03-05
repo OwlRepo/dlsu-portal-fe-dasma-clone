@@ -63,10 +63,12 @@ Create a `.env` file in the project root directory with the following variables:
 NODE_ENV=production
 PORT=3000
 NEXT_PUBLIC_BIOSTAR_API=<your-biostar-api-url>
+NEXT_PUBLIC_BIOSTAR_LOGIN_ID=<biostar-login-id>
+NEXT_PUBLIC_BIOSTAR_PASSWORD=<biostar-password>
 NEXT_PUBLIC_API_URL=<your-api-url>
 ```
 
-**Important**: Replace the placeholder values with your actual API URLs.
+**Important**: Replace the placeholder values with your actual API URLs and Biostar credentials.
 
 ### 2. Firewall Configuration
 
