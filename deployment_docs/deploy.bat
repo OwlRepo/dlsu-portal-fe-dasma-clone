@@ -2,7 +2,10 @@
 setlocal enabledelayedexpansion
 title DLSU Portal FE Dasma - PM2 Deploy
 
-if "%~1"=="skip-lint" set SKIP_LINT_BUILD=1
+if /I "%~1"=="skip-lint" set SKIP_LINT_BUILD=1
+if /I "%~2"=="skip-lint" set SKIP_LINT_BUILD=1
+if /I "%~1"=="force-npm" set FORCE_NPM=1
+if /I "%~2"=="force-npm" set FORCE_NPM=1
 
 set APP_NAME=dlsu-portal-fe-dasma
 set APP_PORT=3000
@@ -36,6 +39,10 @@ if %errorLevel% equ 0 (
     echo [OK] Bun: !BUN_VERSION!
 ) else (
     echo [OK] Bun not found - will use npm
+)
+if defined FORCE_NPM (
+    set USE_BUN=0
+    echo [INFO] force-npm enabled. Using npm for install/build.
 )
 
 ::: Add npm global bin to PATH so pm2 is found after install
@@ -86,8 +93,13 @@ if !USE_BUN! equ 1 (
     if !errorLevel! neq 0 (
         echo [WARNING] bun install had issues, retrying...
         call bun install --ignore-scripts
+    )
+    if !errorLevel! neq 0 (
+        echo [WARNING] Bun install failed twice. Falling back to npm install...
+        set USE_BUN=0
+        call npm install --loglevel=error --no-fund --no-audit
         if !errorLevel! neq 0 (
-            echo [ERROR] bun install failed.
+            echo [ERROR] npm install failed after Bun fallback.
             pause
             exit /b 1
         )
@@ -104,6 +116,22 @@ if !USE_BUN! equ 1 (
 echo [OK] Dependencies installed
 echo.
 
+if exist "%PROJECT_ROOT%\patches\*" (
+    echo [INFO] Applying patch-package patches...
+    if !USE_BUN! equ 1 (
+        call bunx patch-package
+        if !errorLevel! neq 0 (
+            echo [WARNING] bunx patch-package failed, trying npx...
+            call npx patch-package
+        )
+    ) else (
+        call npx patch-package
+    )
+    if !errorLevel! neq 0 (
+        echo [WARNING] patch-package failed. Continuing without patches.
+    )
+)
+
 echo [3/8] Building Next.js app...
 if "!SKIP_LINT_BUILD!"=="1" (
     echo.
@@ -113,6 +141,11 @@ if "!SKIP_LINT_BUILD!"=="1" (
 )
 if !USE_BUN! equ 1 (
     call bun run build
+    if !errorLevel! neq 0 (
+        echo [WARNING] Bun build failed. Falling back to npm build...
+        set USE_BUN=0
+        call npm run build
+    )
 ) else (
     call npm run build
 )
