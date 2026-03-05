@@ -8,7 +8,6 @@ set APP_NAME=dlsu-portal-fe-dasma
 set APP_PORT=3000
 set APP_URL=http://localhost:%APP_PORT%
 set ECOSYSTEM=deployment_docs/ecosystem.config.js
-set LUCIDE_VERSION=0.468.0
 
 cd /d "%~dp0\.."
 set PROJECT_ROOT=%cd%
@@ -39,8 +38,32 @@ if %errorLevel% equ 0 (
     echo [OK] Bun not found - will use npm
 )
 
-set PM2=npx --yes pm2
-echo [OK] Using npx pm2 (no global install required)
+::: Add npm global bin to PATH so pm2 is found after install
+for /f "delims=" %%i in ('npm config get prefix 2^>nul') do set "NPM_PREFIX=%%i"
+if defined NPM_PREFIX set "PATH=!NPM_PREFIX!;!NPM_PREFIX!\node_modules;!PATH!"
+
+where pm2 >nul 2>&1
+if !errorLevel! neq 0 (
+    echo [INFO] PM2 not found. Installing globally...
+    call npm install -g pm2 --loglevel=error --no-fund --no-audit
+    where pm2 >nul 2>&1
+    if !errorLevel! neq 0 (
+        if exist "!NPM_PREFIX!\pm2.cmd" (
+            set "PATH=!NPM_PREFIX!;!PATH!"
+            echo [OK] PM2 found at npm prefix
+        ) else if exist "!NPM_PREFIX!\node_modules\pm2\bin\pm2" (
+            set "PATH=!NPM_PREFIX!\node_modules\pm2\bin;!PATH!"
+            echo [OK] PM2 found in node_modules
+        ) else (
+            echo [ERROR] PM2 not available. Try: Open NEW Administrator CMD, run: npm install -g pm2
+            pause
+            exit /b 1
+        )
+    ) else (
+        echo [OK] PM2 installed
+    )
+)
+echo [OK] PM2 ready
 
 if not exist "%PROJECT_ROOT%\package.json" (
     echo [ERROR] package.json not found at %PROJECT_ROOT%
@@ -81,16 +104,6 @@ if !USE_BUN! equ 1 (
 echo [OK] Dependencies installed
 echo.
 
-if not exist "%PROJECT_ROOT%\node_modules\lucide-react\dist\lucide-react.d.ts" (
-    echo [WARNING] lucide-react type declarations missing. Repairing package...
-    call npm install lucide-react@%LUCIDE_VERSION% --save-exact --no-fund --no-audit
-    if !errorLevel! neq 0 (
-        echo [WARNING] Targeted lucide-react repair failed. Continuing to build...
-    ) else (
-        echo [OK] lucide-react package repaired
-    )
-)
-
 echo [3/8] Building Next.js app...
 if "!SKIP_LINT_BUILD!"=="1" (
     echo.
@@ -104,48 +117,27 @@ if !USE_BUN! equ 1 (
     call npm run build
 )
 if !errorLevel! neq 0 (
-    if not exist "%PROJECT_ROOT%\node_modules\lucide-react\dist\lucide-react.d.ts" (
-        echo [WARNING] Build failed with missing lucide-react typings.
-        echo [INFO] Running clean reinstall and retrying once...
-        if exist "%PROJECT_ROOT%\node_modules" rmdir /s /q "%PROJECT_ROOT%\node_modules"
-        call npm ci --include=dev --no-fund --no-audit
-        if !errorLevel! neq 0 (
-            echo [WARNING] npm ci failed, trying npm install...
-            call npm install --no-fund --no-audit
-        )
-        if !USE_BUN! equ 1 (
-            call bun run build
-        ) else (
-            call npm run build
-        )
-        if !errorLevel! neq 0 (
-            echo [ERROR] Build failed after auto-repair.
-            pause
-            exit /b 1
-        )
-    ) else (
-        echo [ERROR] Build failed.
-        pause
-        exit /b 1
-    )
+    echo [ERROR] Build failed.
+    pause
+    exit /b 1
 )
 echo [OK] Build successful
 echo.
 
 echo [4/8] Stopping existing PM2 process (if running)...
 set PM2_STEP_OK=0
-%PM2% ping >nul 2>&1
+pm2 ping >nul 2>&1
 if !errorLevel! neq 0 (
     echo [INFO] PM2 daemon not running - no process to stop
     set PM2_STEP_OK=1
 ) else (
-    %PM2% describe %APP_NAME% >nul 2>&1
-    if !errorLevel! equ 0 (
+    pm2 describe %APP_NAME% >nul 2>&1
+    if %errorLevel% equ 0 (
         echo   Stopping %APP_NAME%...
-        %PM2% stop %APP_NAME% 2>&1
+        pm2 stop %APP_NAME% 2>&1
         timeout /t 2 /nobreak >nul
         echo   Removing %APP_NAME% from PM2...
-        %PM2% delete %APP_NAME% 2>&1
+        pm2 delete %APP_NAME% 2>&1
         if !errorLevel! equ 0 (
             echo [OK] Previous instance removed
         ) else (
@@ -163,14 +155,14 @@ if !PM2_STEP_OK! neq 1 (
 echo.
 
 echo [5/8] Starting app with PM2...
-%PM2% start "%ECOSYSTEM%" --env production
-if !errorLevel! neq 0 (
+pm2 start "%ECOSYSTEM%" --env production
+if %errorLevel% neq 0 (
     echo [ERROR] Failed to start PM2 app.
-    echo Check logs with: %PM2% logs %APP_NAME%
+    echo Check logs with: pm2 logs %APP_NAME%
     pause
     exit /b 1
 )
-%PM2% save >nul 2>&1
+pm2 save >nul 2>&1
 echo [OK] PM2 app started
 echo.
 
@@ -178,18 +170,18 @@ echo [6/8] Configuring PM2 auto-start on Windows boot...
 net session >nul 2>&1
 set IS_ADMIN=%errorLevel%
 if !IS_ADMIN! equ 0 (
-    for /f "tokens=*" %%i in ('%PM2% startup 2^>^&1') do (
+    for /f "tokens=*" %%i in ('pm2 startup 2^>^&1') do (
         echo %%i | findstr /i "pm2" >nul
         if !errorLevel! equ 0 (
             call %%i >nul 2>&1
         )
     )
-    %PM2% save >nul 2>&1
+    pm2 save >nul 2>&1
     echo [OK] Startup configuration attempted as Administrator
 ) else (
     echo [INFO] Run as Administrator once, then execute:
-    echo        %PM2% startup
-    echo        %PM2% save
+    echo        pm2 startup
+    echo        pm2 save
 )
 if exist "%USERPROFILE%\.pm2\dump.pm2" (
     echo [OK] PM2 dump file present
@@ -219,7 +211,7 @@ if !ATTEMPT! lss !MAX_ATTEMPTS! (
 :readiness_done
 if !READY! neq 1 (
     echo [ERROR] App did not become ready at %APP_URL%
-    echo Check logs with: %PM2% logs %APP_NAME%
+    echo Check logs with: pm2 logs %APP_NAME%
     pause
     exit /b 1
 )
@@ -230,15 +222,15 @@ echo [8/8] Deployment complete.
 echo ========================================
 echo   Deployment Successful
 echo ========================================
-%PM2% status
+pm2 status
 echo.
 echo Opening app in browser: %APP_URL%
 start "" "%APP_URL%"
 echo.
 echo Useful commands:
-echo   %PM2% logs %APP_NAME%
-echo   %PM2% restart %APP_NAME%
-echo   %PM2% stop %APP_NAME%
+echo   pm2 logs %APP_NAME%
+echo   pm2 restart %APP_NAME%
+echo   pm2 stop %APP_NAME%
 echo.
 pause
 exit /b 0
